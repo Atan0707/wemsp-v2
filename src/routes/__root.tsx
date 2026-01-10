@@ -19,6 +19,11 @@ interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+  notFoundComponent: () => (
+    <div className="flex items-center justify-center min-h-screen">
+      <p className="text-xl">Page Not Found</p>
+    </div>
+  ),
   head: () => ({
     meta: [
       {
@@ -50,7 +55,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <Header />
+        {/* <Header /> */}
         {children}
         <TanStackDevtools
           config={{
