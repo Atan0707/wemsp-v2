@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { GalleryVerticalEnd } from 'lucide-react';
+import { LoginForm } from '@/components/login-form';
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();
 
   const scrollToSection = (elementId: string) => {
     setIsMenuOpen(false); // Close mobile menu if open
     const element = document.getElementById(elementId);
     if (element) {
-      element.scrollIntoView({ 
+      element.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
       });
@@ -74,12 +79,24 @@ const Navbar = () => {
           >
             Contact Us
           </button>
-          <button
-            onClick={() => navigate({ to: '/login' })}
-            className="bg-white text-black px-4 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium"
-          >
-            Login
-          </button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <button className="bg-white text-black px-4 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium">
+                Login
+              </button>
+            </DialogTrigger>
+            <DialogContent className="p-0 gap-0 max-w-[400px]">
+              <div className="flex items-center gap-2 self-center font-medium p-6 pb-0">
+                <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+                  <GalleryVerticalEnd className="size-4" />
+                </div>
+                WEMSP
+              </div>
+              <div className="p-6 pt-4">
+                <LoginForm className="gap-4" />
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Mobile menu */}
@@ -109,12 +126,24 @@ const Navbar = () => {
             >
               Contact Us
             </button>
-            <button
-              onClick={() => navigate({ to: '/login' })} 
-              className="bg-white text-black px-4 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium text-center"
-            >
-              Login
-            </button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className="bg-white text-black px-4 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium text-center">
+                  Login
+                </button>
+              </DialogTrigger>
+              <DialogContent className="p-0 gap-0 max-w-[400px]">
+                <div className="flex items-center gap-2 self-center font-medium p-6 pb-0">
+                  <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+                    <GalleryVerticalEnd className="size-4" />
+                  </div>
+                  WEMSP
+                </div>
+                <div className="p-6 pt-4">
+                  <LoginForm className="gap-4" />
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </div>
