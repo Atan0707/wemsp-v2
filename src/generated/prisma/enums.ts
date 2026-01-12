@@ -9,7 +9,24 @@
 * 🟢 You can import this file directly.
 */
 
+export const FamilyRelation = {
+  FATHER: 'FATHER',
+  MOTHER: 'MOTHER',
+  SON: 'SON',
+  DAUGHTER: 'DAUGHTER',
+  BROTHER: 'BROTHER',
+  SISTER: 'SISTER',
+  SPOUSE: 'SPOUSE',
+  GRANDFATHER: 'GRANDFATHER',
+  GRANDMOTHER: 'GRANDMOTHER',
+  GRANDSON: 'GRANDSON',
+  GRANDDAUGHTER: 'GRANDDAUGHTER',
+  UNCLE: 'UNCLE',
+  AUNT: 'AUNT',
+  NEPHEW: 'NEPHEW',
+  NIECE: 'NIECE',
+  COUSIN: 'COUSIN',
+  OTHER: 'OTHER'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type FamilyRelation = (typeof FamilyRelation)[keyof typeof FamilyRelation]

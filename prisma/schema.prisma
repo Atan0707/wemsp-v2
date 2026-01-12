@@ -48,6 +48,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  assets        Asset[]
   
   // Family relationships where this user is the owner
   familyMembers            FamilyMember[] @relation("UserFamilyMembers")
@@ -63,7 +64,8 @@ model User {
 
 // Junction table to link users as family members
 model FamilyMember {
-  id            String         @id @default(cuid())
+  // Change it to id String @id @default(cuid()) for production
+  id            Int         @id @default(autoincrement()) 
   relation      FamilyRelation // The relation type (e.g., FATHER, MOTHER, SIBLING)
   
   // The user who created/owns this family link
@@ -87,7 +89,8 @@ model FamilyMember {
 // For family members who are not yet registered in the system
 // Can be deleted once a user with the same IC registers and confirms identity
 model NonRegisteredFamilyMember {
-  id            String         @id @default(cuid())
+  // Change it to id String @id @default(cuid()) for prod
+  id            Int         @id @default(autoincrement())
   relation      FamilyRelation // The relation type
   
   // Family member details (not yet a registered user)
@@ -108,6 +111,22 @@ model NonRegisteredFamilyMember {
   @@index([userId])
   @@index([icNumber]) // Index for lookup when a new user registers
   @@map("non_registered_family_member")
+}
+
+model Asset {
+  // Change it to id String @id @default(cuid()) for prod
+  id            Int         @id @default(autoincrement())
+  name          String
+  description   String?
+  value         Float
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // The user who owns this asset
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("asset")
+
 }
 
 model Session {

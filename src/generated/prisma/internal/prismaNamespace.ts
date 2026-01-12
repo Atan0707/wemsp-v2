@@ -386,6 +386,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Todo: 'Todo',
   User: 'User',
+  FamilyMember: 'FamilyMember',
+  NonRegisteredFamilyMember: 'NonRegisteredFamilyMember',
+  Asset: 'Asset',
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification'
@@ -404,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "todo" | "user" | "session" | "account" | "verification"
+    modelProps: "todo" | "user" | "familyMember" | "nonRegisteredFamilyMember" | "asset" | "session" | "account" | "verification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +556,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    FamilyMember: {
+      payload: Prisma.$FamilyMemberPayload<ExtArgs>
+      fields: Prisma.FamilyMemberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FamilyMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FamilyMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload>
+        }
+        findFirst: {
+          args: Prisma.FamilyMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FamilyMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload>
+        }
+        findMany: {
+          args: Prisma.FamilyMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload>[]
+        }
+        create: {
+          args: Prisma.FamilyMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload>
+        }
+        createMany: {
+          args: Prisma.FamilyMemberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FamilyMemberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload>[]
+        }
+        delete: {
+          args: Prisma.FamilyMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload>
+        }
+        update: {
+          args: Prisma.FamilyMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload>
+        }
+        deleteMany: {
+          args: Prisma.FamilyMemberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FamilyMemberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FamilyMemberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload>[]
+        }
+        upsert: {
+          args: Prisma.FamilyMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyMemberPayload>
+        }
+        aggregate: {
+          args: Prisma.FamilyMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFamilyMember>
+        }
+        groupBy: {
+          args: Prisma.FamilyMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FamilyMemberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FamilyMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FamilyMemberCountAggregateOutputType> | number
+        }
+      }
+    }
+    NonRegisteredFamilyMember: {
+      payload: Prisma.$NonRegisteredFamilyMemberPayload<ExtArgs>
+      fields: Prisma.NonRegisteredFamilyMemberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NonRegisteredFamilyMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NonRegisteredFamilyMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload>
+        }
+        findFirst: {
+          args: Prisma.NonRegisteredFamilyMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NonRegisteredFamilyMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload>
+        }
+        findMany: {
+          args: Prisma.NonRegisteredFamilyMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload>[]
+        }
+        create: {
+          args: Prisma.NonRegisteredFamilyMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload>
+        }
+        createMany: {
+          args: Prisma.NonRegisteredFamilyMemberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NonRegisteredFamilyMemberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload>[]
+        }
+        delete: {
+          args: Prisma.NonRegisteredFamilyMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload>
+        }
+        update: {
+          args: Prisma.NonRegisteredFamilyMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload>
+        }
+        deleteMany: {
+          args: Prisma.NonRegisteredFamilyMemberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NonRegisteredFamilyMemberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NonRegisteredFamilyMemberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload>[]
+        }
+        upsert: {
+          args: Prisma.NonRegisteredFamilyMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NonRegisteredFamilyMemberPayload>
+        }
+        aggregate: {
+          args: Prisma.NonRegisteredFamilyMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNonRegisteredFamilyMember>
+        }
+        groupBy: {
+          args: Prisma.NonRegisteredFamilyMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NonRegisteredFamilyMemberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NonRegisteredFamilyMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NonRegisteredFamilyMemberCountAggregateOutputType> | number
+        }
+      }
+    }
+    Asset: {
+      payload: Prisma.$AssetPayload<ExtArgs>
+      fields: Prisma.AssetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
+        }
+        findFirst: {
+          args: Prisma.AssetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
+        }
+        findMany: {
+          args: Prisma.AssetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>[]
+        }
+        create: {
+          args: Prisma.AssetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
+        }
+        createMany: {
+          args: Prisma.AssetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AssetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>[]
+        }
+        delete: {
+          args: Prisma.AssetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
+        }
+        update: {
+          args: Prisma.AssetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
+        }
+        deleteMany: {
+          args: Prisma.AssetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AssetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>[]
+        }
+        upsert: {
+          args: Prisma.AssetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
+        }
+        aggregate: {
+          args: Prisma.AssetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAsset>
+        }
+        groupBy: {
+          args: Prisma.AssetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssetCountAggregateOutputType> | number
         }
       }
     }
@@ -829,6 +1054,9 @@ export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof Todo
 export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  icNumber: 'icNumber',
+  address: 'address',
+  phoneNumber: 'phoneNumber',
   email: 'email',
   emailVerified: 'emailVerified',
   image: 'image',
@@ -837,6 +1065,46 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const FamilyMemberScalarFieldEnum = {
+  id: 'id',
+  relation: 'relation',
+  userId: 'userId',
+  familyMemberUserId: 'familyMemberUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FamilyMemberScalarFieldEnum = (typeof FamilyMemberScalarFieldEnum)[keyof typeof FamilyMemberScalarFieldEnum]
+
+
+export const NonRegisteredFamilyMemberScalarFieldEnum = {
+  id: 'id',
+  relation: 'relation',
+  name: 'name',
+  icNumber: 'icNumber',
+  address: 'address',
+  phoneNumber: 'phoneNumber',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NonRegisteredFamilyMemberScalarFieldEnum = (typeof NonRegisteredFamilyMemberScalarFieldEnum)[keyof typeof NonRegisteredFamilyMemberScalarFieldEnum]
+
+
+export const AssetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  value: 'value',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type AssetScalarFieldEnum = (typeof AssetScalarFieldEnum)[keyof typeof AssetScalarFieldEnum]
 
 
 export const SessionScalarFieldEnum = {
@@ -964,6 +1232,20 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'FamilyRelation'
+ */
+export type EnumFamilyRelationFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FamilyRelation'>
+    
+
+
+/**
+ * Reference to a field of type 'FamilyRelation[]'
+ */
+export type ListEnumFamilyRelationFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FamilyRelation[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1073,6 +1355,9 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   todo?: Prisma.TodoOmit
   user?: Prisma.UserOmit
+  familyMember?: Prisma.FamilyMemberOmit
+  nonRegisteredFamilyMember?: Prisma.NonRegisteredFamilyMemberOmit
+  asset?: Prisma.AssetOmit
   session?: Prisma.SessionOmit
   account?: Prisma.AccountOmit
   verification?: Prisma.VerificationOmit

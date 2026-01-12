@@ -50,6 +50,21 @@ export type Todo = Prisma.TodoModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model FamilyMember
+ * 
+ */
+export type FamilyMember = Prisma.FamilyMemberModel
+/**
+ * Model NonRegisteredFamilyMember
+ * 
+ */
+export type NonRegisteredFamilyMember = Prisma.NonRegisteredFamilyMemberModel
+/**
+ * Model Asset
+ * 
+ */
+export type Asset = Prisma.AssetModel
+/**
  * Model Session
  * 
  */

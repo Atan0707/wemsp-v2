@@ -53,6 +53,9 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Todo: 'Todo',
   User: 'User',
+  FamilyMember: 'FamilyMember',
+  NonRegisteredFamilyMember: 'NonRegisteredFamilyMember',
+  Asset: 'Asset',
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification'
@@ -86,6 +89,9 @@ export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof Todo
 export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  icNumber: 'icNumber',
+  address: 'address',
+  phoneNumber: 'phoneNumber',
   email: 'email',
   emailVerified: 'emailVerified',
   image: 'image',
@@ -94,6 +100,46 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const FamilyMemberScalarFieldEnum = {
+  id: 'id',
+  relation: 'relation',
+  userId: 'userId',
+  familyMemberUserId: 'familyMemberUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FamilyMemberScalarFieldEnum = (typeof FamilyMemberScalarFieldEnum)[keyof typeof FamilyMemberScalarFieldEnum]
+
+
+export const NonRegisteredFamilyMemberScalarFieldEnum = {
+  id: 'id',
+  relation: 'relation',
+  name: 'name',
+  icNumber: 'icNumber',
+  address: 'address',
+  phoneNumber: 'phoneNumber',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NonRegisteredFamilyMemberScalarFieldEnum = (typeof NonRegisteredFamilyMemberScalarFieldEnum)[keyof typeof NonRegisteredFamilyMemberScalarFieldEnum]
+
+
+export const AssetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  value: 'value',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type AssetScalarFieldEnum = (typeof AssetScalarFieldEnum)[keyof typeof AssetScalarFieldEnum]
 
 
 export const SessionScalarFieldEnum = {
