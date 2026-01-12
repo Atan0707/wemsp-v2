@@ -119,7 +119,7 @@ function RouteComponent() {
 
     // Validate IC format
     if (value.length === 12 && !validateMalaysianIC(value)) {
-      setIcError('Invalid Malaysian IC format. Must be 12 digits.')
+      setIcError('Invalid IC format.')
     } else {
       setIcError('')
     }
@@ -216,31 +216,33 @@ function RouteComponent() {
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <Input
-                  value={icNumber}
-                  onChange={handleIcChange}
-                  onKeyDown={handleIcKeyDown}
-                  placeholder="Enter IC number"
-                  className={icError ? 'border-destructive' : ''}
-                  maxLength={12}
-                />
+                <div className="relative flex items-center">
+                  <Input
+                    value={icNumber}
+                    onChange={handleIcChange}
+                    onKeyDown={handleIcKeyDown}
+                    placeholder="Enter IC number"
+                    className={icError ? 'border-destructive pr-24' : 'pr-24'}
+                    maxLength={12}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleSearch}
+                    disabled={searchMutation.isPending || icNumber.length !== 12 || !!icError}
+                    className="absolute right-1.5"
+                  >
+                    {searchMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Search className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
                 {icError && (
                   <p className="text-xs text-destructive">{icError}</p>
                 )}
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleSearch}
-                  disabled={searchMutation.isPending || icNumber.length !== 12 || !!icError}
-                  className="w-full"
-                >
-                  {searchMutation.isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="mr-2 h-4 w-4" />
-                  )}
-                  Search IC Number
-                </Button>
               </div>
             </div>
 
