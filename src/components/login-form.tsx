@@ -17,13 +17,22 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { createAuthClient } from "better-auth/client"
+import { authClient } from "@/lib/auth-client"
 import { VerificationDialog } from "./verification-dialog"
 
-// better auth init
-const authClient = createAuthClient();
-
 type AuthMode = "signin" | "signup"
+
+// Helper function to wait for session with retries
+const waitForSession = async (maxRetries = 5, delayMs = 500): Promise<boolean> => {
+  for (let i = 0; i < maxRetries; i++) {
+    const { data: session } = await authClient.getSession()
+    if (session) {
+      return true
+    }
+    await new Promise(resolve => setTimeout(resolve, delayMs))
+  }
+  return false
+}
 
 export function LoginForm({
   className,
@@ -38,6 +47,7 @@ export function LoginForm({
   const [verificationEmail, setVerificationEmail] = useState("")
 
   const signInWithGoogle = async () => {
+    toast.loading("Redirecting to Google...")
     await authClient.signIn.social({
       provider: "google",
       callbackURL: "/app/dashboard",
@@ -52,13 +62,23 @@ export function LoginForm({
       const data = await authClient.signIn.email({
         email,
         password,
-        callbackURL: "/app/dashboard",
       })
 
       if (data.error) {
         toast.error(data.error.message || "Login failed. Please try again.")
-      } else if (data.data) {
-        toast.success("Login successful! Redirecting...")
+      } else {
+        toast.success("Login successful! Redirecting to dashboard...")
+        
+        // Wait for session to be ready with retries
+        const sessionReady = await waitForSession()
+        
+        if (sessionReady) {
+          window.location.href = "/app/dashboard"
+        } else {
+          // Force redirect anyway after showing success
+          toast.info("Redirecting...")
+          window.location.href = "/app/dashboard"
+        }
       }
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again.")

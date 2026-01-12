@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { GalleryVerticalEnd } from 'lucide-react';
 import { LoginForm } from '@/components/login-form';
 import {
@@ -6,9 +6,12 @@ import {
   DialogContent,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { authClient } from '@/lib/auth-client';
+import { Link } from '@tanstack/react-router';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session } = authClient.useSession();
 
   const scrollToSection = (elementId: string) => {
     setIsMenuOpen(false); // Close mobile menu if open
@@ -79,24 +82,33 @@ const Navbar = () => {
           >
             Contact Us
           </button>
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className="bg-white text-black px-4 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium">
-                Login
-              </button>
-            </DialogTrigger>
-            <DialogContent className="p-0 gap-0 max-w-[400px]">
-              <div className="flex items-center gap-2 self-center font-medium p-6 pb-0">
-                <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                  <GalleryVerticalEnd className="size-4" />
+          {session ? (
+            <Link
+              to="/app/dashboard"
+              className="bg-white text-black px-4 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className="bg-white text-black px-4 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium">
+                  Login
+                </button>
+              </DialogTrigger>
+              <DialogContent className="p-0 gap-0 max-w-[400px]">
+                <div className="flex items-center gap-2 self-center font-medium p-6 pb-0">
+                  <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+                    <GalleryVerticalEnd className="size-4" />
+                  </div>
+                  WEMSP
                 </div>
-                WEMSP
-              </div>
-              <div className="p-6 pt-4">
-                <LoginForm className="gap-4" />
-              </div>
-            </DialogContent>
-          </Dialog>
+                <div className="p-6 pt-4">
+                  <LoginForm className="gap-4" />
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         {/* Mobile menu */}
@@ -126,24 +138,33 @@ const Navbar = () => {
             >
               Contact Us
             </button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="bg-white text-black px-4 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium text-center">
-                  Login
-                </button>
-              </DialogTrigger>
-              <DialogContent className="p-0 gap-0 max-w-[400px]">
-                <div className="flex items-center gap-2 self-center font-medium p-6 pb-0">
-                  <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                    <GalleryVerticalEnd className="size-4" />
+            {session ? (
+              <Link
+                to="/app/dashboard"
+                className="bg-white text-black px-4 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium text-center block"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="bg-white text-black px-4 py-1 rounded-full hover:bg-gray-200 transition-colors font-medium text-center w-full">
+                    Login
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="p-0 gap-0 max-w-[400px]">
+                  <div className="flex items-center gap-2 self-center font-medium p-6 pb-0">
+                    <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+                      <GalleryVerticalEnd className="size-4" />
+                    </div>
+                    WEMSP
                   </div>
-                  WEMSP
-                </div>
-                <div className="p-6 pt-4">
-                  <LoginForm className="gap-4" />
-                </div>
-              </DialogContent>
-            </Dialog>
+                  <div className="p-6 pt-4">
+                    <LoginForm className="gap-4" />
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         )}
       </div>
