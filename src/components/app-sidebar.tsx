@@ -12,6 +12,7 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -46,6 +47,11 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
+      <SidebarHeader className="p-4">
+        <Link to="/app/dashboard" className="flex items-center gap-2">
+          <img src="/assets/logo2.png" alt="WEMSP" className="h-10 w-auto" />
+        </Link>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
