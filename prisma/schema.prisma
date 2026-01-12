@@ -14,6 +14,27 @@ model Todo {
   createdAt DateTime @default(now())
 }
 
+// Enum for family relationship types
+enum FamilyRelation {
+  FATHER
+  MOTHER
+  SON
+  DAUGHTER
+  BROTHER
+  SISTER
+  SPOUSE
+  GRANDFATHER
+  GRANDMOTHER
+  GRANDSON
+  GRANDDAUGHTER
+  UNCLE
+  AUNT
+  NEPHEW
+  NIECE
+  COUSIN
+  OTHER
+}
+
 model User {
   id            String    @id
   name          String
@@ -24,9 +45,37 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
-
+  
+  // Family relationships where this user is the owner
+  familyMembers         FamilyMember[] @relation("UserFamilyMembers")
+  // Family relationships where this user is the related member
+  relatedFamilyMembers  FamilyMember[] @relation("RelatedFamilyMembers")
+  
   @@unique([email])
   @@map("user")
+}
+
+// Junction table to link users as family members
+model FamilyMember {
+  id            String         @id @default(cuid())
+  relation      FamilyRelation // The relation type (e.g., FATHER, MOTHER, SIBLING)
+  
+  // The user who created/owns this family link
+  userId        String
+  user          User           @relation("UserFamilyMembers", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // The related family member (another user in the system)
+  familyMemberUserId String
+  familyMemberUser   User           @relation("RelatedFamilyMembers", fields: [familyMemberUserId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Prevent duplicate relationships between same users
+  @@unique([userId, familyMemberUserId])
+  @@index([userId])
+  @@index([familyMemberUserId])
+  @@map("family_member")
 }
 
 model Session {
