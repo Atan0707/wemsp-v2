@@ -142,6 +142,13 @@ function RouteComponent() {
     searchMutation.mutate(icNumber)
   }
 
+  const handleIcKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSearch()
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -212,6 +219,7 @@ function RouteComponent() {
                 <Input
                   value={icNumber}
                   onChange={handleIcChange}
+                  onKeyDown={handleIcKeyDown}
                   placeholder="Enter IC number"
                   className={icError ? 'border-destructive' : ''}
                   maxLength={12}
