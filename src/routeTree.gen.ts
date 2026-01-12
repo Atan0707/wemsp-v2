@@ -13,6 +13,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
+import { Route as AppFamilyRouteImport } from './routes/app/family'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
@@ -43,6 +44,11 @@ const DemoPrismaRoute = DemoPrismaRouteImport.update({
   id: '/demo/prisma',
   path: '/demo/prisma',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppFamilyRoute = AppFamilyRouteImport.update({
+  id: '/family',
+  path: '/family',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/family': typeof AppFamilyRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/family': typeof AppFamilyRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/family': typeof AppFamilyRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/app/dashboard'
+    | '/app/family'
     | '/demo/prisma'
     | '/demo/tanstack-query'
     | '/api/auth/$'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/app/dashboard'
+    | '/app/family'
     | '/demo/prisma'
     | '/demo/tanstack-query'
     | '/api/auth/$'
@@ -182,6 +193,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/app/dashboard'
+    | '/app/family'
     | '/demo/prisma'
     | '/demo/tanstack-query'
     | '/api/auth/$'
@@ -240,6 +252,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/demo/prisma'
       preLoaderRoute: typeof DemoPrismaRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/family': {
+      id: '/app/family'
+      path: '/family'
+      fullPath: '/app/family'
+      preLoaderRoute: typeof AppFamilyRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/dashboard': {
       id: '/app/dashboard'
@@ -316,10 +335,12 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppFamilyRoute: typeof AppFamilyRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppFamilyRoute: AppFamilyRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
