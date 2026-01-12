@@ -38,6 +38,9 @@ enum FamilyRelation {
 model User {
   id            String    @id
   name          String
+  icNumber      String
+  address       String
+  phoneNumber   String
   email         String
   emailVerified Boolean   @default(false)
   image         String?
@@ -47,11 +50,14 @@ model User {
   accounts      Account[]
   
   // Family relationships where this user is the owner
-  familyMembers         FamilyMember[] @relation("UserFamilyMembers")
+  familyMembers            FamilyMember[] @relation("UserFamilyMembers")
   // Family relationships where this user is the related member
-  relatedFamilyMembers  FamilyMember[] @relation("RelatedFamilyMembers")
+  relatedFamilyMembers     FamilyMember[] @relation("RelatedFamilyMembers")
+  // Non-registered family members added by this user
+  nonRegisteredFamilyMembers NonRegisteredFamilyMember[]
   
   @@unique([email])
+  @@unique([icNumber])
   @@map("user")
 }
 
@@ -76,6 +82,32 @@ model FamilyMember {
   @@index([userId])
   @@index([familyMemberUserId])
   @@map("family_member")
+}
+
+// For family members who are not yet registered in the system
+// Can be deleted once a user with the same IC registers and confirms identity
+model NonRegisteredFamilyMember {
+  id            String         @id @default(cuid())
+  relation      FamilyRelation // The relation type
+  
+  // Family member details (not yet a registered user)
+  name          String
+  icNumber      String
+  address       String?
+  phoneNumber   String?
+  
+  // The user who added this non-registered family member
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Prevent duplicate non-registered family members with same IC for same user
+  @@unique([userId, icNumber])
+  @@index([userId])
+  @@index([icNumber]) // Index for lookup when a new user registers
+  @@map("non_registered_family_member")
 }
 
 model Session {
