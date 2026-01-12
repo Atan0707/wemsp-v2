@@ -38,9 +38,9 @@ enum FamilyRelation {
 model User {
   id            String    @id
   name          String
-  icNumber      String
-  address       String
-  phoneNumber   String
+  icNumber      String?
+  address       String?
+  phoneNumber   String?
   email         String
   emailVerified Boolean   @default(false)
   image         String?

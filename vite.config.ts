@@ -18,6 +18,16 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  // Exclude server-only dependencies from client bundle
+  optimizeDeps: {
+    exclude: ['@prisma/client', '@prisma/adapter-pg'],
+  },
+  resolve: {
+    alias: {
+      // Prevent Node.js built-ins from being bundled
+      'node:': 'null',
+    },
+  },
 })
 
 export default config

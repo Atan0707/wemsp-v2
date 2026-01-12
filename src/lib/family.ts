@@ -270,3 +270,87 @@ export async function getPendingFamilyConnections(icNumber: string) {
     },
   })
 }
+
+/**
+ * Get all non-registered family members for a user.
+ *
+ * @param userId - The user to get non-registered family members for
+ * @returns Array of non-registered family members
+ */
+export async function getNonRegisteredFamilyMembers(userId: string) {
+  return prisma.nonRegisteredFamilyMember.findMany({
+    where: { userId },
+  })
+}
+
+/**
+ * Update a bidirectional family relationship.
+ * Updates both the original relation and its inverse.
+ *
+ * @param userId - One user in the relationship
+ * @param familyMemberUserId - The other user in the relationship
+ * @param newRelation - The new relation from userId's perspective
+ */
+export async function updateBidirectionalFamilyRelation(
+  userId: string,
+  familyMemberUserId: string,
+  newRelation: FamilyRelationType
+) {
+  const inverseRelation = getInverseRelation(newRelation)
+
+  await prisma.$transaction([
+    // Update A -> B
+    prisma.familyMember.updateMany({
+      where: {
+        userId,
+        familyMemberUserId,
+      },
+      data: {
+        relation: newRelation,
+      },
+    }),
+    // Update B -> A
+    prisma.familyMember.updateMany({
+      where: {
+        userId: familyMemberUserId,
+        familyMemberUserId: userId,
+      },
+      data: {
+        relation: inverseRelation,
+      },
+    }),
+  ])
+}
+
+/**
+ * Update a non-registered family member.
+ *
+ * @param id - The ID of the non-registered family member
+ * @param data - The fields to update
+ */
+export async function updateNonRegisteredFamilyMember(
+  id: number,
+  data: {
+    relation?: FamilyRelationType
+    name?: string
+    icNumber?: string
+    address?: string | null
+    phoneNumber?: string | null
+  }
+) {
+  return prisma.nonRegisteredFamilyMember.update({
+    where: { id },
+    data,
+  })
+}
+
+/**
+ * Delete a non-registered family member.
+ *
+ * @param id - The ID of the non-registered family member to delete
+ */
+export async function deleteNonRegisteredFamilyMember(id: number) {
+  return prisma.nonRegisteredFamilyMember.delete({
+    where: { id },
+  })
+}
