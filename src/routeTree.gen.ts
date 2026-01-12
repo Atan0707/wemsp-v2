@@ -20,6 +20,7 @@ import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api
 import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as AppFamilyEditRouteImport } from './routes/app/family/edit'
+import { Route as AppFamilyDashboardRouteImport } from './routes/app/family/dashboard'
 import { Route as AppFamilyAddRouteImport } from './routes/app/family/add'
 import { Route as ApiFamilySplatRouteImport } from './routes/api/family/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -83,6 +84,11 @@ const AppFamilyEditRoute = AppFamilyEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => AppFamilyRoute,
 } as any)
+const AppFamilyDashboardRoute = AppFamilyDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppFamilyRoute,
+} as any)
 const AppFamilyAddRoute = AppFamilyAddRouteImport.update({
   id: '/add',
   path: '/add',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/app/family/add': typeof AppFamilyAddRoute
+  '/app/family/dashboard': typeof AppFamilyDashboardRoute
   '/app/family/edit': typeof AppFamilyEditRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/app/family/add': typeof AppFamilyAddRoute
+  '/app/family/dashboard': typeof AppFamilyDashboardRoute
   '/app/family/edit': typeof AppFamilyEditRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/app/family/add': typeof AppFamilyAddRoute
+  '/app/family/dashboard': typeof AppFamilyDashboardRoute
   '/app/family/edit': typeof AppFamilyEditRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/family/$'
     | '/app/family/add'
+    | '/app/family/dashboard'
     | '/app/family/edit'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/family/$'
     | '/app/family/add'
+    | '/app/family/dashboard'
     | '/app/family/edit'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/family/$'
     | '/app/family/add'
+    | '/app/family/dashboard'
     | '/app/family/edit'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
@@ -339,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFamilyEditRouteImport
       parentRoute: typeof AppFamilyRoute
     }
+    '/app/family/dashboard': {
+      id: '/app/family/dashboard'
+      path: '/dashboard'
+      fullPath: '/app/family/dashboard'
+      preLoaderRoute: typeof AppFamilyDashboardRouteImport
+      parentRoute: typeof AppFamilyRoute
+    }
     '/app/family/add': {
       id: '/app/family/add'
       path: '/add'
@@ -393,11 +412,13 @@ declare module '@tanstack/react-router' {
 
 interface AppFamilyRouteChildren {
   AppFamilyAddRoute: typeof AppFamilyAddRoute
+  AppFamilyDashboardRoute: typeof AppFamilyDashboardRoute
   AppFamilyEditRoute: typeof AppFamilyEditRoute
 }
 
 const AppFamilyRouteChildren: AppFamilyRouteChildren = {
   AppFamilyAddRoute: AppFamilyAddRoute,
+  AppFamilyDashboardRoute: AppFamilyDashboardRoute,
   AppFamilyEditRoute: AppFamilyEditRoute,
 }
 

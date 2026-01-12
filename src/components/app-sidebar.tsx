@@ -68,7 +68,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/app/family">
+                  <Link to="/app/family/dashboard">
                     <Users />
                     <span>Family</span>
                   </Link>
