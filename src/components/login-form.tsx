@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { createAuthClient } from "better-auth/client"
+import { VerificationDialog } from "./verification-dialog"
 
 // better auth init
 const authClient = createAuthClient();
@@ -33,6 +34,8 @@ export function LoginForm({
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [showVerificationDialog, setShowVerificationDialog] = useState(false)
+  const [verificationEmail, setVerificationEmail] = useState("")
 
   const signInWithGoogle = async () => {
     await authClient.signIn.social({
@@ -79,7 +82,9 @@ export function LoginForm({
       if (data.error) {
         toast.error(data.error.message || "Sign up failed. Please try again.")
       } else {
-        toast.success("Account created successfully! Redirecting...")
+        toast.success("Account created successfully! Please verify your email.")
+        setVerificationEmail(email)
+        setShowVerificationDialog(true)
       }
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again.")
@@ -217,6 +222,15 @@ export function LoginForm({
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
+
+      <VerificationDialog
+        open={showVerificationDialog}
+        onOpenChange={setShowVerificationDialog}
+        email={verificationEmail}
+        onVerified={() => {
+          window.location.href = "/app/dashboard"
+        }}
+      />
     </div>
   )
 }
