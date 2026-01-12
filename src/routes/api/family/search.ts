@@ -1,0 +1,84 @@
+import { createFileRoute } from '@tanstack/react-router'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/db'
+
+export const Route = createFileRoute('/api/family/search')({
+  server: {
+    handlers: {
+      GET: async ({ request }: { request: Request }) => {
+        const session = await auth.api.getSession({
+          headers: request.headers,
+        })
+
+        if (!session) {
+          return new Response('Unauthorized', { status: 401 })
+        }
+
+        const url = new URL(request.url)
+        const icNumber = url.searchParams.get('icNumber')
+
+        if (!icNumber) {
+          return new Response('IC number is required', { status: 400 })
+        }
+
+        try {
+          // Search for registered user with this IC
+          const registeredUser = await prisma.user.findUnique({
+            where: { icNumber },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          })
+
+          if (registeredUser) {
+            // Check if relationship already exists
+            const existingRelationship = await prisma.familyMember.findFirst({
+              where: {
+                userId: session.user.id,
+                familyMemberUserId: registeredUser.id,
+              },
+            })
+
+            if (existingRelationship) {
+              return Response.json({
+                type: 'exists',
+                data: {
+                  ...registeredUser,
+                  existingRelation: existingRelationship.relation,
+                },
+              })
+            }
+
+            return Response.json({
+              type: 'registered',
+              data: registeredUser,
+            })
+          }
+
+          // Search for non-registered family member with this IC
+          const nonRegisteredMember = await prisma.nonRegisteredFamilyMember.findFirst({
+            where: { icNumber },
+          })
+
+          if (nonRegisteredMember) {
+            return Response.json({
+              type: 'non-registered',
+              data: nonRegisteredMember,
+            })
+          }
+
+          // Not found
+          return Response.json({
+            type: 'not-found',
+          })
+        } catch (error) {
+          console.error('Error searching for IC:', error)
+          return new Response('Internal Server Error', { status: 500 })
+        }
+      },
+    },
+  },
+})

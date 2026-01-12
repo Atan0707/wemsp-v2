@@ -1,4 +1,4 @@
-import { FamilyRelationType } from '@/lib/family'
+import { FamilyRelationType } from '@/lib/family-types'
 
 export type FamilyMemberType = 'registered' | 'non-registered'
 

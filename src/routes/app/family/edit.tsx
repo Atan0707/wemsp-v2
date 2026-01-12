@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { FamilyRelation } from '@/lib/family'
+import { FamilyRelation } from '@/lib/family-types'
 import { FamilyMember, isNonRegisteredFamilyMember } from '@/types/family'
 import { Loader2, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'

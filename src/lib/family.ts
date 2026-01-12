@@ -1,75 +1,13 @@
 import { prisma } from '../db'
+import {
+  FamilyRelation,
+  FamilyRelationType,
+  INVERSE_RELATIONS,
+  getInverseRelation,
+} from './family-types'
 
-/**
- * Family relation types - matches the FamilyRelation enum in schema.prisma
- */
-export const FamilyRelation = {
-  FATHER: 'FATHER',
-  MOTHER: 'MOTHER',
-  SON: 'SON',
-  DAUGHTER: 'DAUGHTER',
-  BROTHER: 'BROTHER',
-  SISTER: 'SISTER',
-  SPOUSE: 'SPOUSE',
-  GRANDFATHER: 'GRANDFATHER',
-  GRANDMOTHER: 'GRANDMOTHER',
-  GRANDSON: 'GRANDSON',
-  GRANDDAUGHTER: 'GRANDDAUGHTER',
-  UNCLE: 'UNCLE',
-  AUNT: 'AUNT',
-  NEPHEW: 'NEPHEW',
-  NIECE: 'NIECE',
-  COUSIN: 'COUSIN',
-  OTHER: 'OTHER',
-} as const
-
-export type FamilyRelationType = (typeof FamilyRelation)[keyof typeof FamilyRelation]
-
-/**
- * Mapping of family relations to their inverse relations.
- * When User A adds User B with a relation, User B gets the inverse relation for User A.
- */
-export const INVERSE_RELATIONS: Record<FamilyRelationType, FamilyRelationType> = {
-  // Parent ↔ Child
-  [FamilyRelation.FATHER]: FamilyRelation.SON,      // If A's father is B, then B's son is A
-  [FamilyRelation.MOTHER]: FamilyRelation.SON,      // If A's mother is B, then B's son is A
-  [FamilyRelation.SON]: FamilyRelation.FATHER,      // If A's son is B, then B's father is A
-  [FamilyRelation.DAUGHTER]: FamilyRelation.FATHER, // If A's daughter is B, then B's father is A
-
-  // Siblings (symmetric)
-  [FamilyRelation.BROTHER]: FamilyRelation.BROTHER, // If A's brother is B, then B's sibling is A
-  [FamilyRelation.SISTER]: FamilyRelation.SISTER,   // If A's sister is B, then B's sibling is A
-
-  // Spouse (symmetric)
-  [FamilyRelation.SPOUSE]: FamilyRelation.SPOUSE,
-
-  // Grandparent ↔ Grandchild
-  [FamilyRelation.GRANDFATHER]: FamilyRelation.GRANDSON,
-  [FamilyRelation.GRANDMOTHER]: FamilyRelation.GRANDSON,
-  [FamilyRelation.GRANDSON]: FamilyRelation.GRANDFATHER,
-  [FamilyRelation.GRANDDAUGHTER]: FamilyRelation.GRANDFATHER,
-
-  // Uncle/Aunt ↔ Nephew/Niece
-  [FamilyRelation.UNCLE]: FamilyRelation.NEPHEW,
-  [FamilyRelation.AUNT]: FamilyRelation.NEPHEW,
-  [FamilyRelation.NEPHEW]: FamilyRelation.UNCLE,
-  [FamilyRelation.NIECE]: FamilyRelation.UNCLE,
-
-  // Cousin (symmetric)
-  [FamilyRelation.COUSIN]: FamilyRelation.COUSIN,
-
-  // Other (symmetric)
-  [FamilyRelation.OTHER]: FamilyRelation.OTHER,
-}
-
-/**
- * Get the inverse relation for a given family relation.
- * Note: For gender-specific relations (like SON/DAUGHTER), you may want to
- * pass the actual gender of the user to get the correct inverse.
- */
-export function getInverseRelation(relation: FamilyRelationType): FamilyRelationType {
-  return INVERSE_RELATIONS[relation]
-}
+// Re-export types for server-side usage
+export { FamilyRelation, FamilyRelationType, INVERSE_RELATIONS, getInverseRelation }
 
 /**
  * Creates a bidirectional family relationship between two users.
@@ -94,7 +32,7 @@ export async function createBidirectionalFamilyRelation(
       data: {
         userId,
         familyMemberUserId,
-        relation,
+        relation: relation as any, // Type assertion for Prisma enum compatibility
       },
     }),
     // Create the inverse relation (B -> A)
@@ -102,7 +40,7 @@ export async function createBidirectionalFamilyRelation(
       data: {
         userId: familyMemberUserId,
         familyMemberUserId: userId,
-        relation: inverseRelation,
+        relation: inverseRelation as any, // Type assertion for Prisma enum compatibility
       },
     }),
   ])
@@ -215,7 +153,7 @@ export async function convertNonRegisteredToFamilyMembers(
         data: {
           userId: nonRegistered.userId,
           familyMemberUserId: newUserId,
-          relation: nonRegistered.relation,
+          relation: nonRegistered.relation as any, // Type assertion for Prisma enum compatibility
         },
       })
 
@@ -224,7 +162,7 @@ export async function convertNonRegisteredToFamilyMembers(
         data: {
           userId: newUserId,
           familyMemberUserId: nonRegistered.userId,
-          relation: inverseRelation,
+          relation: inverseRelation as any, // Type assertion for Prisma enum compatibility
         },
       })
 
@@ -306,7 +244,7 @@ export async function updateBidirectionalFamilyRelation(
         familyMemberUserId,
       },
       data: {
-        relation: newRelation,
+        relation: newRelation as any, // Type assertion for Prisma enum compatibility
       },
     }),
     // Update B -> A
@@ -316,7 +254,7 @@ export async function updateBidirectionalFamilyRelation(
         familyMemberUserId: userId,
       },
       data: {
-        relation: inverseRelation,
+        relation: inverseRelation as any, // Type assertion for Prisma enum compatibility
       },
     }),
   ])
@@ -340,7 +278,10 @@ export async function updateNonRegisteredFamilyMember(
 ) {
   return prisma.nonRegisteredFamilyMember.update({
     where: { id },
-    data,
+    data: {
+      ...data,
+      relation: data.relation as any, // Type assertion for Prisma enum compatibility
+    },
   })
 }
 
