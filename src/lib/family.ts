@@ -159,3 +159,114 @@ export async function getFamilyMembers(userId: string) {
     },
   })
 }
+
+/**
+ * Converts non-registered family members to registered family members when a user registers.
+ * This function should be called after a new user successfully registers and authenticates.
+ *
+ * It will:
+ * 1. Find all NonRegisteredFamilyMember records matching the new user's IC number
+ * 2. Create bidirectional FamilyMember relationships for each
+ * 3. Delete the NonRegisteredFamilyMember records
+ *
+ * @param newUserId - The ID of the newly registered user
+ * @param icNumber - The IC number of the newly registered user
+ * @returns Object containing converted relationships count and any errors
+ */
+export async function convertNonRegisteredToFamilyMembers(
+  newUserId: string,
+  icNumber: string
+) {
+  // Find all non-registered family member records with this IC number
+  const nonRegisteredMembers = await prisma.nonRegisteredFamilyMember.findMany({
+    where: { icNumber },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  })
+
+  if (nonRegisteredMembers.length === 0) {
+    return {
+      converted: 0,
+      relationships: [],
+      message: 'No non-registered family members found with this IC number',
+    }
+  }
+
+  const convertedRelationships: Array<{
+    fromUserId: string;
+    fromUserName: string;
+    relation: FamilyRelationType;
+  }> = []
+
+  // Use a transaction to ensure all operations succeed or fail together
+  await prisma.$transaction(async (tx) => {
+    for (const nonRegistered of nonRegisteredMembers) {
+      const inverseRelation = getInverseRelation(nonRegistered.relation as FamilyRelationType)
+
+      // Create bidirectional family relationship
+      // 1. The user who added the non-registered member gets them as family
+      await tx.familyMember.create({
+        data: {
+          userId: nonRegistered.userId,
+          familyMemberUserId: newUserId,
+          relation: nonRegistered.relation,
+        },
+      })
+
+      // 2. The new user gets the inverse relationship
+      await tx.familyMember.create({
+        data: {
+          userId: newUserId,
+          familyMemberUserId: nonRegistered.userId,
+          relation: inverseRelation,
+        },
+      })
+
+      convertedRelationships.push({
+        fromUserId: nonRegistered.userId,
+        fromUserName: nonRegistered.user.name,
+        relation: nonRegistered.relation as FamilyRelationType,
+      })
+    }
+
+    // Delete all the non-registered family member records
+    await tx.nonRegisteredFamilyMember.deleteMany({
+      where: { icNumber },
+    })
+  })
+
+  return {
+    converted: convertedRelationships.length,
+    relationships: convertedRelationships,
+    message: `Successfully converted ${convertedRelationships.length} non-registered family member(s) to registered relationships`,
+  }
+}
+
+/**
+ * Check if there are any pending non-registered family member records for a given IC number.
+ * Useful to show a notification to newly registered users.
+ *
+ * @param icNumber - The IC number to check
+ * @returns Array of users who have added this IC as a non-registered family member
+ */
+export async function getPendingFamilyConnections(icNumber: string) {
+  return prisma.nonRegisteredFamilyMember.findMany({
+    where: { icNumber },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+    },
+  })
+}
