@@ -5,7 +5,7 @@ export default function About() {
     <div
       id="about"
       className="about bg-cover bg-center w-full h-screen relative"
-      style={{ backgroundImage: "url('/blue-background.jpg')" }}
+      style={{ backgroundImage: "url('/assets/background-islamic.png')" }}
       >
         <div className="absolute inset-0 bg-black/90" /> {/* Dark overlay */}
         <div className="relative z-10 container mx-auto h-full flex items-center px-4">
