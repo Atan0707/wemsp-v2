@@ -15,9 +15,12 @@ function RouteComponent() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      <Button onClick={handleLogout} variant="outline">
+    <div className="flex flex-col gap-4">
+      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <p className="text-muted-foreground">
+        Welcome to your dashboard. This area is protected by authentication.
+      </p>
+      <Button onClick={handleLogout} variant="outline" className="w-fit">
         Logout
       </Button>
     </div>
