@@ -41,16 +41,22 @@ function RouteComponent() {
     const appMatches = matches.filter(
       match => match.pathname.startsWith('/app') && match.pathname !== '/app'
     )
-    
+
     return appMatches.map((match, index) => {
       const segments = match.pathname.split('/').filter(Boolean)
       const lastSegment = segments[segments.length - 1]
       const label = formatSegment(lastSegment)
       const isLast = index === appMatches.length - 1
-      
+
+      // Redirect /app/family breadcrumb to /app/family/dashboard
+      let href = match.pathname
+      if (match.pathname === '/app/family') {
+        href = '/app/family/dashboard'
+      }
+
       return {
         label,
-        href: match.pathname,
+        href,
         isLast,
       }
     })
