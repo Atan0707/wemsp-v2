@@ -9,12 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestUploadRouteImport } from './routes/test-upload'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
 import { Route as AppFamilyRouteImport } from './routes/app/family'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
+import { Route as ApiUploadIndexRouteImport } from './routes/api/upload/index'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
@@ -22,6 +24,7 @@ import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as AppFamilyEditRouteImport } from './routes/app/family/edit'
 import { Route as AppFamilyDashboardRouteImport } from './routes/app/family/dashboard'
 import { Route as AppFamilyAddRouteImport } from './routes/app/family/add'
+import { Route as ApiFileKeyRouteImport } from './routes/api/file/$key'
 import { Route as ApiFamilySearchRouteImport } from './routes/api/family/search'
 import { Route as ApiFamilySplatRouteImport } from './routes/api/family/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -30,6 +33,11 @@ import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 
+const TestUploadRoute = TestUploadRouteImport.update({
+  id: '/test-upload',
+  path: '/test-upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -59,6 +67,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AppRoute,
+} as any)
+const ApiUploadIndexRoute = ApiUploadIndexRouteImport.update({
+  id: '/api/upload/',
+  path: '/api/upload/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
   id: '/demo/start/server-funcs',
@@ -94,6 +107,11 @@ const AppFamilyAddRoute = AppFamilyAddRouteImport.update({
   id: '/add',
   path: '/add',
   getParentRoute: () => AppFamilyRoute,
+} as any)
+const ApiFileKeyRoute = ApiFileKeyRouteImport.update({
+  id: '/api/file/$key',
+  path: '/api/file/$key',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiFamilySearchRoute = ApiFamilySearchRouteImport.update({
   id: '/api/family/search',
@@ -134,6 +152,7 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/family': typeof AppFamilyRouteWithChildren
   '/demo/prisma': typeof DemoPrismaRoute
@@ -141,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/api/family/search': typeof ApiFamilySearchRoute
+  '/api/file/$key': typeof ApiFileKeyRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/dashboard': typeof AppFamilyDashboardRoute
   '/app/family/edit': typeof AppFamilyEditRoute
@@ -148,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/upload': typeof ApiUploadIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -156,6 +177,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/family': typeof AppFamilyRouteWithChildren
   '/demo/prisma': typeof DemoPrismaRoute
@@ -163,6 +185,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/api/family/search': typeof ApiFamilySearchRoute
+  '/api/file/$key': typeof ApiFileKeyRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/dashboard': typeof AppFamilyDashboardRoute
   '/app/family/edit': typeof AppFamilyEditRoute
@@ -170,6 +193,7 @@ export interface FileRoutesByTo {
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/upload': typeof ApiUploadIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -179,6 +203,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/family': typeof AppFamilyRouteWithChildren
   '/demo/prisma': typeof DemoPrismaRoute
@@ -186,6 +211,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/api/family/search': typeof ApiFamilySearchRoute
+  '/api/file/$key': typeof ApiFileKeyRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/dashboard': typeof AppFamilyDashboardRoute
   '/app/family/edit': typeof AppFamilyEditRoute
@@ -193,6 +219,7 @@ export interface FileRoutesById {
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/upload/': typeof ApiUploadIndexRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -203,6 +230,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/test-upload'
     | '/app/dashboard'
     | '/app/family'
     | '/demo/prisma'
@@ -210,6 +238,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/family/$'
     | '/api/family/search'
+    | '/api/file/$key'
     | '/app/family/add'
     | '/app/family/dashboard'
     | '/app/family/edit'
@@ -217,6 +246,7 @@ export interface FileRouteTypes {
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/upload'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -225,6 +255,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/app'
+    | '/test-upload'
     | '/app/dashboard'
     | '/app/family'
     | '/demo/prisma'
@@ -232,6 +263,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/family/$'
     | '/api/family/search'
+    | '/api/file/$key'
     | '/app/family/add'
     | '/app/family/dashboard'
     | '/app/family/edit'
@@ -239,6 +271,7 @@ export interface FileRouteTypes {
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/upload'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -247,6 +280,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/app'
+    | '/test-upload'
     | '/app/dashboard'
     | '/app/family'
     | '/demo/prisma'
@@ -254,6 +288,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/family/$'
     | '/api/family/search'
+    | '/api/file/$key'
     | '/app/family/add'
     | '/app/family/dashboard'
     | '/app/family/edit'
@@ -261,6 +296,7 @@ export interface FileRouteTypes {
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/upload/'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -270,15 +306,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  TestUploadRoute: typeof TestUploadRoute
   DemoPrismaRoute: typeof DemoPrismaRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiFamilySplatRoute: typeof ApiFamilySplatRoute
   ApiFamilySearchRoute: typeof ApiFamilySearchRoute
+  ApiFileKeyRoute: typeof ApiFileKeyRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
+  ApiUploadIndexRoute: typeof ApiUploadIndexRoute
   DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
   DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
   DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
@@ -287,6 +326,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/test-upload': {
+      id: '/test-upload'
+      path: '/test-upload'
+      fullPath: '/test-upload'
+      preLoaderRoute: typeof TestUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app': {
       id: '/app'
       path: '/app'
@@ -328,6 +374,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/api/upload/': {
+      id: '/api/upload/'
+      path: '/api/upload'
+      fullPath: '/api/upload'
+      preLoaderRoute: typeof ApiUploadIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/demo/start/server-funcs': {
       id: '/demo/start/server-funcs'
@@ -377,6 +430,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/family/add'
       preLoaderRoute: typeof AppFamilyAddRouteImport
       parentRoute: typeof AppFamilyRoute
+    }
+    '/api/file/$key': {
+      id: '/api/file/$key'
+      path: '/api/file/$key'
+      fullPath: '/api/file/$key'
+      preLoaderRoute: typeof ApiFileKeyRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/family/search': {
       id: '/api/family/search'
@@ -461,15 +521,18 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  TestUploadRoute: TestUploadRoute,
   DemoPrismaRoute: DemoPrismaRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiFamilySplatRoute: ApiFamilySplatRoute,
   ApiFamilySearchRoute: ApiFamilySearchRoute,
+  ApiFileKeyRoute: ApiFileKeyRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoApiTqTodosRoute: DemoApiTqTodosRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
+  ApiUploadIndexRoute: ApiUploadIndexRoute,
   DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
   DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
   DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,
