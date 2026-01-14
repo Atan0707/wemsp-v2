@@ -25,6 +25,7 @@ import { Route as AppFamilyEditRouteImport } from './routes/app/family/edit'
 import { Route as AppFamilyDashboardRouteImport } from './routes/app/family/dashboard'
 import { Route as AppFamilyAddRouteImport } from './routes/app/family/add'
 import { Route as ApiFileKeyRouteImport } from './routes/api/file/$key'
+import { Route as ApiFileSplatRouteImport } from './routes/api/file/$'
 import { Route as ApiFamilySearchRouteImport } from './routes/api/family/search'
 import { Route as ApiFamilySplatRouteImport } from './routes/api/family/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -113,6 +114,11 @@ const ApiFileKeyRoute = ApiFileKeyRouteImport.update({
   path: '/api/file/$key',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiFileSplatRoute = ApiFileSplatRouteImport.update({
+  id: '/api/file/$',
+  path: '/api/file/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiFamilySearchRoute = ApiFamilySearchRouteImport.update({
   id: '/api/family/search',
   path: '/api/family/search',
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/api/family/search': typeof ApiFamilySearchRoute
+  '/api/file/$': typeof ApiFileSplatRoute
   '/api/file/$key': typeof ApiFileKeyRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/dashboard': typeof AppFamilyDashboardRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/api/family/search': typeof ApiFamilySearchRoute
+  '/api/file/$': typeof ApiFileSplatRoute
   '/api/file/$key': typeof ApiFileKeyRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/dashboard': typeof AppFamilyDashboardRoute
@@ -211,6 +219,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/api/family/search': typeof ApiFamilySearchRoute
+  '/api/file/$': typeof ApiFileSplatRoute
   '/api/file/$key': typeof ApiFileKeyRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/dashboard': typeof AppFamilyDashboardRoute
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/family/$'
     | '/api/family/search'
+    | '/api/file/$'
     | '/api/file/$key'
     | '/app/family/add'
     | '/app/family/dashboard'
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/family/$'
     | '/api/family/search'
+    | '/api/file/$'
     | '/api/file/$key'
     | '/app/family/add'
     | '/app/family/dashboard'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/family/$'
     | '/api/family/search'
+    | '/api/file/$'
     | '/api/file/$key'
     | '/app/family/add'
     | '/app/family/dashboard'
@@ -312,6 +324,7 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiFamilySplatRoute: typeof ApiFamilySplatRoute
   ApiFamilySearchRoute: typeof ApiFamilySearchRoute
+  ApiFileSplatRoute: typeof ApiFileSplatRoute
   ApiFileKeyRoute: typeof ApiFileKeyRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
@@ -438,6 +451,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiFileKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/file/$': {
+      id: '/api/file/$'
+      path: '/api/file/$'
+      fullPath: '/api/file/$'
+      preLoaderRoute: typeof ApiFileSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/family/search': {
       id: '/api/family/search'
       path: '/api/family/search'
@@ -527,6 +547,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiFamilySplatRoute: ApiFamilySplatRoute,
   ApiFamilySearchRoute: ApiFamilySearchRoute,
+  ApiFileSplatRoute: ApiFileSplatRoute,
   ApiFileKeyRoute: ApiFileKeyRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoApiTqTodosRoute: DemoApiTqTodosRoute,

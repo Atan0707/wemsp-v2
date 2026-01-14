@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Upload, FileText, CheckCircle, XCircle, Trash2 } from 'lucide-react'
+import { getFileUrl } from '@/lib/aws'
 
 export const Route = createFileRoute('/test-upload')({
   component: TestUploadPage,
@@ -20,11 +21,6 @@ function TestUploadPage() {
   const [uploading, setUploading] = useState(false)
   const [result, setResult] = useState<UploadResult | null>(null)
   const [error, setError] = useState<string | null>(null)
-
-  // Convert S3 URL to proxy URL
-  const getProxyUrl = (key: string) => {
-    return `/api/file/${encodeURIComponent(key)}`
-  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -171,32 +167,33 @@ function TestUploadPage() {
                 <span className="font-medium">Type:</span> {result.fileType}
               </div>
               <div>
+                <span className="font-medium">Your Domain URL:</span>
+                <a
+                  href={getFileUrl(result.key)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-1 text-green-600 dark:text-green-400 hover:underline break-all"
+                >
+                  {window.location.origin + getFileUrl(result.key)}
+                </a>
+                <p className="text-xs text-green-600 dark:text-green-400 mt-1">✅ This URL works!</p>
+              </div>
+              <div>
                 <span className="font-medium">S3 Key:</span>
                 <code className="ml-1 px-2 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">
                   {result.key}
                 </code>
               </div>
-              <div>
-                <span className="font-medium">URL:</span>
-                <a
-                  href={result.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-1 text-blue-500 hover:underline break-all"
-                >
-                  {result.url}
-                </a>
-              </div>
             </div>
 
             <div className="flex gap-2 mt-4">
               <a
-                href={getProxyUrl(result.key)}
+                href={getFileUrl(result.key)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center font-medium py-2 px-4 rounded-lg transition-colors"
               >
-                Open File (Proxy)
+                View/Download File
               </a>
               <button
                 onClick={handleDelete}
@@ -212,20 +209,23 @@ function TestUploadPage() {
         {/* Instructions */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">
-            Setup Instructions
+            How It Works
           </h3>
-          <ol className="text-sm text-blue-700 dark:text-blue-400 space-y-1 list-decimal list-inside">
-            <li>Create an S3 bucket in AWS Console</li>
-            <li>Create an IAM user with S3 permissions</li>
-            <li>Add credentials to <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">.env.local</code>:
-              <ul className="ml-6 mt-1 space-y-0.5 list-disc">
-                <li>AWS_REGION</li>
-                <li>AWS_ACCESS_KEY_ID</li>
-                <li>AWS_SECRET_ACCESS_KEY</li>
-                <li>AWS_S3_BUCKET</li>
-              </ul>
-            </li>
-          </ol>
+          <div className="text-sm text-blue-700 dark:text-blue-400 space-y-2">
+            <p>Your S3 bucket is <strong>private</strong> (secure). Access files through your domain:</p>
+            <div className="mt-3 p-2 bg-white dark:bg-gray-800 rounded text-xs font-mono space-y-1">
+              <p className="text-green-600 dark:text-green-400">✓ yourdomain.com/api/file/uploads/xxx.pdf</p>
+              <p className="text-gray-500 dark:text-gray-400">→ Automatically generates signed URL</p>
+              <p className="text-gray-500 dark:text-gray-400">→ Redirects to temporary S3 URL</p>
+              <p className="text-red-600 dark:text-red-400 line-through mt-2">✗ bucket.s3.amazonaws.com/uploads/xxx.pdf (Access Denied)</p>
+            </div>
+            <p className="mt-2"><strong>Benefits:</strong></p>
+            <ul className="ml-4 space-y-0.5 list-disc">
+              <li>Clean URLs through your domain</li>
+              <li>Secure (private S3 bucket)</li>
+              <li>No manual signed URL generation needed</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
