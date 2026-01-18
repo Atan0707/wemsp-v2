@@ -74,6 +74,14 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/app/profile">
+                    <User />
+                    <span>Profile</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -95,6 +103,9 @@ export function AppSidebar() {
                 side="top"
                 className="w-[--radix-popper-anchor-width]"
               >
+                <DropdownMenuItem onClick={() => router.navigate({ to: "/app/profile" })}>
+                  <span>Profile</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   <span>Sign out</span>
                 </DropdownMenuItem>

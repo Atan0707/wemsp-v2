@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
+import { Route as AppProfileRouteImport } from './routes/app/profile'
 import { Route as AppFamilyRouteImport } from './routes/app/family'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as ApiUploadIndexRouteImport } from './routes/api/upload/index'
@@ -58,6 +59,11 @@ const DemoPrismaRoute = DemoPrismaRouteImport.update({
   id: '/demo/prisma',
   path: '/demo/prisma',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppFamilyRoute = AppFamilyRouteImport.update({
   id: '/family',
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/family': typeof AppFamilyRouteWithChildren
+  '/app/profile': typeof AppProfileRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -187,6 +194,7 @@ export interface FileRoutesByTo {
   '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/family': typeof AppFamilyRouteWithChildren
+  '/app/profile': typeof AppProfileRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/family': typeof AppFamilyRouteWithChildren
+  '/app/profile': typeof AppProfileRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/test-upload'
     | '/app/dashboard'
     | '/app/family'
+    | '/app/profile'
     | '/demo/prisma'
     | '/demo/tanstack-query'
     | '/api/auth/$'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/test-upload'
     | '/app/dashboard'
     | '/app/family'
+    | '/app/profile'
     | '/demo/prisma'
     | '/demo/tanstack-query'
     | '/api/auth/$'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/test-upload'
     | '/app/dashboard'
     | '/app/family'
+    | '/app/profile'
     | '/demo/prisma'
     | '/demo/tanstack-query'
     | '/api/auth/$'
@@ -373,6 +385,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/demo/prisma'
       preLoaderRoute: typeof DemoPrismaRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/family': {
       id: '/app/family'
@@ -529,11 +548,13 @@ const AppFamilyRouteWithChildren = AppFamilyRoute._addFileChildren(
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppFamilyRoute: typeof AppFamilyRouteWithChildren
+  AppProfileRoute: typeof AppProfileRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppFamilyRoute: AppFamilyRouteWithChildren,
+  AppProfileRoute: AppProfileRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
