@@ -62,6 +62,7 @@ export function LoginForm({
       const data = await authClient.signIn.email({
         email,
         password,
+        callbackURL: "/app/dashboard",
       })
 
       if (data.error) {

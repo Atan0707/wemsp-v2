@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate, Link, useLocation } from '@tanstack/react-router'
+import { createFileRoute, Outlet, useNavigate, Link, useLocation, redirect } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
 import {
   SidebarProvider,
@@ -16,9 +16,19 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { authClient } from '@/lib/auth-client'
+import { getServerSession } from '@/middleware'
 
 export const Route = createFileRoute('/app')({
   component: RouteComponent,
+  beforeLoad: async () => {
+    // Server-side authentication check using server function
+    // This properly accesses cookies/headers on the server
+    const session = await getServerSession()
+    if (!session) {
+      throw redirect({ to: '/' })
+    }
+    return { session }
+  },
 })
 
 // Helper to format route segment to title case
@@ -61,17 +71,11 @@ function RouteComponent() {
   }, [location.pathname])
 
   useEffect(() => {
-    // Only redirect if we've finished checking and there's no session
-    if (!isPending && !session) {
-      navigate({ to: '/' })
-      return
-    }
-    
-    // Redirect /app to /app/dashboard
+    // Redirect /app to /app/dashboard when session is available
     if (session && location.pathname === '/app') {
       navigate({ to: '/app/dashboard', replace: true })
     }
-  }, [session, isPending, navigate, location.pathname])
+  }, [session, navigate, location.pathname])
 
   // Show loading while checking authentication
   if (isPending) {
@@ -82,7 +86,7 @@ function RouteComponent() {
     )
   }
 
-  // If no session after loading, show nothing (will redirect)
+  // If no session after loading, show nothing (beforeLoad will handle redirect)
   if (!session) {
     return null
   }
