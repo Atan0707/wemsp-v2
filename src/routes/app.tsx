@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate, Link, useMatches, useLocation } from '@tanstack/react-router'
+import { createFileRoute, Outlet, useNavigate, Link, useLocation } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
 import {
   SidebarProvider,
@@ -32,25 +32,23 @@ const formatSegment = (segment: string) => {
 function RouteComponent() {
   const navigate = useNavigate()
   const location = useLocation()
-  const matches = useMatches()
   const { data: session, isPending } = authClient.useSession()
 
-  // Build breadcrumb items from route matches (exclude base /app route)
+  // Build breadcrumb items from current pathname segments
   const breadcrumbs = useMemo(() => {
-    // Filter to only /app routes and exclude the base /app route
-    const appMatches = matches.filter(
-      match => match.pathname.startsWith('/app') && match.pathname !== '/app'
-    )
+    // Get segments after /app
+    const segments = location.pathname.split('/').filter(Boolean).slice(1) // Remove 'app'
 
-    return appMatches.map((match, index) => {
-      const segments = match.pathname.split('/').filter(Boolean)
-      const lastSegment = segments[segments.length - 1]
-      const label = formatSegment(lastSegment)
-      const isLast = index === appMatches.length - 1
+    return segments.map((segment, index) => {
+      const label = formatSegment(segment)
+      const isLast = index === segments.length - 1
+
+      // Build the path up to this segment
+      const pathSoFar = segments.slice(0, index + 1).join('/')
+      let href = '/' + pathSoFar
 
       // Redirect /app/family breadcrumb to /app/family/dashboard
-      let href = match.pathname
-      if (match.pathname === '/app/family') {
+      if (href === '/app/family') {
         href = '/app/family/dashboard'
       }
 
@@ -60,7 +58,7 @@ function RouteComponent() {
         isLast,
       }
     })
-  }, [matches])
+  }, [location.pathname])
 
   useEffect(() => {
     // Only redirect if we've finished checking and there's no session
