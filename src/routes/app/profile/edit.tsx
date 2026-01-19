@@ -51,11 +51,17 @@ function RouteComponent() {
   const updateProfileMutation = useMutation({
     mutationFn: async () => {
       const response = await authClient.updateUser({
-        data: {
-          icNumber: formData.icNumber,
-          address: formData.address,
-          phoneNumber: formData.phoneNumber,
-        },
+        name: user?.name,
+        image: user?.image,
+        icNumber: formData.icNumber,
+        address: formData.address,
+        phoneNumber: formData.phoneNumber,
+      } as {
+        name?: string
+        image?: string | null
+        icNumber?: string
+        address?: string
+        phoneNumber?: string
       })
       return response
     },

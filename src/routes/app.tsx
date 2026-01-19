@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, useNavigate, Link, useLocation, redirect } from '@tanstack/react-router'
 import { useEffect, useMemo } from 'react'
+import React from 'react'
 import {
   SidebarProvider,
   SidebarInset,
@@ -99,16 +100,18 @@ function RouteComponent() {
           <Breadcrumb>
             <BreadcrumbList>
               {breadcrumbs.map((crumb, index) => (
-                <BreadcrumbItem key={crumb.href}>
+                <React.Fragment key={crumb.href}>
                   {index > 0 && <BreadcrumbSeparator />}
-                  {crumb.isLast ? (
-                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink asChild>
-                      <Link to={crumb.href}>{crumb.label}</Link>
-                    </BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
+                  <BreadcrumbItem>
+                    {crumb.isLast ? (
+                      <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink asChild>
+                        <Link to={crumb.href}>{crumb.label}</Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
               ))}
             </BreadcrumbList>
           </Breadcrumb>
