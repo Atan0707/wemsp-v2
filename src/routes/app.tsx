@@ -47,20 +47,18 @@ function RouteComponent() {
   // Build breadcrumb items from current pathname segments
   const breadcrumbs = useMemo(() => {
     // Get segments after /app
-    const segments = location.pathname.split('/').filter(Boolean).slice(1) // Remove 'app'
+    const pathSegments = location.pathname.split('/').filter(Boolean)
 
+    // Remove 'app' from the beginning
+    const segments = pathSegments[0] === 'app' ? pathSegments.slice(1) : pathSegments
+
+    // Map segments to breadcrumb items
     return segments.map((segment, index) => {
       const label = formatSegment(segment)
       const isLast = index === segments.length - 1
 
-      // Build the path up to this segment
-      const pathSoFar = segments.slice(0, index + 1).join('/')
-      let href = '/' + pathSoFar
-
-      // Redirect /app/family breadcrumb to /app/family/dashboard
-      if (href === '/app/family') {
-        href = '/app/family/dashboard'
-      }
+      // Build href by reconstructing the path up to this segment
+      const href = '/' + pathSegments.slice(0, index + 2).join('/')
 
       return {
         label,

@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Outlet, useNavigate, useLocation } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
 export const Route = createFileRoute('/app/profile')({
@@ -6,11 +6,15 @@ export const Route = createFileRoute('/app/profile')({
 })
 
 function RouteComponent() {
-  const router = useRouter()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
-    router.navigate({ to: '/app/profile/view', replace: true })
-  }, [router])
+    // Redirect /app/profile to /app/profile/view
+    if (location.pathname === '/app/profile') {
+      navigate({ to: '/app/profile/view', replace: true })
+    }
+  }, [navigate, location.pathname])
 
-  return null
+  return <Outlet />
 }

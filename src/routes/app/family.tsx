@@ -10,9 +10,9 @@ function RouteComponent() {
   const location = useLocation()
 
   useEffect(() => {
-    // Redirect /app/family to /app/family/dashboard
+    // Redirect /app/family to /app/family/view
     if (location.pathname === '/app/family') {
-      navigate({ to: '/app/family/dashboard', replace: true })
+      navigate({ to: '/app/family/view', replace: true })
     }
   }, [navigate, location.pathname])
 

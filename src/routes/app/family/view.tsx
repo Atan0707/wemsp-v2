@@ -15,7 +15,7 @@ import { FamilyMember } from '@/types/family'
 import { Loader2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 
-export const Route = createFileRoute('/app/family/dashboard')({
+export const Route = createFileRoute('/app/family/view')({
   component: RouteComponent,
 })
 
