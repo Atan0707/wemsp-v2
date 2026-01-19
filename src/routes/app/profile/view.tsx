@@ -34,10 +34,16 @@ function RouteComponent() {
   const [isOnboarding, setIsOnboarding] = useState(false)
   const [redirectPath, setRedirectPath] = useState<string | undefined>(undefined)
 
-  // Fetch session data
-  const { data: session, isPending } = authClient.useSession()
+  // Fetch session data with refetch capability
+  const { data: session, isPending, refetch: refetchSession } = authClient.useSession()
 
   const user = session?.user
+
+  // Refetch session data on mount to ensure fresh data
+  useEffect(() => {
+    refetchSession()
+    console.log(user)
+  }, [])
 
   // Read onboarding params and clean URL
   useEffect(() => {
@@ -60,8 +66,8 @@ function RouteComponent() {
       user.name,
       user.email,
       (user as any).icNumber,
-      (user as any).address,
       (user as any).phoneNumber,
+      (user as any).address,
     ]
     const filledFields = fields.filter(Boolean).length
     return Math.round((filledFields / fields.length) * 100)

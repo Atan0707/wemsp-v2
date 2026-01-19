@@ -38,6 +38,7 @@ import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.i
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
+import { Route as ApiUserProfileSplatRouteImport } from './routes/api/user/profile/$'
 
 const TestUploadRoute = TestUploadRouteImport.update({
   id: '/test-upload',
@@ -184,6 +185,11 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
   path: '/demo/start/ssr/data-only',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUserProfileSplatRoute = ApiUserProfileSplatRouteImport.update({
+  id: '/api/user/profile/$',
+  path: '/api/user/profile/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/app/assets': typeof AppAssetsIndexRoute
   '/app/family': typeof AppFamilyIndexRoute
   '/app/profile': typeof AppProfileIndexRoute
+  '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/app/assets': typeof AppAssetsIndexRoute
   '/app/family': typeof AppFamilyIndexRoute
   '/app/profile': typeof AppProfileIndexRoute
+  '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/app/assets/': typeof AppAssetsIndexRoute
   '/app/family/': typeof AppFamilyIndexRoute
   '/app/profile/': typeof AppProfileIndexRoute
+  '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/app/assets'
     | '/app/family'
     | '/app/profile'
+    | '/api/user/profile/$'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/app/assets'
     | '/app/family'
     | '/app/profile'
+    | '/api/user/profile/$'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/app/assets/'
     | '/app/family/'
     | '/app/profile/'
+    | '/api/user/profile/$'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -391,6 +403,7 @@ export interface RootRouteChildren {
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
   ApiUploadIndexRoute: typeof ApiUploadIndexRoute
+  ApiUserProfileSplatRoute: typeof ApiUserProfileSplatRoute
   DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
   DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
   DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
@@ -602,6 +615,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/user/profile/$': {
+      id: '/api/user/profile/$'
+      path: '/api/user/profile/$'
+      fullPath: '/api/user/profile/$'
+      preLoaderRoute: typeof ApiUserProfileSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -649,6 +669,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
   ApiUploadIndexRoute: ApiUploadIndexRoute,
+  ApiUserProfileSplatRoute: ApiUserProfileSplatRoute,
   DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
   DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
   DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,

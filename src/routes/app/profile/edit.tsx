@@ -1,8 +1,8 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
-import { useMutation } from "@tanstack/react-query"
-import { Phone, MapPin, IdCard, Loader2, AlertTriangle } from "lucide-react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { Phone, MapPin, IdCard, Loader2, AlertTriangle, Mail, User } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import {
   Card,
@@ -31,18 +31,20 @@ export const Route = createFileRoute('/app/profile/edit')({
 
 function RouteComponent() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const searchParams = Route.useSearch()
   const [formData, setFormData] = useState({
+    name: "",
+    email: "",
     icNumber: "",
     address: "",
     phoneNumber: "",
   })
-  const [showOnboardingDialog, setShowOnboardingDialog] = useState(false)
   const [redirectPath, setRedirectPath] = useState<string | undefined>(undefined)
   const [isOnboarding, setIsOnboarding] = useState(false)
 
   // Fetch session data
-  const { data: session, isPending } = authClient.useSession()
+  const { data: session, isPending, refetch: refetchSession } = authClient.useSession()
 
   const user = session?.user
 
@@ -60,22 +62,13 @@ function RouteComponent() {
     }
   }, [searchParams, router])
 
-  // Show dialog when in onboarding mode - delay slightly to ensure session is loaded
-  useEffect(() => {
-    if (isOnboarding && user && !isPending) {
-      // Small delay to ensure the component is fully mounted
-      const timer = setTimeout(() => {
-        console.log('Showing onboarding dialog...')
-        setShowOnboardingDialog(true)
-      }, 100)
-      return () => clearTimeout(timer)
-    }
-  }, [isOnboarding, user, isPending])
 
   // Initialize form data when user data loads
   useEffect(() => {
     if (user) {
       setFormData({
+        name: user.name || "",
+        email: user.email || "",
         icNumber: (user as any).icNumber || "",
         address: (user as any).address || "",
         phoneNumber: (user as any).phoneNumber || "",
@@ -86,26 +79,49 @@ function RouteComponent() {
   // Update user profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async () => {
-      const response = await authClient.updateUser({
-        name: user?.name,
-        image: user?.image,
-        icNumber: formData.icNumber,
-        address: formData.address,
-        phoneNumber: formData.phoneNumber,
-      } as {
-        name?: string
-        image?: string | null
-        icNumber?: string
-        address?: string
-        phoneNumber?: string
+      const response = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          icNumber: formData.icNumber,
+          phoneNumber: formData.phoneNumber,
+          address: formData.address,
+        }),
       })
-      return response
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update profile')
+      }
+
+      return response.json()
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Profile updated successfully")
-      // Close dialog and redirect to original path if in onboarding mode
+
+      // Invalidate all better-auth related queries to force refetch
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          // Match queries that start with better-auth prefix or contain session/user data
+          const queryKey = query.queryKey[0] as string
+          return (
+            queryKey?.startsWith('better-auth') ||
+            typeof queryKey === 'string' && queryKey.includes('session')
+          )
+        },
+      })
+
+      // Also refetch the session directly
+      await refetchSession()
+
+      // Small delay to ensure data is refreshed before redirect
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Redirect to original path if in onboarding mode
       if (isOnboarding) {
-        setShowOnboardingDialog(false)
         if (redirectPath) {
           router.navigate({ to: redirectPath })
         } else {
@@ -126,6 +142,34 @@ function RouteComponent() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validate required fields
+    if (!formData.name.trim()) {
+      toast.error("Name is required")
+      return
+    }
+
+    if (!formData.icNumber.trim()) {
+      toast.error("IC number is required")
+      return
+    }
+
+    // Validate IC number is exactly 12 digits
+    if (formData.icNumber.length !== 12) {
+      toast.error("IC number must be exactly 12 digits")
+      return
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      toast.error("Phone number is required")
+      return
+    }
+
+    if (!formData.address.trim()) {
+      toast.error("Address is required")
+      return
+    }
+
     updateProfileMutation.mutate()
   }
 
@@ -170,7 +214,7 @@ function RouteComponent() {
             <div className="flex-1">
               <h3 className="font-semibold text-amber-900 dark:text-amber-100">Complete Your Profile to Continue</h3>
               <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                Please fill in your IC number, phone number, and address below to access the feature you were trying to reach.
+                Please fill in your name, IC number (12 digits), phone number, and address below to access the feature you were trying to reach.
               </p>
             </div>
           </div>
@@ -204,25 +248,62 @@ function RouteComponent() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <FieldGroup className="gap-6">
+              {/* Name Field */}
+              <Field className="group">
+                <FieldLabel htmlFor="name" className="text-sm font-medium">Full Name <span className="text-destructive">*</span></FieldLabel>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    id="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    placeholder="Enter your full name"
+                    className="h-10 pl-10"
+                  />
+                </div>
+              </Field>
+
+              {/* Email Field */}
+              <Field className="group">
+                <FieldLabel htmlFor="email" className="text-sm font-medium">Email</FieldLabel>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    disabled
+                    placeholder="your.email@example.com"
+                    className="h-10 pl-10 bg-muted/50 cursor-not-allowed"
+                  />
+                </div>
+              </Field>
+
               {/* IC Number Field */}
               <Field className="group">
-                <FieldLabel htmlFor="icNumber" className="text-sm font-medium">IC Number</FieldLabel>
+                <FieldLabel htmlFor="icNumber" className="text-sm font-medium">IC Number <span className="text-destructive">*</span></FieldLabel>
                 <div className="relative">
                   <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <Input
                     id="icNumber"
                     type="text"
                     value={formData.icNumber}
-                    onChange={(e) => handleInputChange("icNumber", e.target.value)}
+                    onChange={(e) => {
+                      // Only allow numbers and limit to 12 digits
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 12)
+                      handleInputChange("icNumber", value)
+                    }}
                     placeholder="Enter your IC number"
                     className="h-10 pl-10"
+                    maxLength={12}
                   />
                 </div>
               </Field>
 
               {/* Phone Number Field */}
               <Field className="group">
-                <FieldLabel htmlFor="phoneNumber" className="text-sm font-medium">Phone Number</FieldLabel>
+                <FieldLabel htmlFor="phoneNumber" className="text-sm font-medium">Phone Number <span className="text-destructive">*</span></FieldLabel>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <Input
@@ -230,7 +311,7 @@ function RouteComponent() {
                     type="tel"
                     value={formData.phoneNumber}
                     onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-                    placeholder="+60 12-345-6789"
+                    placeholder="+60123456789"
                     className="h-10 pl-10"
                   />
                 </div>
@@ -238,7 +319,7 @@ function RouteComponent() {
 
               {/* Address Field */}
               <Field className="group">
-                <FieldLabel htmlFor="address" className="text-sm font-medium">Address</FieldLabel>
+                <FieldLabel htmlFor="address" className="text-sm font-medium">Address <span className="text-destructive">*</span></FieldLabel>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <Input
