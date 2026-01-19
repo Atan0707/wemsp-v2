@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { Phone, MapPin, IdCard, Loader2 } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import {
@@ -25,7 +25,6 @@ export const Route = createFileRoute('/app/profile/edit')({
 
 function RouteComponent() {
   const router = useRouter()
-  const queryClient = useQueryClient()
   const [formData, setFormData] = useState({
     icNumber: "",
     address: "",
@@ -33,15 +32,9 @@ function RouteComponent() {
   })
 
   // Fetch session data
-  const { data: session, isLoading } = useQuery({
-    queryKey: ["session"],
-    queryFn: async () => {
-      const data = await authClient.getSession()
-      return data
-    },
-  })
+  const { data: session, isPending } = authClient.useSession()
 
-  const user = session?.data?.user
+  const user = session?.user
 
   // Initialize form data when user data loads
   useEffect(() => {
@@ -58,13 +51,16 @@ function RouteComponent() {
   const updateProfileMutation = useMutation({
     mutationFn: async () => {
       const response = await authClient.updateUser({
-        name: user?.name || "",
+        data: {
+          icNumber: formData.icNumber,
+          address: formData.address,
+          phoneNumber: formData.phoneNumber,
+        },
       })
       return response
     },
     onSuccess: () => {
       toast.success("Profile updated successfully")
-      queryClient.invalidateQueries({ queryKey: ["session"] })
       router.navigate({ to: "/app/profile" })
     },
     onError: (error: any) => {
@@ -85,7 +81,7 @@ function RouteComponent() {
     router.navigate({ to: "/app/profile" })
   }
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

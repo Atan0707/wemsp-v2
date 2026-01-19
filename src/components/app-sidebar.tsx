@@ -25,21 +25,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { authClient } from "@/lib/auth-client"
-import { useQuery } from "@tanstack/react-query"
 
 export function AppSidebar() {
   const router = useRouter()
 
-  const { data: session } = useQuery({
-    queryKey: ["session"],
-    queryFn: async () => {
-      const data = await authClient.getSession()
-      // console.log(data)
-      return data
-    },
-  })
+  const { data: session } = authClient.useSession()
 
-  const user = session?.data?.user
+  const user = session?.user
 
   const handleLogout = async () => {
     await authClient.signOut()

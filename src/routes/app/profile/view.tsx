@@ -1,7 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useMemo } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { Mail, Phone, MapPin, IdCard, Camera, Shield, Calendar, Clock, CheckCircle2, XCircle, Sparkles } from "lucide-react"
+import { Mail, Phone, MapPin, IdCard, Shield, Calendar, Clock, CheckCircle2, XCircle, Sparkles } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import {
   Card,
@@ -11,9 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  Field,
   FieldGroup,
-  FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -29,15 +26,9 @@ function RouteComponent() {
   const router = useRouter()
 
   // Fetch session data
-  const { data: session, isLoading } = useQuery({
-    queryKey: ["session"],
-    queryFn: async () => {
-      const data = await authClient.getSession()
-      return data
-    },
-  })
+  const { data: session, isPending } = authClient.useSession()
 
-  const user = session?.data?.user
+  const user = session?.user
 
   // Calculate profile completion percentage
   const profileCompletion = useMemo(() => {
@@ -65,7 +56,7 @@ function RouteComponent() {
     return email[0].toUpperCase()
   }
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="flex items-center justify-center py-12">
         <Skeleton className="h-8 w-32" />
