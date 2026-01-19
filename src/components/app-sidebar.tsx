@@ -4,6 +4,8 @@ import {
   User,
   ChevronUp,
   Users,
+  Wallet2,
+  Contact
 } from "lucide-react"
 
 import {
@@ -61,8 +63,16 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/app/family/view">
-                    <Users />
+                    <Contact />
                     <span>Family</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/app/assets/view">
+                    <Wallet2 />
+                    <span>Assets</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
