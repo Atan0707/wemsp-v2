@@ -17,19 +17,36 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { authClient } from '@/lib/auth-client'
-import { getServerSession } from '@/middleware'
+import { getServerSession, requireCompletedProfile } from '@/middleware'
+import { ProfileCompletionDialog } from '@/components/profile-completion-dialog'
 
 export const Route = createFileRoute('/app')({
   component: RouteComponent,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     // Server-side authentication check using server function
     // This properly accesses cookies/headers on the server
     const session = await getServerSession()
     if (!session) {
       throw redirect({ to: '/' })
     }
+
+    // Check profile completion - skip for all profile pages to avoid showing dialog there
+    const isProfilePage = location.pathname.startsWith('/app/profile')
+    if (!isProfilePage) {
+      const profileCheck = await requireCompletedProfile()
+      if (profileCheck && !profileCheck.profileComplete) {
+        // Return profile incomplete status instead of redirecting
+        // The dialog will be shown on the current page
+        return {
+          session,
+          profileIncomplete: true,
+        }
+      }
+    }
+
     return { session }
   },
+  // Add context type for profileIncomplete
 })
 
 // Helper to format route segment to title case
@@ -44,6 +61,9 @@ function RouteComponent() {
   const navigate = useNavigate()
   const location = useLocation()
   const { data: session, isPending } = authClient.useSession()
+  const routeContext = Route.useRouteContext()
+
+  const profileIncomplete = routeContext?.profileIncomplete ?? false
 
   // Build breadcrumb items from current pathname segments
   const breadcrumbs = useMemo(() => {
@@ -92,6 +112,7 @@ function RouteComponent() {
 
   return (
     <SidebarProvider>
+      <ProfileCompletionDialog open={profileIncomplete} />
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 px-4">

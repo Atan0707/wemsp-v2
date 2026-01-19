@@ -2,11 +2,25 @@ import { createMiddleware } from '@tanstack/react-start'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import { auth } from '@/lib/auth'
+import { prisma } from '@/db'
+
+/**
+ * Check if a user has completed their profile.
+ * A profile is considered complete if icNumber, address, and phoneNumber are provided.
+ */
+async function isProfileComplete(userId: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { icNumber: true, address: true, phoneNumber: true },
+  })
+  if (!user) return false
+  return !!(user.icNumber && user.address && user.phoneNumber)
+}
 
 /**
  * Authentication middleware for server-side route protection.
  * Checks if the user has a valid session before allowing access.
- * 
+ *
  * Usage with server functions:
  * ```ts
  * const protectedServerFn = createServerFn({ method: 'GET' })
@@ -39,6 +53,101 @@ export const authMiddleware = createMiddleware().server(async ({ next, request }
     },
   })
 })
+
+/**
+ * Profile completion middleware.
+ * Checks if the user has completed their profile (icNumber, address, phoneNumber).
+ * If not complete, redirects to the profile edit page with an onboarding prompt.
+ * Should be used AFTER authMiddleware.
+ *
+ * Usage with routes:
+ * ```ts
+ * export const Route = createFileRoute('/app/some-route')({
+ *   beforeLoad: ({ context }) => {
+ *     // This will redirect to profile edit if profile is incomplete
+ *   },
+ *   loader: async () => {
+ *     // Your loader logic
+ *   }
+ * })
+ * ```
+ *
+ * For route-level protection, wrap the route component or use in beforeLoad:
+ * ```ts
+ * import { requireCompletedProfile } from '@/middleware'
+ *
+ * export const Route = createFileRoute('/app/assets')({
+ *   beforeLoad: async () => {
+ *     await requireCompletedProfile()
+ *   }
+ * })
+ * ```
+ */
+export const profileCompletionMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  })
+
+  if (!session) {
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: '/',
+      },
+    })
+  }
+
+  const profileComplete = await isProfileComplete(session.user.id)
+
+  if (!profileComplete) {
+    // Redirect to profile edit with onboarding prompt
+    const url = new URL(request.url)
+    const currentPath = url.pathname + url.search
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: `/app/profile/view?onboarding=true&redirect=${encodeURIComponent(currentPath)}`,
+      },
+    })
+  }
+
+  return next({
+    context: {
+      session,
+      profileComplete: true,
+    },
+  })
+})
+
+/**
+ * Server function to check and enforce profile completion.
+ * Use this in route loaders or beforeLoad hooks.
+ * Redirects to profile edit page if profile is incomplete.
+ */
+export const requireCompletedProfile = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const request = getRequest()
+    if (!request) {
+      return null
+    }
+
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    })
+
+    if (!session) {
+      return { requiresAuth: true }
+    }
+
+    const profileComplete = await isProfileComplete(session.user.id)
+
+    return {
+      requiresAuth: false,
+      profileComplete,
+      user: session.user,
+    }
+  }
+)
 
 /**
  * Server function to get the current session.

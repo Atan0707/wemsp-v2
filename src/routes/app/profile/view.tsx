@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useMemo } from "react"
-import { Mail, Phone, MapPin, IdCard, Shield, Calendar, Clock, CheckCircle2, XCircle, Sparkles } from "lucide-react"
+import { useMemo, useEffect, useState } from "react"
+import { Mail, Phone, MapPin, IdCard, Shield, Calendar, Clock, CheckCircle2, XCircle, Sparkles, AlertTriangle } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import {
   Card,
@@ -20,15 +20,38 @@ import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute('/app/profile/view')({
   component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>) => ({
+    onboarding: typeof search.onboarding === 'boolean'
+      ? search.onboarding
+      : search.onboarding === 'true',
+    redirect: typeof search.redirect === 'string' ? search.redirect : undefined,
+  }),
 })
 
 function RouteComponent() {
   const router = useRouter()
+  const searchParams = Route.useSearch()
+  const [isOnboarding, setIsOnboarding] = useState(false)
+  const [redirectPath, setRedirectPath] = useState<string | undefined>(undefined)
 
   // Fetch session data
   const { data: session, isPending } = authClient.useSession()
 
   const user = session?.user
+
+  // Read onboarding params and clean URL
+  useEffect(() => {
+    if (searchParams.onboarding) {
+      setIsOnboarding(true)
+      setRedirectPath(searchParams.redirect)
+      // Clean up URL by removing search params
+      router.navigate({
+        to: '.',
+        search: { onboarding: false, redirect: undefined },
+        replace: true,
+      })
+    }
+  }, [searchParams, router])
 
   // Calculate profile completion percentage
   const profileCompletion = useMemo(() => {
@@ -84,6 +107,19 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Onboarding Alert Banner */}
+      {isOnboarding && (
+        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h3 className="font-semibold text-amber-900 dark:text-amber-100">Complete Your Profile to Continue</h3>
+            <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+              Please fill in your IC number, phone number, and address by clicking the Edit Profile button below.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -94,7 +130,10 @@ function RouteComponent() {
               </CardDescription>
             </div>
             <Button
-              onClick={() => router.navigate({ to: '/app/profile/edit' })}
+              onClick={() => router.navigate({
+                to: '/app/profile/edit',
+                search: isOnboarding ? { onboarding: true, redirect: redirectPath } : { onboarding: false, redirect: undefined }
+              })}
               variant="default"
             >
               Edit Profile

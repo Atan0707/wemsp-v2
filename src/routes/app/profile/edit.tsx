@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { useMutation } from "@tanstack/react-query"
-import { Phone, MapPin, IdCard, Loader2 } from "lucide-react"
+import { Phone, MapPin, IdCard, Loader2, AlertTriangle } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import {
   Card,
@@ -21,20 +21,56 @@ import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute('/app/profile/edit')({
   component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>) => ({
+    onboarding: typeof search.onboarding === 'boolean'
+      ? search.onboarding
+      : search.onboarding === 'true',
+    redirect: typeof search.redirect === 'string' ? search.redirect : undefined,
+  }),
 })
 
 function RouteComponent() {
   const router = useRouter()
+  const searchParams = Route.useSearch()
   const [formData, setFormData] = useState({
     icNumber: "",
     address: "",
     phoneNumber: "",
   })
+  const [showOnboardingDialog, setShowOnboardingDialog] = useState(false)
+  const [redirectPath, setRedirectPath] = useState<string | undefined>(undefined)
+  const [isOnboarding, setIsOnboarding] = useState(false)
 
   // Fetch session data
   const { data: session, isPending } = authClient.useSession()
 
   const user = session?.user
+
+  // Read and clean up URL params on mount
+  useEffect(() => {
+    if (searchParams.onboarding) {
+      setIsOnboarding(true)
+      setRedirectPath(searchParams.redirect)
+      // Clean up URL by removing search params
+      router.navigate({
+        to: '.',
+        search: {},
+        replace: true,
+      })
+    }
+  }, [searchParams, router])
+
+  // Show dialog when in onboarding mode - delay slightly to ensure session is loaded
+  useEffect(() => {
+    if (isOnboarding && user && !isPending) {
+      // Small delay to ensure the component is fully mounted
+      const timer = setTimeout(() => {
+        console.log('Showing onboarding dialog...')
+        setShowOnboardingDialog(true)
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [isOnboarding, user, isPending])
 
   // Initialize form data when user data loads
   useEffect(() => {
@@ -67,7 +103,17 @@ function RouteComponent() {
     },
     onSuccess: () => {
       toast.success("Profile updated successfully")
-      router.navigate({ to: "/app/profile" })
+      // Close dialog and redirect to original path if in onboarding mode
+      if (isOnboarding) {
+        setShowOnboardingDialog(false)
+        if (redirectPath) {
+          router.navigate({ to: redirectPath })
+        } else {
+          router.navigate({ to: "/app/profile", search: { onboarding: false, redirect: undefined } })
+        }
+      } else {
+        router.navigate({ to: "/app/profile", search: { onboarding: false, redirect: undefined } })
+      }
     },
     onError: (error: any) => {
       toast.error(error.message || "Failed to update profile")
@@ -84,7 +130,11 @@ function RouteComponent() {
   }
 
   const handleCancel = () => {
-    router.navigate({ to: "/app/profile" })
+    if (isOnboarding) {
+      // Don't allow cancel during onboarding
+      return
+    }
+    router.navigate({ to: "/app/profile", search: { onboarding: false, redirect: undefined } })
   }
 
   if (isPending) {
@@ -110,26 +160,47 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <CardTitle>Edit Profile</CardTitle>
-              <CardDescription>
-                Update your additional information
-              </CardDescription>
+    <>
+
+      <div className="flex flex-col gap-4">
+        {/* Onboarding Alert Banner */}
+        {isOnboarding && (
+          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-amber-900 dark:text-amber-100">Complete Your Profile to Continue</h3>
+              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                Please fill in your IC number, phone number, and address below to access the feature you were trying to reach.
+              </p>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={updateProfileMutation.isPending}
-            >
-              Cancel
-            </Button>
           </div>
-        </CardHeader>
+        )}
+
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <CardTitle>
+                  {isOnboarding ? "Complete Your Profile" : "Edit Profile"}
+                </CardTitle>
+                <CardDescription>
+                  {isOnboarding
+                    ? "Please fill in your information to continue"
+                    : "Update your additional information"}
+                </CardDescription>
+              </div>
+              {!isOnboarding && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={updateProfileMutation.isPending}
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
+          </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <FieldGroup className="gap-6">
@@ -200,6 +271,7 @@ function RouteComponent() {
           </form>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   )
 }
