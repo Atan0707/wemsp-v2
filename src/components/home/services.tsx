@@ -1,36 +1,37 @@
+import { useLanguage } from "@/lib/i18n/context";
 
 // Define a type for service items
 type ServiceItem = {
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
   icon: string;
-  alt: string;
+  altKey: string;
 };
 
 // Array of services - easy to add new ones here
 const serviceItems: ServiceItem[] = [
   {
-    title: "Family Management",
-    description: "Add your family and kin into the system to easily manage the distribution of your asset.",
+    titleKey: "services.familyManagement.title",
+    descriptionKey: "services.familyManagement.description",
     icon: "/assets/family-logo.png",
-    alt: "Family Management"
+    altKey: "services.familyManagement.title"
   },
   {
-    title: "Asset Management",
-    description: "Add your asset to make the faraid distribution much easier for the court to organize",
+    titleKey: "services.assetManagement.title",
+    descriptionKey: "services.assetManagement.description",
     icon: "/assets/asset-logo.png",
-    alt: "Asset Management"
+    altKey: "services.assetManagement.title"
   },
   // To add a new service, just add another object here like:
   // {
-  //   title: "New Service",
-  //   description: "Description of the new service",
+  //   titleKey: "services.newService.title",
+  //   descriptionKey: "services.newService.description",
   //   icon: "/assets/new-service-icon.png",
-  //   alt: "New Service"
+  //   altKey: "services.newService.title"
   // },
 ];
 
-const ServiceCard = ({ title, description, icon, alt }: ServiceItem) => (
+const ServiceCard = ({ title, description, icon, alt }: { title: string; description: string; icon: string; alt: string }) => (
   <div className="bg-white p-8 rounded-lg shadow-md flex flex-col items-center text-center w-full">
     <div className="w-24 h-24 mb-6 flex items-center justify-center">
       <img
@@ -45,6 +46,7 @@ const ServiceCard = ({ title, description, icon, alt }: ServiceItem) => (
 );
 
 const Services = () => {
+  const { t } = useLanguage();
   // Calculate grid columns based on number of items
   const getGridCols = () => {
     const itemCount = serviceItems.length;
@@ -59,11 +61,17 @@ const Services = () => {
   return (
     <div id="services" className="bg-gray-100 py-20 w-full">
       <div className="w-full px-4">
-        <h2 className="text-4xl font-bold text-center mb-16">Services</h2>
-        
+        <h2 className="text-4xl font-bold text-center mb-16">{t('services.title')}</h2>
+
         <div className={`grid ${getGridCols()} gap-8 w-full px-8`}>
           {serviceItems.map((service, index) => (
-            <ServiceCard key={index} {...service} />
+            <ServiceCard
+              key={index}
+              title={t(service.titleKey)}
+              description={t(service.descriptionKey)}
+              icon={service.icon}
+              alt={t(service.altKey)}
+            />
           ))}
         </div>
       </div>

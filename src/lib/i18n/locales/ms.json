@@ -1,0 +1,38 @@
+{
+  "translation": {
+    "navbar": {
+      "home": "Utama",
+      "aboutUs": "Tentang Kami",
+      "services": "Perkhidmatan",
+      "contactUs": "Hubungi Kami",
+      "dashboard": "Papan Pemuka",
+      "login": "Log Masuk"
+    },
+    "header": {
+      "title": "Pengurusan Wasiat & Harta",
+      "subtitle": "Penyelesaian (WEMSP)",
+      "description": "Lindungi masa depan keluarga anda dengan perancangan harta yang mematuhi Sharia dan pengurusan aset digital",
+      "getStarted": "Mula Sekarang"
+    },
+    "about": {
+      "label": "Tentang Kami",
+      "title": "Penyedia Penyelesaian Pengurusan Wasiat & Harta (WEMSP)",
+      "description": "Misi kami adalah untuk meningkatkan kualiti hidup orang Islam dengan mengintegrasikan teknologi moden dengan nilai tradisional, memastikan perkhidmatan kami selari dengan prinsip Syariah. Selama bertahun-tahun, kami telah membangunkan pemahaman mendalam tentang cabaran unik yang dihadapi oleh komuniti Islam, terutamanya dalam bidang seperti pengurusan aset, perancangan kewangan, dan tadbir urus keluarga.",
+      "continueReading": "Baca Lanjut"
+    },
+    "services": {
+      "title": "Perkhidmatan",
+      "familyManagement": {
+        "title": "Pengurusan Keluarga",
+        "description": "Masukkan keluarga dan sanak saudara anda ke dalam sistem untuk menguruskan pengagihan harta anda dengan mudah."
+      },
+      "assetManagement": {
+        "title": "Pengurusan Aset",
+        "description": "Masukkan aset anda untuk menjadikan pengagihan faraid lebih mudah untuk mahkamah susun"
+      }
+    },
+    "languageSwitcher": {
+      "label": "Bahasa"
+    }
+  }
+}

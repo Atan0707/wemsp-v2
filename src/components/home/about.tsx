@@ -1,6 +1,8 @@
 import Arrow from "../ui/arrow";
+import { useLanguage } from "@/lib/i18n/context";
 
 export default function About() {
+  const { t } = useLanguage();
   return (
     <div
       id="about"
@@ -13,25 +15,20 @@ export default function About() {
             {/* Left Column */}
             <div className="text-white">
               <h3 className="text-orange-400 text-xl font-medium mb-4">
-                About Us
+                {t('about.label')}
               </h3>
               <h2 className="text-4xl font-bold mb-8">
-                Will & Estate Management Solution Provider (WEMSP)
+                {t('about.title')}
               </h2>
             </div>
-            
+
             {/* Right Column */}
             <div className="text-white/80">
               <p className="text-lg leading-relaxed mb-8">
-                Our mission is to enhance the quality of life for Muslims by integrating 
-                modern technology with traditional values, ensuring that our services 
-                align with Shariah principles. Over the years, we have developed a deep 
-                understanding of the unique challenges faced by the Muslim community, 
-                particularly in areas such as asset management, financial planning, and 
-                family governance.
+                {t('about.description')}
               </p>
               <button className="bg-orange-400 text-white px-6 py-3 rounded-full hover:bg-orange-500 transition-colors flex items-center gap-2">
-                Continue Reading
+                {t('about.continueReading')}
                 <Arrow />
               </button>
             </div>

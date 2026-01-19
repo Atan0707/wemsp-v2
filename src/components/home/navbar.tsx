@@ -7,10 +7,13 @@ import {
 } from '@/components/ui/dialog';
 import { authClient } from '@/lib/auth-client';
 import { Link } from '@tanstack/react-router';
+import { useLanguage } from '@/lib/i18n/context';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session } = authClient.useSession();
+  const { t } = useLanguage();
 
   const scrollToSection = (elementId: string) => {
     setIsMenuOpen(false); // Close mobile menu if open
@@ -62,43 +65,44 @@ const Navbar = () => {
 
           {/* Desktop menu */}
           <div className="hidden lg:flex items-center gap-1">
-            <button 
-              onClick={() => scrollToSection('header')} 
+            <button
+              onClick={() => scrollToSection('header')}
               className="text-white/90 hover:text-white hover:bg-white/20 active:bg-white/30 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
             >
-              Home
+              {t('navbar.home')}
             </button>
-            <button 
-              onClick={() => scrollToSection('about')} 
+            <button
+              onClick={() => scrollToSection('about')}
               className="text-white/90 hover:text-white hover:bg-white/20 active:bg-white/30 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
             >
-              About Us
+              {t('navbar.aboutUs')}
             </button>
-            <button 
-              onClick={() => scrollToSection('services')} 
+            <button
+              onClick={() => scrollToSection('services')}
               className="text-white/90 hover:text-white hover:bg-white/20 active:bg-white/30 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
             >
-              Services
+              {t('navbar.services')}
             </button>
-            <button 
-              onClick={() => scrollToSection('footer')} 
+            <button
+              onClick={() => scrollToSection('footer')}
               className="text-white/90 hover:text-white hover:bg-white/20 active:bg-white/30 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
             >
-              Contact Us
+              {t('navbar.contactUs')}
             </button>
+            <LanguageSwitcher />
             <div className="w-px h-5 bg-white/30 mx-3" />
             {session ? (
               <Link
                 to="/app/dashboard"
                 className="bg-white/90 text-slate-900 px-5 py-2 rounded-xl hover:bg-white transition-all duration-200 font-semibold shadow-lg"
               >
-                Dashboard
+                {t('navbar.dashboard')}
               </Link>
             ) : (
               <Dialog>
                 <DialogTrigger asChild>
                   <button className="bg-white/90 text-slate-900 px-5 py-2 rounded-xl hover:bg-white transition-all duration-200 font-semibold shadow-lg">
-                    Login
+                    {t('navbar.login')}
                   </button>
                 </DialogTrigger>
                 <DialogContent className="p-0 gap-0 max-w-[400px]">
@@ -118,43 +122,45 @@ const Navbar = () => {
       {/* Mobile menu - Liquid Glass style */}
       {isMenuOpen && (
         <div className="lg:hidden mx-4 mt-2 bg-white/10 backdrop-blur-2xl backdrop-saturate-150 rounded-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-inset ring-white/10 p-3 flex flex-col space-y-1 text-white">
-          <button 
-            onClick={() => scrollToSection('header')} 
+          <button
+            onClick={() => scrollToSection('header')}
             className="hover:bg-white/20 active:bg-white/30 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-left text-white/90"
           >
-            Home
+            {t('navbar.home')}
           </button>
-          <button 
-            onClick={() => scrollToSection('about')} 
+          <button
+            onClick={() => scrollToSection('about')}
             className="hover:bg-white/20 active:bg-white/30 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-left text-white/90"
           >
-            About Us
+            {t('navbar.aboutUs')}
           </button>
-          <button 
-            onClick={() => scrollToSection('services')} 
+          <button
+            onClick={() => scrollToSection('services')}
             className="hover:bg-white/20 active:bg-white/30 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-left text-white/90"
           >
-            Services
+            {t('navbar.services')}
           </button>
-          <button 
-            onClick={() => scrollToSection('footer')} 
+          <button
+            onClick={() => scrollToSection('footer')}
             className="hover:bg-white/20 active:bg-white/30 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-left text-white/90"
           >
-            Contact Us
+            {t('navbar.contactUs')}
           </button>
+          <div className="h-px bg-white/20 my-2" />
+          <LanguageSwitcher />
           <div className="h-px bg-white/20 my-2" />
           {session ? (
             <Link
               to="/app/dashboard"
               className="bg-white/90 text-slate-900 px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 font-semibold text-center block shadow-lg"
             >
-              Dashboard
+              {t('navbar.dashboard')}
             </Link>
           ) : (
             <Dialog>
               <DialogTrigger asChild>
                 <button className="bg-white/90 text-slate-900 px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 font-semibold text-center w-full shadow-lg">
-                  Login
+                  {t('navbar.login')}
                 </button>
               </DialogTrigger>
               <DialogContent className="p-0 gap-0 max-w-[400px]">

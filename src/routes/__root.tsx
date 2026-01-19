@@ -6,6 +6,8 @@ import {
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { Toaster } from '@/components/ui/sonner'
+import { LanguageProvider } from '@/lib/i18n/context'
+import '@/lib/i18n/config'
 
 // import Header from '../components/Header'
 
@@ -56,8 +58,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {/* <Header /> */}
-        {children}
+        <LanguageProvider>
+          {/* <Header /> */}
+          {children}
+        </LanguageProvider>
         <Toaster />
         <TanStackDevtools
           config={{

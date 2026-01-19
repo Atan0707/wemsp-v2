@@ -1,0 +1,38 @@
+{
+  "translation": {
+    "navbar": {
+      "home": "Home",
+      "aboutUs": "About Us",
+      "services": "Services",
+      "contactUs": "Contact Us",
+      "dashboard": "Dashboard",
+      "login": "Login"
+    },
+    "header": {
+      "title": "Will & Estate Management",
+      "subtitle": "Solution Provider (WEMSP)",
+      "description": "Secure your family's future with Sharia-compliant estate planning and digital asset management",
+      "getStarted": "Get Started"
+    },
+    "about": {
+      "label": "About Us",
+      "title": "Will & Estate Management Solution Provider (WEMSP)",
+      "description": "Our mission is to enhance the quality of life for Muslims by integrating modern technology with traditional values, ensuring that our services align with Shariah principles. Over the years, we have developed a deep understanding of the unique challenges faced by the Muslim community, particularly in areas such as asset management, financial planning, and family governance.",
+      "continueReading": "Continue Reading"
+    },
+    "services": {
+      "title": "Services",
+      "familyManagement": {
+        "title": "Family Management",
+        "description": "Add your family and kin into the system to easily manage the distribution of your asset."
+      },
+      "assetManagement": {
+        "title": "Asset Management",
+        "description": "Add your asset to make the faraid distribution much easier for the court to organize"
+      }
+    },
+    "languageSwitcher": {
+      "label": "Language"
+    }
+  }
+}

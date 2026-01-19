@@ -1,12 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  Zap,
-  Server,
-  Route as RouteIcon,
-  Shield,
-  Waves,
-  Sparkles,
-} from 'lucide-react'
 import Navbar from '../components/home/navbar';
 import Header from "../components/home/header";
 import About from "../components/home/about";
