@@ -22,6 +22,8 @@ import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.se
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
+import { Route as AppProfileViewRouteImport } from './routes/app/profile/view'
+import { Route as AppProfileEditRouteImport } from './routes/app/profile/edit'
 import { Route as AppFamilyEditRouteImport } from './routes/app/family/edit'
 import { Route as AppFamilyDashboardRouteImport } from './routes/app/family/dashboard'
 import { Route as AppFamilyAddRouteImport } from './routes/app/family/add'
@@ -100,6 +102,16 @@ const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
   path: '/demo/api/names',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppProfileViewRoute = AppProfileViewRouteImport.update({
+  id: '/view',
+  path: '/view',
+  getParentRoute: () => AppProfileRoute,
+} as any)
+const AppProfileEditRoute = AppProfileEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => AppProfileRoute,
+} as any)
 const AppFamilyEditRoute = AppFamilyEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -167,7 +179,7 @@ export interface FileRoutesByFullPath {
   '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/family': typeof AppFamilyRouteWithChildren
-  '/app/profile': typeof AppProfileRoute
+  '/app/profile': typeof AppProfileRouteWithChildren
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -178,6 +190,8 @@ export interface FileRoutesByFullPath {
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/dashboard': typeof AppFamilyDashboardRoute
   '/app/family/edit': typeof AppFamilyEditRoute
+  '/app/profile/edit': typeof AppProfileEditRoute
+  '/app/profile/view': typeof AppProfileViewRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -194,7 +208,7 @@ export interface FileRoutesByTo {
   '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/family': typeof AppFamilyRouteWithChildren
-  '/app/profile': typeof AppProfileRoute
+  '/app/profile': typeof AppProfileRouteWithChildren
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -205,6 +219,8 @@ export interface FileRoutesByTo {
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/dashboard': typeof AppFamilyDashboardRoute
   '/app/family/edit': typeof AppFamilyEditRoute
+  '/app/profile/edit': typeof AppProfileEditRoute
+  '/app/profile/view': typeof AppProfileViewRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -222,7 +238,7 @@ export interface FileRoutesById {
   '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/family': typeof AppFamilyRouteWithChildren
-  '/app/profile': typeof AppProfileRoute
+  '/app/profile': typeof AppProfileRouteWithChildren
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -233,6 +249,8 @@ export interface FileRoutesById {
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/dashboard': typeof AppFamilyDashboardRoute
   '/app/family/edit': typeof AppFamilyEditRoute
+  '/app/profile/edit': typeof AppProfileEditRoute
+  '/app/profile/view': typeof AppProfileViewRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
@@ -262,6 +280,8 @@ export interface FileRouteTypes {
     | '/app/family/add'
     | '/app/family/dashboard'
     | '/app/family/edit'
+    | '/app/profile/edit'
+    | '/app/profile/view'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
@@ -289,6 +309,8 @@ export interface FileRouteTypes {
     | '/app/family/add'
     | '/app/family/dashboard'
     | '/app/family/edit'
+    | '/app/profile/edit'
+    | '/app/profile/view'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
@@ -316,6 +338,8 @@ export interface FileRouteTypes {
     | '/app/family/add'
     | '/app/family/dashboard'
     | '/app/family/edit'
+    | '/app/profile/edit'
+    | '/app/profile/view'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
@@ -442,6 +466,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoApiNamesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/profile/view': {
+      id: '/app/profile/view'
+      path: '/view'
+      fullPath: '/app/profile/view'
+      preLoaderRoute: typeof AppProfileViewRouteImport
+      parentRoute: typeof AppProfileRoute
+    }
+    '/app/profile/edit': {
+      id: '/app/profile/edit'
+      path: '/edit'
+      fullPath: '/app/profile/edit'
+      preLoaderRoute: typeof AppProfileEditRouteImport
+      parentRoute: typeof AppProfileRoute
+    }
     '/app/family/edit': {
       id: '/app/family/edit'
       path: '/edit'
@@ -545,16 +583,30 @@ const AppFamilyRouteWithChildren = AppFamilyRoute._addFileChildren(
   AppFamilyRouteChildren,
 )
 
+interface AppProfileRouteChildren {
+  AppProfileEditRoute: typeof AppProfileEditRoute
+  AppProfileViewRoute: typeof AppProfileViewRoute
+}
+
+const AppProfileRouteChildren: AppProfileRouteChildren = {
+  AppProfileEditRoute: AppProfileEditRoute,
+  AppProfileViewRoute: AppProfileViewRoute,
+}
+
+const AppProfileRouteWithChildren = AppProfileRoute._addFileChildren(
+  AppProfileRouteChildren,
+)
+
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppFamilyRoute: typeof AppFamilyRouteWithChildren
-  AppProfileRoute: typeof AppProfileRoute
+  AppProfileRoute: typeof AppProfileRouteWithChildren
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppFamilyRoute: AppFamilyRouteWithChildren,
-  AppProfileRoute: AppProfileRoute,
+  AppProfileRoute: AppProfileRouteWithChildren,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
