@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { authClient } from '@/lib/auth-client'
 import {
   Card,
   CardHeader,
@@ -10,7 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AssetsTable } from '@/components/assets/assets-table'
-import { Plus } from 'lucide-react'
+import { Plus, Users } from 'lucide-react'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/app/assets/view/')({
@@ -20,6 +21,17 @@ export const Route = createFileRoute('/app/assets/view/')({
 function RouteComponent() {
   const router = useRouter()
   const queryClient = useQueryClient()
+
+  // Fetch session
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const data = await authClient.getSession()
+      return data.data
+    },
+  })
+
+  const currentUserId = session?.user?.id || ''
 
   // Fetch assets
   const { data: assetsData, isLoading } = useQuery({
@@ -34,6 +46,7 @@ function RouteComponent() {
   })
 
   const assets = assetsData?.assets || []
+  const familyAssets = assetsData?.familyAssets || []
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -69,11 +82,12 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* My Assets Section */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Assets</CardTitle>
+              <CardTitle>My Assets</CardTitle>
               <CardDescription>
                 Manage your assets
               </CardDescription>
@@ -91,9 +105,38 @@ function RouteComponent() {
             data={assets}
             isLoading={isLoading}
             onDelete={handleDelete}
+            currentUserId={currentUserId}
+            showOwner={false}
           />
         </CardContent>
       </Card>
+
+      {/* Family Assets Section */}
+      {familyAssets.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Family Assets
+                </CardTitle>
+                <CardDescription>
+                  View assets from your family members
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <AssetsTable
+              data={familyAssets}
+              isLoading={isLoading}
+              currentUserId={currentUserId}
+              showOwner={true}
+            />
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

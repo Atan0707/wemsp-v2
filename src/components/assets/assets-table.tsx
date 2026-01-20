@@ -5,7 +5,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { MoreVertical, Package, FileText, ExternalLink, Trash2 } from 'lucide-react'
+import { MoreVertical, Package, FileText, ExternalLink, Trash2, User } from 'lucide-react'
 import { useRouter } from '@tanstack/react-router'
 import {
   DropdownMenu,
@@ -32,12 +32,19 @@ export interface Asset {
   value: number
   documentUrl: string | null
   createdAt: string
+  owner?: {
+    id: string
+    name: string
+  }
+  relationship?: string
 }
 
 interface AssetsTableProps {
   data: Asset[]
   isLoading?: boolean
   onDelete?: (id: number) => void | Promise<void>
+  currentUserId?: string
+  showOwner?: boolean
 }
 
 // Helper function to format currency
@@ -68,119 +75,168 @@ const getAssetTypeColor = (type: string) => {
   }
 }
 
+// Helper function to format relationship for display
+const formatRelationship = (relation: string): string => {
+  return relation.charAt(0) + relation.slice(1).toLowerCase()
+}
+
 const createColumns = (
   onEdit: (asset: Asset) => void,
   onDelete: (id: number) => void,
-  router: ReturnType<typeof useRouter>
-): ColumnDef<Asset>[] => [
-  {
-    accessorKey: 'name',
-    header: 'Name',
-    cell: ({ row }) => {
-      const asset = row.original
-      return (
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Package className="h-4 w-4" />
-          </div>
-          <button
-            onClick={() => router.navigate({ to: `/app/assets/view/${asset.id}` as any })}
-            className="font-medium hover:underline hover:text-primary transition-colors text-left"
-          >
-            {asset.name}
-          </button>
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: 'type',
-    header: 'Type',
-    cell: ({ row }) => {
-      const type = row.original.type
-      return (
-        <Badge className={getAssetTypeColor(type)}>
-          {formatAssetType(type)}
-        </Badge>
-      )
-    },
-  },
-  {
-    accessorKey: 'value',
-    header: 'Value',
-    cell: ({ row }) => {
-      const value = row.original.value
-      return <span className="font-medium">{formatCurrency(value)}</span>
-    },
-  },
-  {
-    accessorKey: 'description',
-    header: 'Description',
-    cell: ({ row }) => {
-      const description = row.original.description
-      return (
-        <span className="text-sm text-muted-foreground">
-          {description || '-'}
-        </span>
-      )
-    },
-  },
-  {
-    id: 'document',
-    header: 'Document',
-    cell: ({ row }) => {
-      const asset = row.original
-      if (!asset.documentUrl) {
-        return <span className="text-sm text-muted-foreground">-</span>
-      }
-      return (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => window.open(asset.documentUrl!, '_blank')}
-        >
-          <FileText className="mr-2 h-4 w-4" />
-          View
-          <ExternalLink className="ml-1 h-3 w-3" />
-        </Button>
-      )
-    },
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      const asset = row.original
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm">
-              <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(asset)}>
-              <Package className="mr-2 h-4 w-4" />
-              <span>Edit</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onDelete(asset.id)}
-              className="text-destructive focus:text-destructive"
+  router: ReturnType<typeof useRouter>,
+  currentUserId: string,
+  showOwner: boolean
+): ColumnDef<Asset>[] => {
+  const columns: ColumnDef<Asset>[] = [
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }) => {
+        const asset = row.original
+        return (
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Package className="h-4 w-4" />
+            </div>
+            <button
+              onClick={() => router.navigate({ to: `/app/assets/view/${asset.id}` as any })}
+              className="font-medium hover:underline hover:text-primary transition-colors text-left"
             >
-              <Trash2 className="mr-2 h-4 w-4" />
-              <span>Delete</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
+              {asset.name}
+            </button>
+          </div>
+        )
+      },
     },
-  },
-]
+    {
+      accessorKey: 'type',
+      header: 'Type',
+      cell: ({ row }) => {
+        const type = row.original.type
+        return (
+          <Badge className={getAssetTypeColor(type)}>
+            {formatAssetType(type)}
+          </Badge>
+        )
+      },
+    },
+    {
+      accessorKey: 'value',
+      header: 'Value',
+      cell: ({ row }) => {
+        const value = row.original.value
+        return <span className="font-medium">{formatCurrency(value)}</span>
+      },
+    },
+    {
+      accessorKey: 'description',
+      header: 'Description',
+      cell: ({ row }) => {
+        const description = row.original.description
+        return (
+          <span className="text-sm text-muted-foreground">
+            {description || '-'}
+          </span>
+        )
+      },
+    },
+  ]
+
+  // Conditionally add owner column
+  if (showOwner) {
+    columns.push({
+      id: 'owner',
+      header: 'Owner',
+      cell: ({ row }) => {
+        const asset = row.original
+        if (!asset.owner) {
+          return <span className="text-sm text-muted-foreground">You</span>
+        }
+        return (
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">{asset.owner.name}</span>
+            </div>
+            {asset.relationship && (
+              <span className="text-xs text-muted-foreground ml-6">
+                {formatRelationship(asset.relationship)}
+              </span>
+            )}
+          </div>
+        )
+      },
+    })
+  }
+
+  columns.push(
+    {
+      id: 'document',
+      header: 'Document',
+      cell: ({ row }) => {
+        const asset = row.original
+        if (!asset.documentUrl) {
+          return <span className="text-sm text-muted-foreground">-</span>
+        }
+        return (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.open(asset.documentUrl!, '_blank')}
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            View
+            <ExternalLink className="ml-1 h-3 w-3" />
+          </Button>
+        )
+      },
+    },
+    {
+      id: 'actions',
+      cell: ({ row }) => {
+        const asset = row.original
+        const isOwner = !asset.owner || asset.owner.id === currentUserId
+
+        if (!isOwner) {
+          return null
+        }
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon-sm">
+                <MoreVertical className="h-4 w-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit(asset)}>
+                <Package className="mr-2 h-4 w-4" />
+                <span>Edit</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onDelete(asset.id)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                <span>Delete</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+    }
+  )
+
+  return columns
+}
 
 export function AssetsTable({
   data,
   isLoading = false,
   onDelete,
+  currentUserId = '',
+  showOwner = false,
 }: AssetsTableProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState<number | null>(null)
@@ -202,7 +258,7 @@ export function AssetsTable({
     }
   }
 
-  const columns = createColumns(handleEdit, handleDelete, router)
+  const columns = createColumns(handleEdit, handleDelete, router, currentUserId, showOwner)
 
   const table = useReactTable({
     data,

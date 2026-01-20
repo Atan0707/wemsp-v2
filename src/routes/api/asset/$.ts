@@ -4,6 +4,30 @@ import { prisma } from '@/db'
 import { AssetType } from '@/generated/prisma/enums'
 import { uploadFileToS3, generateS3Key, getFileUrl, deleteFileFromS3, extractKeyFromUrl } from '@/lib/aws'
 
+// Helper function to get inverse relationship
+// When someone adds you as their family member, we need to determine what they are to you
+function getInverseRelationship(relation: string): string {
+  const inverseMap: Record<string, string> = {
+    FATHER: 'SON',           // If you are someone's father, they are your son/daughter (we'll use SON as default)
+    MOTHER: 'SON',           // If you are someone's mother, they are your son/daughter
+    SON: 'FATHER',           // If someone is your son, you are their father/mother
+    DAUGHTER: 'FATHER',      // If someone is your daughter, you are their father/mother
+    SIBLING: 'SIBLING',      // Sibling is symmetric
+    SPOUSE: 'SPOUSE',        // Spouse is symmetric
+    GRANDFATHER: 'GRANDSON',
+    GRANDMOTHER: 'GRANDSON',
+    GRANDSON: 'GRANDFATHER',
+    GRANDDAUGHTER: 'GRANDFATHER',
+    UNCLE: 'NEPHEW',
+    AUNT: 'NEPHEW',
+    NEPHEW: 'UNCLE',
+    NIECE: 'AUNT',
+    COUSIN: 'COUSIN',        // Cousin is symmetric
+    OTHER: 'OTHER',
+  }
+  return inverseMap[relation] || 'OTHER'
+}
+
 export const Route = createFileRoute('/api/asset/$')({
   server: {
     handlers: {
@@ -132,6 +156,14 @@ export const Route = createFileRoute('/api/asset/$')({
                 id: parseInt(id),
                 userId: session.user.id,
               },
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
             })
 
             if (!asset) {
@@ -150,17 +182,115 @@ export const Route = createFileRoute('/api/asset/$')({
                 value: asset.value,
                 documentUrl: asset.documentUrl,
                 createdAt: asset.createdAt.toISOString(),
+                owner: {
+                  id: asset.user.id,
+                  name: asset.user.name,
+                },
               },
             })
           }
 
-          // Otherwise, fetch all assets
-          const assets = await prisma.asset.findMany({
+          // Fetch user's assets
+          const userAssets = await prisma.asset.findMany({
             where: { userId: session.user.id },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
             orderBy: { createdAt: 'desc' },
           })
 
-          return Response.json({ assets })
+          // Fetch family members (both directions)
+          const familyMembers = await prisma.familyMember.findMany({
+            where: {
+              OR: [
+                { userId: session.user.id },
+                { familyMemberUserId: session.user.id },
+              ],
+            },
+          })
+
+          // Create a map of userId to relationship for easy lookup
+          const relationshipMap = new Map<string, string>()
+          familyMembers.forEach((fm) => {
+            if (fm.userId === session.user.id) {
+              // The current user created this relationship, so familyMemberUserId is the related person
+              relationshipMap.set(fm.familyMemberUserId, fm.relation)
+            } else if (fm.familyMemberUserId === session.user.id) {
+              // The current user is the family member, so userId is the related person
+              // We need to determine the inverse relationship
+              relationshipMap.set(fm.userId, getInverseRelationship(fm.relation))
+            }
+          })
+
+          // Get unique family member user IDs
+          const familyMemberUserIds = new Set<string>()
+          familyMembers.forEach((fm) => {
+            if (fm.userId !== session.user.id) {
+              familyMemberUserIds.add(fm.userId)
+            }
+            if (fm.familyMemberUserId !== session.user.id) {
+              familyMemberUserIds.add(fm.familyMemberUserId)
+            }
+          })
+
+          // Fetch assets from family members
+          const familyAssets = await prisma.asset.findMany({
+            where: {
+              userId: {
+                in: Array.from(familyMemberUserIds),
+              },
+            },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          })
+
+          // Transform user assets to include owner field
+          const transformedUserAssets = userAssets.map((asset: any) => ({
+            id: asset.id,
+            name: asset.name,
+            type: asset.type,
+            description: asset.description,
+            value: asset.value,
+            documentUrl: asset.documentUrl,
+            createdAt: asset.createdAt.toISOString(),
+            owner: {
+              id: asset.user.id,
+              name: asset.user.name,
+            },
+          }))
+
+          // Transform family assets to include owner field and relationship
+          const transformedFamilyAssets = familyAssets.map((asset: any) => ({
+            id: asset.id,
+            name: asset.name,
+            type: asset.type,
+            description: asset.description,
+            value: asset.value,
+            documentUrl: asset.documentUrl,
+            createdAt: asset.createdAt.toISOString(),
+            owner: {
+              id: asset.user.id,
+              name: asset.user.name,
+            },
+            relationship: relationshipMap.get(asset.user.id) || 'OTHER',
+          }))
+
+          return Response.json({
+            assets: transformedUserAssets,
+            familyAssets: transformedFamilyAssets,
+          })
         } catch (error) {
           console.error('Error fetching assets:', error)
           return Response.json(
