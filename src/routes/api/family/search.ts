@@ -34,6 +34,14 @@ export const Route = createFileRoute('/api/family/search')({
           })
 
           if (registeredUser) {
+            // Check if user is trying to add themselves
+            if (registeredUser.id === session.user.id) {
+              return Response.json({
+                type: 'self',
+                data: registeredUser,
+              })
+            }
+
             // Check if relationship already exists
             const existingRelationship = await prisma.familyMember.findFirst({
               where: {

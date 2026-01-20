@@ -54,6 +54,7 @@ type SearchResult =
   | { type: 'non-registered'; data: NonRegisteredSearchResult }
   | { type: 'not-found' }
   | { type: 'exists'; data: UserSearchResult }
+  | { type: 'self'; data: UserSearchResult }
 
 export const Route = createFileRoute('/app/family/add')({
   component: RouteComponent,
@@ -250,25 +251,66 @@ function RouteComponent() {
             {hasSearched && searchResult && (
               <div className="flex flex-col gap-3">
                 {searchResult.type === 'exists' && (
-                  <div className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
-                    {searchResult.data.image ? (
-                      <img
-                        src={searchResult.data.image}
-                        alt={searchResult.data.name}
-                        className="h-12 w-12 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white">
-                        <User className="h-6 w-6" />
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                      {searchResult.data.image ? (
+                        <img
+                          src={searchResult.data.image}
+                          alt={searchResult.data.name}
+                          className="h-12 w-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white">
+                          <User className="h-6 w-6" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <p className="font-medium">{searchResult.data.name}</p>
+                        <p className="text-sm text-muted-foreground">{searchResult.data.email}</p>
+                        <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                          Already added as {searchResult.data.existingRelation?.toLowerCase()}
+                        </p>
                       </div>
-                    )}
-                    <div className="flex-1">
-                      <p className="font-medium">{searchResult.data.name}</p>
-                      <p className="text-sm text-muted-foreground">{searchResult.data.email}</p>
-                      <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                        Already added as {searchResult.data.existingRelation?.toLowerCase()}
-                      </p>
                     </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => router.navigate({ to: '/app/family' })}
+                    >
+                      Back to Family List
+                    </Button>
+                  </div>
+                )}
+
+                {searchResult.type === 'self' && (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                      {searchResult.data.image ? (
+                        <img
+                          src={searchResult.data.image}
+                          alt={searchResult.data.name}
+                          className="h-12 w-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white">
+                          <User className="h-6 w-6" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <p className="font-medium">{searchResult.data.name}</p>
+                        <p className="text-sm text-muted-foreground">{searchResult.data.email}</p>
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                          You cannot add yourself as a family member
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => router.navigate({ to: '/app/family' })}
+                    >
+                      Back to Family List
+                    </Button>
                   </div>
                 )}
 
@@ -329,8 +371,8 @@ function RouteComponent() {
               </div>
             )}
 
-            {/* Only show form fields after search and not exists */}
-            {hasSearched && searchResult?.type !== 'exists' && (
+            {/* Only show form fields after search and not exists/self */}
+            {hasSearched && searchResult?.type !== 'exists' && searchResult?.type !== 'self' && (
               <>
                 {/* Name */}
                 {searchResult?.type === 'not-found' ? (
