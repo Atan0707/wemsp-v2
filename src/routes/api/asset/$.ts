@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/db'
 import { AssetType } from '@/generated/prisma/enums'
+import { uploadFileToS3, generateS3Key, getFileUrl } from '@/lib/aws'
 
 export const Route = createFileRoute('/api/asset/$')({
   server: {
@@ -16,11 +17,16 @@ export const Route = createFileRoute('/api/asset/$')({
         }
 
         try {
-          const body = await request.json()
-          const { name, type, description, value, documentUrl } = body
+          // Parse FormData instead of JSON
+          const formData = await request.formData()
+          const name = formData.get('name') as string
+          const type = formData.get('type') as string
+          const description = formData.get('description') as string | null
+          const value = formData.get('value') as string
+          const document = formData.get('document') as File | null
 
           // Validate required fields
-          if (!name || !type || value === undefined || value === null) {
+          if (!name || !type || !value) {
             return Response.json(
               { error: 'Missing required fields' },
               { status: 400 }
@@ -28,7 +34,7 @@ export const Route = createFileRoute('/api/asset/$')({
           }
 
           // Validate asset type
-          if (!Object.values(AssetType).includes(type)) {
+          if (!Object.values(AssetType).includes(type as AssetType)) {
             return Response.json(
               { error: 'Invalid asset type' },
               { status: 400 }
@@ -44,14 +50,49 @@ export const Route = createFileRoute('/api/asset/$')({
             )
           }
 
+          // Upload document to S3 if provided
+          let documentUrl: string | null = null
+          if (document && document.size > 0) {
+            // Validate file type
+            const allowedTypes = [
+              'application/pdf',
+              'image/jpeg',
+              'image/jpg',
+              'image/png',
+              'image/gif',
+              'image/webp'
+            ]
+
+            if (!allowedTypes.includes(document.type)) {
+              return Response.json(
+                { error: 'Invalid file type. Allowed types: PDF, JPEG, PNG, GIF, WebP' },
+                { status: 400 }
+              )
+            }
+
+            // Validate file size (max 10MB)
+            const maxSize = 10 * 1024 * 1024 // 10MB
+            if (document.size > maxSize) {
+              return Response.json(
+                { error: 'File size exceeds 10MB limit' },
+                { status: 400 }
+              )
+            }
+
+            // Upload to S3
+            const key = generateS3Key(document.name, 'assets')
+            await uploadFileToS3(document, key)
+            documentUrl = getFileUrl(key)
+          }
+
           // Create asset in database
           const asset = await prisma.asset.create({
             data: {
               name,
-              type,
+              type: type as AssetType,
               description: description || null,
               value: numValue,
-              documentUrl: documentUrl || null,
+              documentUrl,
               userId: session.user.id,
             },
           })

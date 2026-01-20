@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useMutation } from '@tanstack/react-query'
-import { Package, DollarSign, FileText, Link, Loader2 } from 'lucide-react'
+import { Package, DollarSign, FileText, Loader2, X } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -37,24 +37,27 @@ function RouteComponent() {
     type: '' as AssetTypeEnum | '',
     description: '',
     value: '',
-    documentUrl: '',
   })
+  const [documentFile, setDocumentFile] = useState<File | null>(null)
 
   // Create asset mutation
   const createAssetMutation = useMutation({
     mutationFn: async () => {
+      // Create FormData to handle file upload
+      const formDataToSend = new FormData()
+      formDataToSend.append('name', formData.name)
+      formDataToSend.append('type', formData.type)
+      if (formData.description) {
+        formDataToSend.append('description', formData.description)
+      }
+      formDataToSend.append('value', formData.value)
+      if (documentFile) {
+        formDataToSend.append('document', documentFile)
+      }
+
       const response = await fetch('/api/asset', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          type: formData.type,
-          description: formData.description || undefined,
-          value: formData.value,
-          documentUrl: formData.documentUrl || undefined,
-        }),
+        body: formDataToSend,
       })
 
       const data = await response.json()
@@ -76,6 +79,39 @@ function RouteComponent() {
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type (accept PDF and images)
+      const allowedTypes = [
+        'application/pdf',
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp'
+      ]
+
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Invalid file type. Please upload PDF or image files.')
+        return
+      }
+
+      // Validate file size (max 10MB)
+      const maxSize = 10 * 1024 * 1024 // 10MB
+      if (file.size > maxSize) {
+        toast.error('File size exceeds 10MB limit')
+        return
+      }
+
+      setDocumentFile(file)
+    }
+  }
+
+  const handleRemoveFile = () => {
+    setDocumentFile(null)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -215,22 +251,44 @@ function RouteComponent() {
                 </div>
               </Field>
 
-              {/* Document URL Field */}
+              {/* Document Upload Field */}
               <Field className="group">
-                <FieldLabel htmlFor="documentUrl" className="text-sm font-medium">
-                  Document URL
+                <FieldLabel htmlFor="document" className="text-sm font-medium">
+                  Document
                 </FieldLabel>
-                <div className="relative">
-                  <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    id="documentUrl"
-                    type="url"
-                    value={formData.documentUrl}
-                    onChange={(e) => handleInputChange('documentUrl', e.target.value)}
-                    placeholder="https://example.com/document.pdf"
-                    className="h-10 pl-10"
-                  />
-                </div>
+                {documentFile ? (
+                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
+                    <FileText className="h-8 w-8 text-muted-foreground shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{documentFile.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {(documentFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveFile}
+                      className="shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <Input
+                      id="document"
+                      type="file"
+                      onChange={handleFileChange}
+                      accept=".pdf,image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                      className="h-10 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-muted file:text-muted-foreground hover:file:bg-muted/80"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Upload PDF or image files (max 10MB)
+                    </p>
+                  </div>
+                )}
               </Field>
             </FieldGroup>
 
