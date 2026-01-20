@@ -21,7 +21,8 @@ export const FamilyRelation = {
   OTHER: 'OTHER',
 } as const
 
-export type FamilyRelationType = (typeof FamilyRelation)[keyof typeof FamilyRelation]
+type FamilyRelationType = (typeof FamilyRelation)[keyof typeof FamilyRelation]
+export { FamilyRelationType }
 
 /**
  * Mapping of family relations to their inverse relations.

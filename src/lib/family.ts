@@ -1,13 +1,13 @@
 import { prisma } from '../db'
 import {
   FamilyRelation,
-  FamilyRelationType,
   INVERSE_RELATIONS,
   getInverseRelation,
 } from './family-types'
+import type { FamilyRelationType } from './family-types'
 
 // Re-export types for server-side usage
-export { FamilyRelation, FamilyRelationType, INVERSE_RELATIONS, getInverseRelation }
+export { FamilyRelation, type FamilyRelationType, INVERSE_RELATIONS, getInverseRelation }
 
 /**
  * Creates a bidirectional family relationship between two users.
