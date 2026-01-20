@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/db'
 import { AssetType } from '@/generated/prisma/enums'
-import { uploadFileToS3, generateS3Key, getFileUrl } from '@/lib/aws'
+import { uploadFileToS3, generateS3Key, getFileUrl, deleteFileFromS3, extractKeyFromUrl } from '@/lib/aws'
 
 export const Route = createFileRoute('/api/asset/$')({
   server: {
@@ -135,6 +135,70 @@ export const Route = createFileRoute('/api/asset/$')({
           return Response.json({ assets })
         } catch (error) {
           console.error('Error fetching assets:', error)
+          return Response.json(
+            { error: 'Internal Server Error' },
+            { status: 500 }
+          )
+        }
+      },
+
+      DELETE: async ({ request }: { request: Request }) => {
+        const session = await auth.api.getSession({
+          headers: request.headers,
+        })
+
+        if (!session) {
+          return new Response('Unauthorized', { status: 401 })
+        }
+
+        try {
+          const url = new URL(request.url)
+          const id = url.pathname.split('/').pop()
+
+          if (!id) {
+            return Response.json(
+              { error: 'Missing asset id' },
+              { status: 400 }
+            )
+          }
+
+          // Check if asset exists and belongs to user
+          const asset = await prisma.asset.findFirst({
+            where: {
+              id: parseInt(id),
+              userId: session.user.id,
+            },
+          })
+
+          if (!asset) {
+            return Response.json(
+              { error: 'Asset not found' },
+              { status: 404 }
+            )
+          }
+
+          // Delete file from S3 if exists
+          if (asset.documentUrl) {
+            try {
+              const key = extractKeyFromUrl(asset.documentUrl)
+              await deleteFileFromS3(key)
+            } catch (error) {
+              console.error('Error deleting file from S3:', error)
+              // Continue with asset deletion even if file deletion fails
+            }
+          }
+
+          // Delete asset from database
+          await prisma.asset.delete({
+            where: { id: parseInt(id) },
+          })
+
+          return Response.json({
+            success: true,
+            message: 'Asset deleted successfully',
+          })
+        } catch (error) {
+          console.error('Error deleting asset:', error)
           return Response.json(
             { error: 'Internal Server Error' },
             { status: 500 }

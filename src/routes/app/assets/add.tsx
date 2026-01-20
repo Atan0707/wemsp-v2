@@ -281,7 +281,7 @@ function RouteComponent() {
                       id="document"
                       type="file"
                       onChange={handleFileChange}
-                      accept=".pdf,image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                      accept=".pdf"
                       className="h-10 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-muted file:text-muted-foreground hover:file:bg-muted/80"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
