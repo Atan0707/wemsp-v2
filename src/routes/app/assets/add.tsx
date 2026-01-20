@@ -50,7 +50,7 @@ function RouteComponent() {
       if (formData.description) {
         formDataToSend.append('description', formData.description)
       }
-      formDataToSend.append('value', formData.value)
+      formDataToSend.append('value', cleanValue(formData.value))
       if (documentFile) {
         formDataToSend.append('document', documentFile)
       }
@@ -79,6 +79,39 @@ function RouteComponent() {
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const formatValueWithCommas = (value: string) => {
+    // Remove existing commas and non-numeric chars except decimal point
+    const cleanValue = value.replace(/,/g, '')
+    if (!cleanValue) return ''
+
+    // Check if it's a valid number format
+    if (/^\d*\.?\d*$/.test(cleanValue)) {
+      const parts = cleanValue.split('.')
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      return parts.join('.')
+    }
+    return value
+  }
+
+  const cleanValue = (value: string) => {
+    return value.replace(/,/g, '')
+  }
+
+  const handleValueChange = (value: string) => {
+    // Only allow numbers, decimal point, and commas
+    const numericValue = value.replace(/[^\d.,]/g, '')
+
+    // Handle multiple decimal points
+    const parts = numericValue.split('.')
+    if (parts.length > 2) {
+      return
+    }
+
+    // Format with commas for display
+    const formatted = formatValueWithCommas(numericValue)
+    setFormData((prev) => ({ ...prev, value: formatted }))
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,7 +166,7 @@ function RouteComponent() {
       return
     }
 
-    const numValue = parseFloat(formData.value)
+    const numValue = parseFloat(cleanValue(formData.value))
     if (isNaN(numValue) || numValue < 0) {
       toast.error('Value must be a positive number')
       return
@@ -222,11 +255,12 @@ function RouteComponent() {
                   <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <Input
                     id="value"
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     step="0.01"
                     min="0"
                     value={formData.value}
-                    onChange={(e) => handleInputChange('value', e.target.value)}
+                    onChange={(e) => handleValueChange(e.target.value)}
                     placeholder="0.00"
                     className="h-10 pl-10"
                   />
