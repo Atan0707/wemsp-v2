@@ -36,9 +36,14 @@ function RouteComponent() {
   const queryClient = useQueryClient()
   const { id } = Route.useParams()
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string
+    type: AssetTypeEnum | undefined
+    description: string
+    value: string
+  }>({
     name: '',
-    type: '' as AssetTypeEnum | '',
+    type: undefined,
     description: '',
     value: '',
   })
@@ -53,7 +58,9 @@ function RouteComponent() {
       if (!response.ok) {
         throw new Error('Failed to fetch asset')
       }
-      return response.json()
+      const data = await response.json()
+      // console.log(data)
+      return data
     },
     enabled: !!id,
   })
@@ -96,6 +103,7 @@ function RouteComponent() {
   // Initialize form data when asset loads
   useEffect(() => {
     if (asset) {
+      // console.log(asset)
       setFormData({
         name: asset.name,
         type: asset.type as AssetTypeEnum,
@@ -110,7 +118,9 @@ function RouteComponent() {
     mutationFn: async () => {
       const formDataToSend = new FormData()
       formDataToSend.append('name', formData.name)
-      formDataToSend.append('type', formData.type)
+      if (formData.type) {
+        formDataToSend.append('type', formData.type)
+      }
       if (formData.description) {
         formDataToSend.append('description', formData.description)
       }
@@ -278,6 +288,7 @@ function RouteComponent() {
                   Asset Type <span className="text-destructive">*</span>
                 </FieldLabel>
                 <Select
+                  key={formData.type || 'type-select'}
                   value={formData.type}
                   onValueChange={(value) => handleInputChange('type', value as AssetTypeEnum)}
                 >
