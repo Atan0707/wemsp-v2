@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { authClient } from '@/lib/auth-client'
 import {
   Card,
   CardContent,
@@ -21,6 +22,7 @@ import {
   ArrowLeft,
   Tag,
   Calendar,
+  User,
 } from 'lucide-react'
 import { Loader2 } from 'lucide-react'
 import type { Asset } from '@/components/assets/assets-table'
@@ -32,6 +34,17 @@ export const Route = createFileRoute('/app/assets/view/$id')({
 function RouteComponent() {
   const router = useRouter()
   const { id } = Route.useParams()
+
+  // Fetch session to get current user ID
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const data = await authClient.getSession()
+      return data.data
+    },
+  })
+
+  const currentUserId = session?.user?.id || ''
 
   const { data: assetData, isLoading } = useQuery<{ asset: Asset }>({
     queryKey: ['asset', id],
@@ -46,6 +59,9 @@ function RouteComponent() {
   })
 
   const asset = assetData?.asset
+
+  // Check if current user is the owner
+  const isOwner = asset && (!asset.owner || asset.owner.id === currentUserId)
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-MY', {
@@ -113,15 +129,19 @@ function RouteComponent() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <CardTitle>Asset Details</CardTitle>
-              <CardDescription>View your asset information</CardDescription>
+              <CardDescription>
+                {isOwner ? 'View your asset information' : 'View family member asset'}
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                onClick={() => router.navigate({ to: `/app/assets/edit/${id}` as any })}
-                variant="default"
-              >
-                Edit Asset
-              </Button>
+              {isOwner && (
+                <Button
+                  onClick={() => router.navigate({ to: `/app/assets/edit/${id}` as any })}
+                  variant="default"
+                >
+                  Edit Asset
+                </Button>
+              )}
               <Button
                 onClick={() => router.navigate({ to: '/app/assets' })}
                 variant="outline"
@@ -148,6 +168,13 @@ function RouteComponent() {
                   <Calendar className="h-3 w-3" />
                   {formatDate(asset.createdAt)}
                 </span>
+                {!isOwner && asset.owner && (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
+                    <User className="h-3 w-3" />
+                    {asset.owner.name}
+                    {asset.relationship && ` (${asset.relationship.charAt(0) + asset.relationship.slice(1).toLowerCase()})`}
+                  </span>
+                )}
               </div>
             </div>
           </div>

@@ -151,10 +151,43 @@ export const Route = createFileRoute('/api/asset/$')({
 
           // If ID is present and numeric, fetch single asset
           if (id && /^\d+$/.test(id)) {
+            // Fetch family members to check if the current user can view this asset
+            const familyMembers = await prisma.familyMember.findMany({
+              where: {
+                OR: [
+                  { userId: session.user.id },
+                  { familyMemberUserId: session.user.id },
+                ],
+              },
+            })
+
+            // Get unique family member user IDs including the current user
+            const accessibleUserIds = new Set([session.user.id])
+            familyMembers.forEach((fm) => {
+              if (fm.userId !== session.user.id) {
+                accessibleUserIds.add(fm.userId)
+              }
+              if (fm.familyMemberUserId !== session.user.id) {
+                accessibleUserIds.add(fm.familyMemberUserId)
+              }
+            })
+
+            // Build relationship map for displaying relationship
+            const relationshipMap = new Map<string, string>()
+            familyMembers.forEach((fm) => {
+              if (fm.userId === session.user.id) {
+                relationshipMap.set(fm.familyMemberUserId, fm.relation)
+              } else if (fm.familyMemberUserId === session.user.id) {
+                relationshipMap.set(fm.userId, getInverseRelationship(fm.relation))
+              }
+            })
+
             const asset = await prisma.asset.findFirst({
               where: {
                 id: parseInt(id),
-                userId: session.user.id,
+                userId: {
+                  in: Array.from(accessibleUserIds),
+                },
               },
               include: {
                 user: {
@@ -173,6 +206,11 @@ export const Route = createFileRoute('/api/asset/$')({
               )
             }
 
+            // Determine relationship if asset belongs to family member
+            const relationship = asset.userId !== session.user.id
+              ? relationshipMap.get(asset.userId) || 'OTHER'
+              : undefined
+
             return Response.json({
               asset: {
                 id: asset.id,
@@ -186,6 +224,7 @@ export const Route = createFileRoute('/api/asset/$')({
                   id: asset.user.id,
                   name: asset.user.name,
                 },
+                relationship,
               },
             })
           }
