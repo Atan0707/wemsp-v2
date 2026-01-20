@@ -141,6 +141,7 @@ export type NonRegisteredFamilyMemberScalarFieldEnum = (typeof NonRegisteredFami
 export const AssetScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  type: 'type',
   description: 'description',
   value: 'value',
   createdAt: 'createdAt',

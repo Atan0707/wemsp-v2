@@ -177,7 +177,7 @@ export type IcRegistryWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"IcRegistry"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   nonRegisteredFamilyMember?: Prisma.XOR<Prisma.NonRegisteredFamilyMemberNullableScalarRelationFilter, Prisma.NonRegisteredFamilyMemberWhereInput> | null
-}, "icNumber">
+}, "icNumber" | "icNumber">
 
 export type IcRegistryOrderByWithAggregationInput = {
   icNumber?: Prisma.SortOrder

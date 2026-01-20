@@ -1180,6 +1180,7 @@ export type NonRegisteredFamilyMemberScalarFieldEnum = (typeof NonRegisteredFami
 export const AssetScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  type: 'type',
   description: 'description',
   value: 'value',
   createdAt: 'createdAt',
@@ -1325,6 +1326,20 @@ export type EnumFamilyRelationFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'FamilyRelation[]'
  */
 export type ListEnumFamilyRelationFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FamilyRelation[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AssetType'
+ */
+export type EnumAssetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetType'>
+    
+
+
+/**
+ * Reference to a field of type 'AssetType[]'
+ */
+export type ListEnumAssetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetType[]'>
     
 
 

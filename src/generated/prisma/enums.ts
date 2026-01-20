@@ -29,3 +29,13 @@ export const FamilyRelation = {
 } as const
 
 export type FamilyRelation = (typeof FamilyRelation)[keyof typeof FamilyRelation]
+
+
+export const AssetType = {
+  PROPERTY: 'PROPERTY',
+  VEHICLE: 'VEHICLE',
+  INVESTMENT: 'INVESTMENT',
+  OTHER: 'OTHER'
+} as const
+
+export type AssetType = (typeof AssetType)[keyof typeof AssetType]

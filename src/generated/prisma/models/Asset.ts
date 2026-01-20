@@ -39,6 +39,7 @@ export type AssetSumAggregateOutputType = {
 export type AssetMinAggregateOutputType = {
   id: number | null
   name: string | null
+  type: $Enums.AssetType | null
   description: string | null
   value: number | null
   createdAt: Date | null
@@ -49,6 +50,7 @@ export type AssetMinAggregateOutputType = {
 export type AssetMaxAggregateOutputType = {
   id: number | null
   name: string | null
+  type: $Enums.AssetType | null
   description: string | null
   value: number | null
   createdAt: Date | null
@@ -59,6 +61,7 @@ export type AssetMaxAggregateOutputType = {
 export type AssetCountAggregateOutputType = {
   id: number
   name: number
+  type: number
   description: number
   value: number
   createdAt: number
@@ -81,6 +84,7 @@ export type AssetSumAggregateInputType = {
 export type AssetMinAggregateInputType = {
   id?: true
   name?: true
+  type?: true
   description?: true
   value?: true
   createdAt?: true
@@ -91,6 +95,7 @@ export type AssetMinAggregateInputType = {
 export type AssetMaxAggregateInputType = {
   id?: true
   name?: true
+  type?: true
   description?: true
   value?: true
   createdAt?: true
@@ -101,6 +106,7 @@ export type AssetMaxAggregateInputType = {
 export type AssetCountAggregateInputType = {
   id?: true
   name?: true
+  type?: true
   description?: true
   value?: true
   createdAt?: true
@@ -198,6 +204,7 @@ export type AssetGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type AssetGroupByOutputType = {
   id: number
   name: string
+  type: $Enums.AssetType
   description: string | null
   value: number
   createdAt: Date
@@ -231,6 +238,7 @@ export type AssetWhereInput = {
   NOT?: Prisma.AssetWhereInput | Prisma.AssetWhereInput[]
   id?: Prisma.IntFilter<"Asset"> | number
   name?: Prisma.StringFilter<"Asset"> | string
+  type?: Prisma.EnumAssetTypeFilter<"Asset"> | $Enums.AssetType
   description?: Prisma.StringNullableFilter<"Asset"> | string | null
   value?: Prisma.FloatFilter<"Asset"> | number
   createdAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
@@ -242,6 +250,7 @@ export type AssetWhereInput = {
 export type AssetOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   value?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -256,6 +265,7 @@ export type AssetWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AssetWhereInput[]
   NOT?: Prisma.AssetWhereInput | Prisma.AssetWhereInput[]
   name?: Prisma.StringFilter<"Asset"> | string
+  type?: Prisma.EnumAssetTypeFilter<"Asset"> | $Enums.AssetType
   description?: Prisma.StringNullableFilter<"Asset"> | string | null
   value?: Prisma.FloatFilter<"Asset"> | number
   createdAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
@@ -267,6 +277,7 @@ export type AssetWhereUniqueInput = Prisma.AtLeast<{
 export type AssetOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   value?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -285,6 +296,7 @@ export type AssetScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AssetScalarWhereWithAggregatesInput | Prisma.AssetScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Asset"> | number
   name?: Prisma.StringWithAggregatesFilter<"Asset"> | string
+  type?: Prisma.EnumAssetTypeWithAggregatesFilter<"Asset"> | $Enums.AssetType
   description?: Prisma.StringNullableWithAggregatesFilter<"Asset"> | string | null
   value?: Prisma.FloatWithAggregatesFilter<"Asset"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Asset"> | Date | string
@@ -294,6 +306,7 @@ export type AssetScalarWhereWithAggregatesInput = {
 
 export type AssetCreateInput = {
   name: string
+  type: $Enums.AssetType
   description?: string | null
   value: number
   createdAt?: Date | string
@@ -304,6 +317,7 @@ export type AssetCreateInput = {
 export type AssetUncheckedCreateInput = {
   id?: number
   name: string
+  type: $Enums.AssetType
   description?: string | null
   value: number
   createdAt?: Date | string
@@ -313,6 +327,7 @@ export type AssetUncheckedCreateInput = {
 
 export type AssetUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -323,6 +338,7 @@ export type AssetUpdateInput = {
 export type AssetUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -333,6 +349,7 @@ export type AssetUncheckedUpdateInput = {
 export type AssetCreateManyInput = {
   id?: number
   name: string
+  type: $Enums.AssetType
   description?: string | null
   value: number
   createdAt?: Date | string
@@ -342,6 +359,7 @@ export type AssetCreateManyInput = {
 
 export type AssetUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -351,6 +369,7 @@ export type AssetUpdateManyMutationInput = {
 export type AssetUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -371,6 +390,7 @@ export type AssetOrderByRelationAggregateInput = {
 export type AssetCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   description?: Prisma.SortOrder
   value?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -386,6 +406,7 @@ export type AssetAvgOrderByAggregateInput = {
 export type AssetMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   description?: Prisma.SortOrder
   value?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -396,6 +417,7 @@ export type AssetMaxOrderByAggregateInput = {
 export type AssetMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   description?: Prisma.SortOrder
   value?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -450,6 +472,10 @@ export type AssetUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.AssetScalarWhereInput | Prisma.AssetScalarWhereInput[]
 }
 
+export type EnumAssetTypeFieldUpdateOperationsInput = {
+  set?: $Enums.AssetType
+}
+
 export type FloatFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -460,6 +486,7 @@ export type FloatFieldUpdateOperationsInput = {
 
 export type AssetCreateWithoutUserInput = {
   name: string
+  type: $Enums.AssetType
   description?: string | null
   value: number
   createdAt?: Date | string
@@ -469,6 +496,7 @@ export type AssetCreateWithoutUserInput = {
 export type AssetUncheckedCreateWithoutUserInput = {
   id?: number
   name: string
+  type: $Enums.AssetType
   description?: string | null
   value: number
   createdAt?: Date | string
@@ -507,6 +535,7 @@ export type AssetScalarWhereInput = {
   NOT?: Prisma.AssetScalarWhereInput | Prisma.AssetScalarWhereInput[]
   id?: Prisma.IntFilter<"Asset"> | number
   name?: Prisma.StringFilter<"Asset"> | string
+  type?: Prisma.EnumAssetTypeFilter<"Asset"> | $Enums.AssetType
   description?: Prisma.StringNullableFilter<"Asset"> | string | null
   value?: Prisma.FloatFilter<"Asset"> | number
   createdAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
@@ -517,6 +546,7 @@ export type AssetScalarWhereInput = {
 export type AssetCreateManyUserInput = {
   id?: number
   name: string
+  type: $Enums.AssetType
   description?: string | null
   value: number
   createdAt?: Date | string
@@ -525,6 +555,7 @@ export type AssetCreateManyUserInput = {
 
 export type AssetUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -534,6 +565,7 @@ export type AssetUpdateWithoutUserInput = {
 export type AssetUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -543,6 +575,7 @@ export type AssetUncheckedUpdateWithoutUserInput = {
 export type AssetUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   value?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -554,6 +587,7 @@ export type AssetUncheckedUpdateManyWithoutUserInput = {
 export type AssetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  type?: boolean
   description?: boolean
   value?: boolean
   createdAt?: boolean
@@ -565,6 +599,7 @@ export type AssetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type AssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  type?: boolean
   description?: boolean
   value?: boolean
   createdAt?: boolean
@@ -576,6 +611,7 @@ export type AssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type AssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  type?: boolean
   description?: boolean
   value?: boolean
   createdAt?: boolean
@@ -587,6 +623,7 @@ export type AssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type AssetSelectScalar = {
   id?: boolean
   name?: boolean
+  type?: boolean
   description?: boolean
   value?: boolean
   createdAt?: boolean
@@ -594,7 +631,7 @@ export type AssetSelectScalar = {
   userId?: boolean
 }
 
-export type AssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "value" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["asset"]>
+export type AssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "description" | "value" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["asset"]>
 export type AssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -613,6 +650,7 @@ export type $AssetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
+    type: $Enums.AssetType
     description: string | null
     value: number
     createdAt: Date
@@ -1044,6 +1082,7 @@ export interface Prisma__AssetClient<T, Null = never, ExtArgs extends runtime.Ty
 export interface AssetFieldRefs {
   readonly id: Prisma.FieldRef<"Asset", 'Int'>
   readonly name: Prisma.FieldRef<"Asset", 'String'>
+  readonly type: Prisma.FieldRef<"Asset", 'AssetType'>
   readonly description: Prisma.FieldRef<"Asset", 'String'>
   readonly value: Prisma.FieldRef<"Asset", 'Float'>
   readonly createdAt: Prisma.FieldRef<"Asset", 'DateTime'>

@@ -34,6 +34,13 @@ enum FamilyRelation {
   OTHER
 }
 
+enum AssetType {
+  PROPERTY
+  VEHICLE
+  INVESTMENT
+  OTHER
+}
+
 // Central registry for IC numbers to ensure global uniqueness
 // across User and NonRegisteredFamilyMember tables
 model IcRegistry {
@@ -130,8 +137,10 @@ model Asset {
   // Change it to id String @id @default(cuid()) for prod
   id            Int         @id @default(autoincrement())
   name          String
+  type          AssetType
   description   String?
   value         Float
+  documentUrl   String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
