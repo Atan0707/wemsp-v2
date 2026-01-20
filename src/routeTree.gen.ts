@@ -29,6 +29,7 @@ import { Route as AppFamilyViewRouteImport } from './routes/app/family/view'
 import { Route as AppFamilyEditRouteImport } from './routes/app/family/edit'
 import { Route as AppFamilyAddRouteImport } from './routes/app/family/add'
 import { Route as AppAssetsViewRouteImport } from './routes/app/assets/view'
+import { Route as AppAssetsAddRouteImport } from './routes/app/assets/add'
 import { Route as ApiFileKeyRouteImport } from './routes/api/file/$key'
 import { Route as ApiFileSplatRouteImport } from './routes/api/file/$'
 import { Route as ApiFamilySearchRouteImport } from './routes/api/family/search'
@@ -140,6 +141,11 @@ const AppAssetsViewRoute = AppAssetsViewRouteImport.update({
   path: '/assets/view',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAssetsAddRoute = AppAssetsAddRouteImport.update({
+  id: '/assets/add',
+  path: '/assets/add',
+  getParentRoute: () => AppRoute,
+} as any)
 const ApiFileKeyRoute = ApiFileKeyRouteImport.update({
   id: '/api/file/$key',
   path: '/api/file/$key',
@@ -203,6 +209,7 @@ export interface FileRoutesByFullPath {
   '/api/family/search': typeof ApiFamilySearchRoute
   '/api/file/$': typeof ApiFileSplatRoute
   '/api/file/$key': typeof ApiFileKeyRoute
+  '/app/assets/add': typeof AppAssetsAddRoute
   '/app/assets/view': typeof AppAssetsViewRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/edit': typeof AppFamilyEditRoute
@@ -235,6 +242,7 @@ export interface FileRoutesByTo {
   '/api/family/search': typeof ApiFamilySearchRoute
   '/api/file/$': typeof ApiFileSplatRoute
   '/api/file/$key': typeof ApiFileKeyRoute
+  '/app/assets/add': typeof AppAssetsAddRoute
   '/app/assets/view': typeof AppAssetsViewRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/edit': typeof AppFamilyEditRoute
@@ -268,6 +276,7 @@ export interface FileRoutesById {
   '/api/family/search': typeof ApiFamilySearchRoute
   '/api/file/$': typeof ApiFileSplatRoute
   '/api/file/$key': typeof ApiFileKeyRoute
+  '/app/assets/add': typeof AppAssetsAddRoute
   '/app/assets/view': typeof AppAssetsViewRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/edit': typeof AppFamilyEditRoute
@@ -302,6 +311,7 @@ export interface FileRouteTypes {
     | '/api/family/search'
     | '/api/file/$'
     | '/api/file/$key'
+    | '/app/assets/add'
     | '/app/assets/view'
     | '/app/family/add'
     | '/app/family/edit'
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/api/family/search'
     | '/api/file/$'
     | '/api/file/$key'
+    | '/app/assets/add'
     | '/app/assets/view'
     | '/app/family/add'
     | '/app/family/edit'
@@ -366,6 +377,7 @@ export interface FileRouteTypes {
     | '/api/family/search'
     | '/api/file/$'
     | '/api/file/$key'
+    | '/app/assets/add'
     | '/app/assets/view'
     | '/app/family/add'
     | '/app/family/edit'
@@ -552,6 +564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAssetsViewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/assets/add': {
+      id: '/app/assets/add'
+      path: '/assets/add'
+      fullPath: '/app/assets/add'
+      preLoaderRoute: typeof AppAssetsAddRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/api/file/$key': {
       id: '/api/file/$key'
       path: '/api/file/$key'
@@ -627,6 +646,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppAssetsAddRoute: typeof AppAssetsAddRoute
   AppAssetsViewRoute: typeof AppAssetsViewRoute
   AppFamilyAddRoute: typeof AppFamilyAddRoute
   AppFamilyEditRoute: typeof AppFamilyEditRoute
@@ -640,6 +660,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppAssetsAddRoute: AppAssetsAddRoute,
   AppAssetsViewRoute: AppAssetsViewRoute,
   AppFamilyAddRoute: AppFamilyAddRoute,
   AppFamilyEditRoute: AppFamilyEditRoute,
