@@ -15,9 +15,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoPrismaRouteImport } from './routes/demo/prisma'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
+import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/index'
 import { Route as AppProfileIndexRouteImport } from './routes/app/profile/index'
 import { Route as AppFamilyIndexRouteImport } from './routes/app/family/index'
 import { Route as AppAssetsIndexRouteImport } from './routes/app/assets/index'
+import { Route as AppAgreementIndexRouteImport } from './routes/app/agreement/index'
 import { Route as ApiUploadIndexRouteImport } from './routes/api/upload/index'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
@@ -75,6 +77,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProfileIndexRoute = AppProfileIndexRouteImport.update({
   id: '/profile/',
   path: '/profile/',
@@ -88,6 +95,11 @@ const AppFamilyIndexRoute = AppFamilyIndexRouteImport.update({
 const AppAssetsIndexRoute = AppAssetsIndexRouteImport.update({
   id: '/assets/',
   path: '/assets/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAgreementIndexRoute = AppAgreementIndexRouteImport.update({
+  id: '/agreement/',
+  path: '/agreement/',
   getParentRoute: () => AppRoute,
 } as any)
 const ApiUploadIndexRoute = ApiUploadIndexRouteImport.update({
@@ -245,9 +257,11 @@ export interface FileRoutesByFullPath {
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/upload': typeof ApiUploadIndexRoute
+  '/app/agreement': typeof AppAgreementIndexRoute
   '/app/assets': typeof AppAssetsIndexRoute
   '/app/family': typeof AppFamilyIndexRoute
   '/app/profile': typeof AppProfileIndexRoute
+  '/app/settings': typeof AppSettingsIndexRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
   '/app/assets/view/$id': typeof AppAssetsViewIdRoute
@@ -282,9 +296,11 @@ export interface FileRoutesByTo {
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/upload': typeof ApiUploadIndexRoute
+  '/app/agreement': typeof AppAgreementIndexRoute
   '/app/assets': typeof AppAssetsIndexRoute
   '/app/family': typeof AppFamilyIndexRoute
   '/app/profile': typeof AppProfileIndexRoute
+  '/app/settings': typeof AppSettingsIndexRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
   '/app/assets/view/$id': typeof AppAssetsViewIdRoute
@@ -320,9 +336,11 @@ export interface FileRoutesById {
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/upload/': typeof ApiUploadIndexRoute
+  '/app/agreement/': typeof AppAgreementIndexRoute
   '/app/assets/': typeof AppAssetsIndexRoute
   '/app/family/': typeof AppFamilyIndexRoute
   '/app/profile/': typeof AppProfileIndexRoute
+  '/app/settings/': typeof AppSettingsIndexRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
   '/app/assets/view/$id': typeof AppAssetsViewIdRoute
@@ -359,9 +377,11 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/api/upload'
+    | '/app/agreement'
     | '/app/assets'
     | '/app/family'
     | '/app/profile'
+    | '/app/settings'
     | '/api/user/profile/$'
     | '/app/assets/edit/$id'
     | '/app/assets/view/$id'
@@ -396,9 +416,11 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/api/upload'
+    | '/app/agreement'
     | '/app/assets'
     | '/app/family'
     | '/app/profile'
+    | '/app/settings'
     | '/api/user/profile/$'
     | '/app/assets/edit/$id'
     | '/app/assets/view/$id'
@@ -433,9 +455,11 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/api/upload/'
+    | '/app/agreement/'
     | '/app/assets/'
     | '/app/family/'
     | '/app/profile/'
+    | '/app/settings/'
     | '/api/user/profile/$'
     | '/app/assets/edit/$id'
     | '/app/assets/view/$id'
@@ -515,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/settings/': {
+      id: '/app/settings/'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/profile/': {
       id: '/app/profile/'
       path: '/profile'
@@ -534,6 +565,13 @@ declare module '@tanstack/react-router' {
       path: '/assets'
       fullPath: '/app/assets'
       preLoaderRoute: typeof AppAssetsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/agreement/': {
+      id: '/app/agreement/'
+      path: '/agreement'
+      fullPath: '/app/agreement'
+      preLoaderRoute: typeof AppAgreementIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/api/upload/': {
@@ -729,9 +767,11 @@ interface AppRouteChildren {
   AppFamilyViewRoute: typeof AppFamilyViewRoute
   AppProfileEditRoute: typeof AppProfileEditRoute
   AppProfileViewRoute: typeof AppProfileViewRoute
+  AppAgreementIndexRoute: typeof AppAgreementIndexRoute
   AppAssetsIndexRoute: typeof AppAssetsIndexRoute
   AppFamilyIndexRoute: typeof AppFamilyIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppAssetsEditIdRoute: typeof AppAssetsEditIdRoute
   AppAssetsViewIdRoute: typeof AppAssetsViewIdRoute
   AppAssetsEditIndexRoute: typeof AppAssetsEditIndexRoute
@@ -746,9 +786,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppFamilyViewRoute: AppFamilyViewRoute,
   AppProfileEditRoute: AppProfileEditRoute,
   AppProfileViewRoute: AppProfileViewRoute,
+  AppAgreementIndexRoute: AppAgreementIndexRoute,
   AppAssetsIndexRoute: AppAssetsIndexRoute,
   AppFamilyIndexRoute: AppFamilyIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppAssetsEditIdRoute: AppAssetsEditIdRoute,
   AppAssetsViewIdRoute: AppAssetsViewIdRoute,
   AppAssetsEditIndexRoute: AppAssetsEditIndexRoute,

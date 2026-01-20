@@ -5,7 +5,9 @@ import {
   ChevronUp,
   Users,
   Wallet2,
-  Contact
+  Contact,
+  Settings,
+  FileText
 } from "lucide-react"
 
 import {
@@ -78,9 +80,25 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/app/profile">
+                  <Link to="/app/agreement">
+                    <FileText />
+                    <span>Agreement</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/app/profile" search={{ onboarding: false, redirect: location.pathname }}>
                     <User />
                     <span>Profile</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/app/settings">
+                    <Settings />
+                    <span>Settings</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -105,7 +123,7 @@ export function AppSidebar() {
                 side="top"
                 className="w-[--radix-popper-anchor-width]"
               >
-                <DropdownMenuItem onClick={() => router.navigate({ to: "/app/profile" })}>
+                <DropdownMenuItem onClick={() => router.navigate({ to: "/app/profile", search: { onboarding: false, redirect: undefined } })}>
                   <span>Profile</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
