@@ -249,6 +249,7 @@ export type NonRegisteredFamilyMemberWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"NonRegisteredFamilyMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"NonRegisteredFamilyMember"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  icRegistry?: Prisma.XOR<Prisma.IcRegistryScalarRelationFilter, Prisma.IcRegistryWhereInput>
 }
 
 export type NonRegisteredFamilyMemberOrderByWithRelationInput = {
@@ -262,24 +263,25 @@ export type NonRegisteredFamilyMemberOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  icRegistry?: Prisma.IcRegistryOrderByWithRelationInput
 }
 
 export type NonRegisteredFamilyMemberWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  userId_icNumber?: Prisma.NonRegisteredFamilyMemberUserIdIcNumberCompoundUniqueInput
+  icNumber?: string
   AND?: Prisma.NonRegisteredFamilyMemberWhereInput | Prisma.NonRegisteredFamilyMemberWhereInput[]
   OR?: Prisma.NonRegisteredFamilyMemberWhereInput[]
   NOT?: Prisma.NonRegisteredFamilyMemberWhereInput | Prisma.NonRegisteredFamilyMemberWhereInput[]
   relation?: Prisma.EnumFamilyRelationFilter<"NonRegisteredFamilyMember"> | $Enums.FamilyRelation
   name?: Prisma.StringFilter<"NonRegisteredFamilyMember"> | string
-  icNumber?: Prisma.StringFilter<"NonRegisteredFamilyMember"> | string
   address?: Prisma.StringNullableFilter<"NonRegisteredFamilyMember"> | string | null
   phoneNumber?: Prisma.StringNullableFilter<"NonRegisteredFamilyMember"> | string | null
   userId?: Prisma.StringFilter<"NonRegisteredFamilyMember"> | string
   createdAt?: Prisma.DateTimeFilter<"NonRegisteredFamilyMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"NonRegisteredFamilyMember"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id" | "userId_icNumber">
+  icRegistry?: Prisma.XOR<Prisma.IcRegistryScalarRelationFilter, Prisma.IcRegistryWhereInput>
+}, "id" | "icNumber">
 
 export type NonRegisteredFamilyMemberOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -316,12 +318,12 @@ export type NonRegisteredFamilyMemberScalarWhereWithAggregatesInput = {
 export type NonRegisteredFamilyMemberCreateInput = {
   relation: $Enums.FamilyRelation
   name: string
-  icNumber: string
   address?: string | null
   phoneNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutNonRegisteredFamilyMembersInput
+  icRegistry: Prisma.IcRegistryCreateNestedOneWithoutNonRegisteredFamilyMemberInput
 }
 
 export type NonRegisteredFamilyMemberUncheckedCreateInput = {
@@ -339,12 +341,12 @@ export type NonRegisteredFamilyMemberUncheckedCreateInput = {
 export type NonRegisteredFamilyMemberUpdateInput = {
   relation?: Prisma.EnumFamilyRelationFieldUpdateOperationsInput | $Enums.FamilyRelation
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutNonRegisteredFamilyMembersNestedInput
+  icRegistry?: Prisma.IcRegistryUpdateOneRequiredWithoutNonRegisteredFamilyMemberNestedInput
 }
 
 export type NonRegisteredFamilyMemberUncheckedUpdateInput = {
@@ -374,7 +376,6 @@ export type NonRegisteredFamilyMemberCreateManyInput = {
 export type NonRegisteredFamilyMemberUpdateManyMutationInput = {
   relation?: Prisma.EnumFamilyRelationFieldUpdateOperationsInput | $Enums.FamilyRelation
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -393,6 +394,11 @@ export type NonRegisteredFamilyMemberUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type NonRegisteredFamilyMemberNullableScalarRelationFilter = {
+  is?: Prisma.NonRegisteredFamilyMemberWhereInput | null
+  isNot?: Prisma.NonRegisteredFamilyMemberWhereInput | null
+}
+
 export type NonRegisteredFamilyMemberListRelationFilter = {
   every?: Prisma.NonRegisteredFamilyMemberWhereInput
   some?: Prisma.NonRegisteredFamilyMemberWhereInput
@@ -401,11 +407,6 @@ export type NonRegisteredFamilyMemberListRelationFilter = {
 
 export type NonRegisteredFamilyMemberOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type NonRegisteredFamilyMemberUserIdIcNumberCompoundUniqueInput = {
-  userId: string
-  icNumber: string
 }
 
 export type NonRegisteredFamilyMemberCountOrderByAggregateInput = {
@@ -452,6 +453,38 @@ export type NonRegisteredFamilyMemberSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
 }
 
+export type NonRegisteredFamilyMemberCreateNestedOneWithoutIcRegistryInput = {
+  create?: Prisma.XOR<Prisma.NonRegisteredFamilyMemberCreateWithoutIcRegistryInput, Prisma.NonRegisteredFamilyMemberUncheckedCreateWithoutIcRegistryInput>
+  connectOrCreate?: Prisma.NonRegisteredFamilyMemberCreateOrConnectWithoutIcRegistryInput
+  connect?: Prisma.NonRegisteredFamilyMemberWhereUniqueInput
+}
+
+export type NonRegisteredFamilyMemberUncheckedCreateNestedOneWithoutIcRegistryInput = {
+  create?: Prisma.XOR<Prisma.NonRegisteredFamilyMemberCreateWithoutIcRegistryInput, Prisma.NonRegisteredFamilyMemberUncheckedCreateWithoutIcRegistryInput>
+  connectOrCreate?: Prisma.NonRegisteredFamilyMemberCreateOrConnectWithoutIcRegistryInput
+  connect?: Prisma.NonRegisteredFamilyMemberWhereUniqueInput
+}
+
+export type NonRegisteredFamilyMemberUpdateOneWithoutIcRegistryNestedInput = {
+  create?: Prisma.XOR<Prisma.NonRegisteredFamilyMemberCreateWithoutIcRegistryInput, Prisma.NonRegisteredFamilyMemberUncheckedCreateWithoutIcRegistryInput>
+  connectOrCreate?: Prisma.NonRegisteredFamilyMemberCreateOrConnectWithoutIcRegistryInput
+  upsert?: Prisma.NonRegisteredFamilyMemberUpsertWithoutIcRegistryInput
+  disconnect?: Prisma.NonRegisteredFamilyMemberWhereInput | boolean
+  delete?: Prisma.NonRegisteredFamilyMemberWhereInput | boolean
+  connect?: Prisma.NonRegisteredFamilyMemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.NonRegisteredFamilyMemberUpdateToOneWithWhereWithoutIcRegistryInput, Prisma.NonRegisteredFamilyMemberUpdateWithoutIcRegistryInput>, Prisma.NonRegisteredFamilyMemberUncheckedUpdateWithoutIcRegistryInput>
+}
+
+export type NonRegisteredFamilyMemberUncheckedUpdateOneWithoutIcRegistryNestedInput = {
+  create?: Prisma.XOR<Prisma.NonRegisteredFamilyMemberCreateWithoutIcRegistryInput, Prisma.NonRegisteredFamilyMemberUncheckedCreateWithoutIcRegistryInput>
+  connectOrCreate?: Prisma.NonRegisteredFamilyMemberCreateOrConnectWithoutIcRegistryInput
+  upsert?: Prisma.NonRegisteredFamilyMemberUpsertWithoutIcRegistryInput
+  disconnect?: Prisma.NonRegisteredFamilyMemberWhereInput | boolean
+  delete?: Prisma.NonRegisteredFamilyMemberWhereInput | boolean
+  connect?: Prisma.NonRegisteredFamilyMemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.NonRegisteredFamilyMemberUpdateToOneWithWhereWithoutIcRegistryInput, Prisma.NonRegisteredFamilyMemberUpdateWithoutIcRegistryInput>, Prisma.NonRegisteredFamilyMemberUncheckedUpdateWithoutIcRegistryInput>
+}
+
 export type NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.NonRegisteredFamilyMemberCreateWithoutUserInput, Prisma.NonRegisteredFamilyMemberUncheckedCreateWithoutUserInput> | Prisma.NonRegisteredFamilyMemberCreateWithoutUserInput[] | Prisma.NonRegisteredFamilyMemberUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.NonRegisteredFamilyMemberCreateOrConnectWithoutUserInput | Prisma.NonRegisteredFamilyMemberCreateOrConnectWithoutUserInput[]
@@ -494,14 +527,72 @@ export type NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput =
   deleteMany?: Prisma.NonRegisteredFamilyMemberScalarWhereInput | Prisma.NonRegisteredFamilyMemberScalarWhereInput[]
 }
 
-export type NonRegisteredFamilyMemberCreateWithoutUserInput = {
+export type NonRegisteredFamilyMemberCreateWithoutIcRegistryInput = {
   relation: $Enums.FamilyRelation
   name: string
-  icNumber: string
   address?: string | null
   phoneNumber?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutNonRegisteredFamilyMembersInput
+}
+
+export type NonRegisteredFamilyMemberUncheckedCreateWithoutIcRegistryInput = {
+  id?: number
+  relation: $Enums.FamilyRelation
+  name: string
+  address?: string | null
+  phoneNumber?: string | null
+  userId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type NonRegisteredFamilyMemberCreateOrConnectWithoutIcRegistryInput = {
+  where: Prisma.NonRegisteredFamilyMemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.NonRegisteredFamilyMemberCreateWithoutIcRegistryInput, Prisma.NonRegisteredFamilyMemberUncheckedCreateWithoutIcRegistryInput>
+}
+
+export type NonRegisteredFamilyMemberUpsertWithoutIcRegistryInput = {
+  update: Prisma.XOR<Prisma.NonRegisteredFamilyMemberUpdateWithoutIcRegistryInput, Prisma.NonRegisteredFamilyMemberUncheckedUpdateWithoutIcRegistryInput>
+  create: Prisma.XOR<Prisma.NonRegisteredFamilyMemberCreateWithoutIcRegistryInput, Prisma.NonRegisteredFamilyMemberUncheckedCreateWithoutIcRegistryInput>
+  where?: Prisma.NonRegisteredFamilyMemberWhereInput
+}
+
+export type NonRegisteredFamilyMemberUpdateToOneWithWhereWithoutIcRegistryInput = {
+  where?: Prisma.NonRegisteredFamilyMemberWhereInput
+  data: Prisma.XOR<Prisma.NonRegisteredFamilyMemberUpdateWithoutIcRegistryInput, Prisma.NonRegisteredFamilyMemberUncheckedUpdateWithoutIcRegistryInput>
+}
+
+export type NonRegisteredFamilyMemberUpdateWithoutIcRegistryInput = {
+  relation?: Prisma.EnumFamilyRelationFieldUpdateOperationsInput | $Enums.FamilyRelation
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutNonRegisteredFamilyMembersNestedInput
+}
+
+export type NonRegisteredFamilyMemberUncheckedUpdateWithoutIcRegistryInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  relation?: Prisma.EnumFamilyRelationFieldUpdateOperationsInput | $Enums.FamilyRelation
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type NonRegisteredFamilyMemberCreateWithoutUserInput = {
+  relation: $Enums.FamilyRelation
+  name: string
+  address?: string | null
+  phoneNumber?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  icRegistry: Prisma.IcRegistryCreateNestedOneWithoutNonRegisteredFamilyMemberInput
 }
 
 export type NonRegisteredFamilyMemberUncheckedCreateWithoutUserInput = {
@@ -570,11 +661,11 @@ export type NonRegisteredFamilyMemberCreateManyUserInput = {
 export type NonRegisteredFamilyMemberUpdateWithoutUserInput = {
   relation?: Prisma.EnumFamilyRelationFieldUpdateOperationsInput | $Enums.FamilyRelation
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  icRegistry?: Prisma.IcRegistryUpdateOneRequiredWithoutNonRegisteredFamilyMemberNestedInput
 }
 
 export type NonRegisteredFamilyMemberUncheckedUpdateWithoutUserInput = {
@@ -612,6 +703,7 @@ export type NonRegisteredFamilyMemberSelect<ExtArgs extends runtime.Types.Extens
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  icRegistry?: boolean | Prisma.IcRegistryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["nonRegisteredFamilyMember"]>
 
 export type NonRegisteredFamilyMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -625,6 +717,7 @@ export type NonRegisteredFamilyMemberSelectCreateManyAndReturn<ExtArgs extends r
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  icRegistry?: boolean | Prisma.IcRegistryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["nonRegisteredFamilyMember"]>
 
 export type NonRegisteredFamilyMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -638,6 +731,7 @@ export type NonRegisteredFamilyMemberSelectUpdateManyAndReturn<ExtArgs extends r
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  icRegistry?: boolean | Prisma.IcRegistryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["nonRegisteredFamilyMember"]>
 
 export type NonRegisteredFamilyMemberSelectScalar = {
@@ -655,18 +749,22 @@ export type NonRegisteredFamilyMemberSelectScalar = {
 export type NonRegisteredFamilyMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "relation" | "name" | "icNumber" | "address" | "phoneNumber" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["nonRegisteredFamilyMember"]>
 export type NonRegisteredFamilyMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  icRegistry?: boolean | Prisma.IcRegistryDefaultArgs<ExtArgs>
 }
 export type NonRegisteredFamilyMemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  icRegistry?: boolean | Prisma.IcRegistryDefaultArgs<ExtArgs>
 }
 export type NonRegisteredFamilyMemberIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  icRegistry?: boolean | Prisma.IcRegistryDefaultArgs<ExtArgs>
 }
 
 export type $NonRegisteredFamilyMemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "NonRegisteredFamilyMember"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    icRegistry: Prisma.$IcRegistryPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1073,6 +1171,7 @@ readonly fields: NonRegisteredFamilyMemberFieldRefs;
 export interface Prisma__NonRegisteredFamilyMemberClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  icRegistry<T extends Prisma.IcRegistryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.IcRegistryDefaultArgs<ExtArgs>>): Prisma.Prisma__IcRegistryClient<runtime.Types.Result.GetResult<Prisma.$IcRegistryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

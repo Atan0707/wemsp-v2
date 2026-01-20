@@ -180,9 +180,9 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type UserGroupByOutputType = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  icNumber: string | null
+  address: string | null
+  phoneNumber: string | null
   email: string
   emailVerified: boolean
   image: string | null
@@ -214,9 +214,9 @@ export type UserWhereInput = {
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   id?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
-  icNumber?: Prisma.StringFilter<"User"> | string
-  address?: Prisma.StringFilter<"User"> | string
-  phoneNumber?: Prisma.StringFilter<"User"> | string
+  icNumber?: Prisma.StringNullableFilter<"User"> | string | null
+  address?: Prisma.StringNullableFilter<"User"> | string | null
+  phoneNumber?: Prisma.StringNullableFilter<"User"> | string | null
   email?: Prisma.StringFilter<"User"> | string
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   image?: Prisma.StringNullableFilter<"User"> | string | null
@@ -228,14 +228,15 @@ export type UserWhereInput = {
   familyMembers?: Prisma.FamilyMemberListRelationFilter
   relatedFamilyMembers?: Prisma.FamilyMemberListRelationFilter
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberListRelationFilter
+  icRegistry?: Prisma.XOR<Prisma.IcRegistryNullableScalarRelationFilter, Prisma.IcRegistryWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  icNumber?: Prisma.SortOrder
-  address?: Prisma.SortOrder
-  phoneNumber?: Prisma.SortOrder
+  icNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -247,6 +248,7 @@ export type UserOrderByWithRelationInput = {
   familyMembers?: Prisma.FamilyMemberOrderByRelationAggregateInput
   relatedFamilyMembers?: Prisma.FamilyMemberOrderByRelationAggregateInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberOrderByRelationAggregateInput
+  icRegistry?: Prisma.IcRegistryOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -257,8 +259,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   name?: Prisma.StringFilter<"User"> | string
-  address?: Prisma.StringFilter<"User"> | string
-  phoneNumber?: Prisma.StringFilter<"User"> | string
+  address?: Prisma.StringNullableFilter<"User"> | string | null
+  phoneNumber?: Prisma.StringNullableFilter<"User"> | string | null
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   image?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -269,14 +271,15 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   familyMembers?: Prisma.FamilyMemberListRelationFilter
   relatedFamilyMembers?: Prisma.FamilyMemberListRelationFilter
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberListRelationFilter
-}, "id" | "email" | "icNumber">
+  icRegistry?: Prisma.XOR<Prisma.IcRegistryNullableScalarRelationFilter, Prisma.IcRegistryWhereInput> | null
+}, "id" | "icNumber" | "email">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  icNumber?: Prisma.SortOrder
-  address?: Prisma.SortOrder
-  phoneNumber?: Prisma.SortOrder
+  icNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -293,9 +296,9 @@ export type UserScalarWhereWithAggregatesInput = {
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
-  icNumber?: Prisma.StringWithAggregatesFilter<"User"> | string
-  address?: Prisma.StringWithAggregatesFilter<"User"> | string
-  phoneNumber?: Prisma.StringWithAggregatesFilter<"User"> | string
+  icNumber?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  address?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  phoneNumber?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   image?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -306,9 +309,8 @@ export type UserScalarWhereWithAggregatesInput = {
 export type UserCreateInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -320,14 +322,15 @@ export type UserCreateInput = {
   familyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
   relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
+  icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  icNumber?: string | null
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -344,9 +347,8 @@ export type UserUncheckedCreateInput = {
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -358,14 +360,15 @@ export type UserUpdateInput = {
   familyMembers?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
   relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
+  icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  icNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -382,9 +385,9 @@ export type UserUncheckedUpdateInput = {
 export type UserCreateManyInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  icNumber?: string | null
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -395,9 +398,8 @@ export type UserCreateManyInput = {
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -408,14 +410,19 @@ export type UserUpdateManyMutationInput = {
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  icNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -462,12 +469,44 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
+export type UserCreateNestedOneWithoutIcRegistryInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutIcRegistryInput, Prisma.UserUncheckedCreateWithoutIcRegistryInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutIcRegistryInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUncheckedCreateNestedOneWithoutIcRegistryInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutIcRegistryInput, Prisma.UserUncheckedCreateWithoutIcRegistryInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutIcRegistryInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutIcRegistryNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutIcRegistryInput, Prisma.UserUncheckedCreateWithoutIcRegistryInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutIcRegistryInput
+  upsert?: Prisma.UserUpsertWithoutIcRegistryInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutIcRegistryInput, Prisma.UserUpdateWithoutIcRegistryInput>, Prisma.UserUncheckedUpdateWithoutIcRegistryInput>
+}
+
+export type UserUncheckedUpdateOneWithoutIcRegistryNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutIcRegistryInput, Prisma.UserUncheckedCreateWithoutIcRegistryInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutIcRegistryInput
+  upsert?: Prisma.UserUpsertWithoutIcRegistryInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutIcRegistryInput, Prisma.UserUpdateWithoutIcRegistryInput>, Prisma.UserUncheckedUpdateWithoutIcRegistryInput>
 }
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type UserCreateNestedOneWithoutFamilyMembersInput = {
@@ -554,12 +593,99 @@ export type UserUpdateOneRequiredWithoutAccountsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAccountsInput, Prisma.UserUpdateWithoutAccountsInput>, Prisma.UserUncheckedUpdateWithoutAccountsInput>
 }
 
+export type UserCreateWithoutIcRegistryInput = {
+  id: string
+  name: string
+  address?: string | null
+  phoneNumber?: string | null
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  assets?: Prisma.AssetCreateNestedManyWithoutUserInput
+  familyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
+  relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
+  nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutIcRegistryInput = {
+  id: string
+  name: string
+  address?: string | null
+  phoneNumber?: string | null
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutUserInput
+  familyMembers?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  relatedFamilyMembers?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutFamilyMemberUserInput
+  nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutIcRegistryInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutIcRegistryInput, Prisma.UserUncheckedCreateWithoutIcRegistryInput>
+}
+
+export type UserUpsertWithoutIcRegistryInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutIcRegistryInput, Prisma.UserUncheckedUpdateWithoutIcRegistryInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutIcRegistryInput, Prisma.UserUncheckedCreateWithoutIcRegistryInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutIcRegistryInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutIcRegistryInput, Prisma.UserUncheckedUpdateWithoutIcRegistryInput>
+}
+
+export type UserUpdateWithoutIcRegistryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutUserNestedInput
+  familyMembers?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
+  relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
+  nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutIcRegistryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutUserNestedInput
+  familyMembers?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  relatedFamilyMembers?: Prisma.FamilyMemberUncheckedUpdateManyWithoutFamilyMemberUserNestedInput
+  nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutFamilyMembersInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -570,14 +696,15 @@ export type UserCreateWithoutFamilyMembersInput = {
   assets?: Prisma.AssetCreateNestedManyWithoutUserInput
   relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
+  icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFamilyMembersInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  icNumber?: string | null
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -598,9 +725,8 @@ export type UserCreateOrConnectWithoutFamilyMembersInput = {
 export type UserCreateWithoutRelatedFamilyMembersInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -611,14 +737,15 @@ export type UserCreateWithoutRelatedFamilyMembersInput = {
   assets?: Prisma.AssetCreateNestedManyWithoutUserInput
   familyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
+  icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRelatedFamilyMembersInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  icNumber?: string | null
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -650,9 +777,8 @@ export type UserUpdateToOneWithWhereWithoutFamilyMembersInput = {
 export type UserUpdateWithoutFamilyMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -663,14 +789,15 @@ export type UserUpdateWithoutFamilyMembersInput = {
   assets?: Prisma.AssetUpdateManyWithoutUserNestedInput
   relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
+  icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFamilyMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  icNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -697,9 +824,8 @@ export type UserUpdateToOneWithWhereWithoutRelatedFamilyMembersInput = {
 export type UserUpdateWithoutRelatedFamilyMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -710,14 +836,15 @@ export type UserUpdateWithoutRelatedFamilyMembersInput = {
   assets?: Prisma.AssetUpdateManyWithoutUserNestedInput
   familyMembers?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
+  icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRelatedFamilyMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  icNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -733,9 +860,8 @@ export type UserUncheckedUpdateWithoutRelatedFamilyMembersInput = {
 export type UserCreateWithoutNonRegisteredFamilyMembersInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -746,14 +872,15 @@ export type UserCreateWithoutNonRegisteredFamilyMembersInput = {
   assets?: Prisma.AssetCreateNestedManyWithoutUserInput
   familyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
   relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
+  icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNonRegisteredFamilyMembersInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  icNumber?: string | null
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -785,9 +912,8 @@ export type UserUpdateToOneWithWhereWithoutNonRegisteredFamilyMembersInput = {
 export type UserUpdateWithoutNonRegisteredFamilyMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -798,14 +924,15 @@ export type UserUpdateWithoutNonRegisteredFamilyMembersInput = {
   assets?: Prisma.AssetUpdateManyWithoutUserNestedInput
   familyMembers?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
   relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
+  icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNonRegisteredFamilyMembersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  icNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -821,9 +948,8 @@ export type UserUncheckedUpdateWithoutNonRegisteredFamilyMembersInput = {
 export type UserCreateWithoutAssetsInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -834,14 +960,15 @@ export type UserCreateWithoutAssetsInput = {
   familyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
   relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
+  icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssetsInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  icNumber?: string | null
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -873,9 +1000,8 @@ export type UserUpdateToOneWithWhereWithoutAssetsInput = {
 export type UserUpdateWithoutAssetsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -886,14 +1012,15 @@ export type UserUpdateWithoutAssetsInput = {
   familyMembers?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
   relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
+  icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssetsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  icNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -909,9 +1036,8 @@ export type UserUncheckedUpdateWithoutAssetsInput = {
 export type UserCreateWithoutSessionsInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -922,14 +1048,15 @@ export type UserCreateWithoutSessionsInput = {
   familyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
   relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
+  icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  icNumber?: string | null
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -961,9 +1088,8 @@ export type UserUpdateToOneWithWhereWithoutSessionsInput = {
 export type UserUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -974,14 +1100,15 @@ export type UserUpdateWithoutSessionsInput = {
   familyMembers?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
   relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
+  icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  icNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -997,9 +1124,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
 export type UserCreateWithoutAccountsInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -1010,14 +1136,15 @@ export type UserCreateWithoutAccountsInput = {
   familyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
   relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
+  icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
   id: string
   name: string
-  icNumber: string
-  address: string
-  phoneNumber: string
+  icNumber?: string | null
+  address?: string | null
+  phoneNumber?: string | null
   email: string
   emailVerified?: boolean
   image?: string | null
@@ -1049,9 +1176,8 @@ export type UserUpdateToOneWithWhereWithoutAccountsInput = {
 export type UserUpdateWithoutAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1062,14 +1188,15 @@ export type UserUpdateWithoutAccountsInput = {
   familyMembers?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
   relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
+  icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  icNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.StringFieldUpdateOperationsInput | string
-  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  icNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1175,6 +1302,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   familyMembers?: boolean | Prisma.User$familyMembersArgs<ExtArgs>
   relatedFamilyMembers?: boolean | Prisma.User$relatedFamilyMembersArgs<ExtArgs>
   nonRegisteredFamilyMembers?: boolean | Prisma.User$nonRegisteredFamilyMembersArgs<ExtArgs>
+  icRegistry?: boolean | Prisma.User$icRegistryArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1189,6 +1317,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   image?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  icRegistry?: boolean | Prisma.User$icRegistryArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1202,6 +1331,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   image?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  icRegistry?: boolean | Prisma.User$icRegistryArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1225,10 +1355,15 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   familyMembers?: boolean | Prisma.User$familyMembersArgs<ExtArgs>
   relatedFamilyMembers?: boolean | Prisma.User$relatedFamilyMembersArgs<ExtArgs>
   nonRegisteredFamilyMembers?: boolean | Prisma.User$nonRegisteredFamilyMembersArgs<ExtArgs>
+  icRegistry?: boolean | Prisma.User$icRegistryArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  icRegistry?: boolean | Prisma.User$icRegistryArgs<ExtArgs>
+}
+export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  icRegistry?: boolean | Prisma.User$icRegistryArgs<ExtArgs>
+}
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
@@ -1239,13 +1374,14 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     familyMembers: Prisma.$FamilyMemberPayload<ExtArgs>[]
     relatedFamilyMembers: Prisma.$FamilyMemberPayload<ExtArgs>[]
     nonRegisteredFamilyMembers: Prisma.$NonRegisteredFamilyMemberPayload<ExtArgs>[]
+    icRegistry: Prisma.$IcRegistryPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
-    icNumber: string
-    address: string
-    phoneNumber: string
+    icNumber: string | null
+    address: string | null
+    phoneNumber: string | null
     email: string
     emailVerified: boolean
     image: string | null
@@ -1651,6 +1787,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   familyMembers<T extends Prisma.User$familyMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$familyMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FamilyMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   relatedFamilyMembers<T extends Prisma.User$relatedFamilyMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$relatedFamilyMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FamilyMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   nonRegisteredFamilyMembers<T extends Prisma.User$nonRegisteredFamilyMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$nonRegisteredFamilyMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NonRegisteredFamilyMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  icRegistry<T extends Prisma.User$icRegistryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$icRegistryArgs<ExtArgs>>): Prisma.Prisma__IcRegistryClient<runtime.Types.Result.GetResult<Prisma.$IcRegistryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1939,6 +2076,10 @@ export type UserCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    */
   data: Prisma.UserCreateManyInput | Prisma.UserCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2009,6 +2150,10 @@ export type UserUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many Users to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2219,6 +2364,25 @@ export type User$nonRegisteredFamilyMembersArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.NonRegisteredFamilyMemberScalarFieldEnum | Prisma.NonRegisteredFamilyMemberScalarFieldEnum[]
+}
+
+/**
+ * User.icRegistry
+ */
+export type User$icRegistryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the IcRegistry
+   */
+  select?: Prisma.IcRegistrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the IcRegistry
+   */
+  omit?: Prisma.IcRegistryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.IcRegistryInclude<ExtArgs> | null
+  where?: Prisma.IcRegistryWhereInput
 }
 
 /**

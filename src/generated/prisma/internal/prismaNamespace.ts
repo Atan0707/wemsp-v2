@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Todo: 'Todo',
+  IcRegistry: 'IcRegistry',
   User: 'User',
   FamilyMember: 'FamilyMember',
   NonRegisteredFamilyMember: 'NonRegisteredFamilyMember',
@@ -407,7 +408,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "todo" | "user" | "familyMember" | "nonRegisteredFamilyMember" | "asset" | "session" | "account" | "verification"
+    modelProps: "todo" | "icRegistry" | "user" | "familyMember" | "nonRegisteredFamilyMember" | "asset" | "session" | "account" | "verification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -482,6 +483,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TodoCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TodoCountAggregateOutputType> | number
+        }
+      }
+    }
+    IcRegistry: {
+      payload: Prisma.$IcRegistryPayload<ExtArgs>
+      fields: Prisma.IcRegistryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.IcRegistryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.IcRegistryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload>
+        }
+        findFirst: {
+          args: Prisma.IcRegistryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.IcRegistryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload>
+        }
+        findMany: {
+          args: Prisma.IcRegistryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload>[]
+        }
+        create: {
+          args: Prisma.IcRegistryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload>
+        }
+        createMany: {
+          args: Prisma.IcRegistryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.IcRegistryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload>[]
+        }
+        delete: {
+          args: Prisma.IcRegistryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload>
+        }
+        update: {
+          args: Prisma.IcRegistryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload>
+        }
+        deleteMany: {
+          args: Prisma.IcRegistryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.IcRegistryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.IcRegistryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload>[]
+        }
+        upsert: {
+          args: Prisma.IcRegistryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IcRegistryPayload>
+        }
+        aggregate: {
+          args: Prisma.IcRegistryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateIcRegistry>
+        }
+        groupBy: {
+          args: Prisma.IcRegistryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IcRegistryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.IcRegistryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IcRegistryCountAggregateOutputType> | number
         }
       }
     }
@@ -1051,6 +1126,14 @@ export const TodoScalarFieldEnum = {
 export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof TodoScalarFieldEnum]
 
 
+export const IcRegistryScalarFieldEnum = {
+  icNumber: 'icNumber',
+  createdAt: 'createdAt'
+} as const
+
+export type IcRegistryScalarFieldEnum = (typeof IcRegistryScalarFieldEnum)[keyof typeof IcRegistryScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1354,6 +1437,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   todo?: Prisma.TodoOmit
+  icRegistry?: Prisma.IcRegistryOmit
   user?: Prisma.UserOmit
   familyMember?: Prisma.FamilyMemberOmit
   nonRegisteredFamilyMember?: Prisma.NonRegisteredFamilyMemberOmit

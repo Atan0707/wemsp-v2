@@ -42,7 +42,8 @@ function RouteComponent() {
   // Refetch session data on mount to ensure fresh data
   useEffect(() => {
     refetchSession()
-    console.log(user)
+    console.log(session)
+    // console.log(user)
   }, [])
 
   // Read onboarding params and clean URL

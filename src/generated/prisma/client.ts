@@ -45,6 +45,11 @@ export { Prisma }
  */
 export type Todo = Prisma.TodoModel
 /**
+ * Model IcRegistry
+ * 
+ */
+export type IcRegistry = Prisma.IcRegistryModel
+/**
  * Model User
  * 
  */

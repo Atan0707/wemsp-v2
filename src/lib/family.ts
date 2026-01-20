@@ -262,6 +262,7 @@ export async function updateBidirectionalFamilyRelation(
 
 /**
  * Update a non-registered family member.
+ * Handles IC registry updates when IC number changes.
  *
  * @param id - The ID of the non-registered family member
  * @param data - The fields to update
@@ -276,6 +277,51 @@ export async function updateNonRegisteredFamilyMember(
     phoneNumber?: string | null
   }
 ) {
+  // If IC number is being updated, we need to handle the registry
+  if (data.icNumber) {
+    // Get the current IC number
+    const current = await prisma.nonRegisteredFamilyMember.findUnique({
+      where: { id },
+      select: { icNumber: true },
+    })
+
+    if (current && current.icNumber !== data.icNumber) {
+      // Check if new IC already exists in registry
+      const existingIc = await prisma.icRegistry.findUnique({
+        where: { icNumber: data.icNumber },
+      })
+
+      if (existingIc) {
+        throw new Error('IC number already exists in the system')
+      }
+
+      // Use transaction to update IC registry and member
+      return prisma.$transaction(async (tx) => {
+        // Delete old IC from registry
+        await tx.icRegistry.delete({
+          where: { icNumber: current.icNumber },
+        }).catch(() => {
+          // Ignore if it doesn't exist (for legacy data)
+        })
+
+        // Create new IC registry entry
+        await tx.icRegistry.create({
+          data: { icNumber: data.icNumber! },
+        })
+
+        // Update the member
+        return tx.nonRegisteredFamilyMember.update({
+          where: { id },
+          data: {
+            ...data,
+            relation: data.relation as any,
+          },
+        })
+      })
+    }
+  }
+
+  // No IC change, just update normally
   return prisma.nonRegisteredFamilyMember.update({
     where: { id },
     data: {
@@ -287,11 +333,33 @@ export async function updateNonRegisteredFamilyMember(
 
 /**
  * Delete a non-registered family member.
+ * Also removes the IC from the registry.
  *
  * @param id - The ID of the non-registered family member to delete
  */
 export async function deleteNonRegisteredFamilyMember(id: number) {
-  return prisma.nonRegisteredFamilyMember.delete({
+  // Get the IC number first
+  const member = await prisma.nonRegisteredFamilyMember.findUnique({
     where: { id },
+    select: { icNumber: true },
+  })
+
+  if (!member) {
+    throw new Error('Non-registered family member not found')
+  }
+
+  // Delete both the member and the IC registry entry in a transaction
+  return prisma.$transaction(async (tx) => {
+    // Delete the member first (due to foreign key constraint)
+    await tx.nonRegisteredFamilyMember.delete({
+      where: { id },
+    })
+
+    // Then delete the IC from registry
+    await tx.icRegistry.delete({
+      where: { icNumber: member.icNumber },
+    }).catch(() => {
+      // Ignore if it doesn't exist (for legacy data)
+    })
   })
 }

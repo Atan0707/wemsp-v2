@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/db'
 
-export const Route = createFileRoute('/api/user/profile/$')({
+export const Route = createFileRoute('/api/user/profile/$')({ 
   server: {
     handlers: {
       PUT: async ({ request }: { request: Request }) => {
@@ -37,30 +37,56 @@ export const Route = createFileRoute('/api/user/profile/$')({
             )
           }
 
-          // Check if IC number is already taken by another user
-          const existingUser = await prisma.user.findFirst({
-            where: {
-              icNumber,
-              id: { not: session.user.id },
-            },
+          // Get the current user's IC number
+          const currentUser = await prisma.user.findUnique({
+            where: { id: session.user.id },
+            select: { icNumber: true },
           })
 
-          if (existingUser) {
-            return Response.json(
-              { error: 'IC number already exists' },
-              { status: 409 }
-            )
+          // Check if IC number is already taken (in IcRegistry - covers both User and NonRegisteredFamilyMember)
+          if (icNumber !== currentUser?.icNumber) {
+            const existingIc = await prisma.icRegistry.findUnique({
+              where: { icNumber },
+            })
+
+            if (existingIc) {
+              return Response.json(
+                { error: 'IC number already exists' },
+                { status: 409 }
+              )
+            }
           }
 
-          // Update user using Prisma
-          const updatedUser = await prisma.user.update({
-            where: { id: session.user.id },
-            data: {
-              name,
-              icNumber,
-              phoneNumber,
-              address,
-            },
+          // Update user using Prisma with transaction to handle IcRegistry
+          const updatedUser = await prisma.$transaction(async (tx) => {
+            // If user had a previous IC number, delete it from registry
+            if (currentUser?.icNumber && currentUser.icNumber !== icNumber) {
+              await tx.icRegistry.delete({
+                where: { icNumber: currentUser.icNumber },
+              }).catch(() => {
+                // Ignore if it doesn't exist (for legacy data)
+              })
+            }
+
+            // Create new IC registry entry if it doesn't exist
+            if (icNumber !== currentUser?.icNumber) {
+              await tx.icRegistry.upsert({
+                where: { icNumber },
+                create: { icNumber },
+                update: {},
+              })
+            }
+
+            // Update the user
+            return tx.user.update({
+              where: { id: session.user.id },
+              data: {
+                name,
+                icNumber,
+                phoneNumber,
+                address,
+              },
+            })
           })
 
           return Response.json({
@@ -81,6 +107,23 @@ export const Route = createFileRoute('/api/user/profile/$')({
             { error: 'Internal Server Error' },
             { status: 500 }
           )
+        }
+      },
+      GET: async ({ request }: { request: Request }) => {
+        const session = await auth.api.getSession({
+          headers: request.headers,
+        })
+
+        if (!session) {
+          return Response.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
+        return Response.json({ user: session.user })
+        try {
+          return Response.json({ user: session?.user })
+        } catch (error) {
+          console.error('Error fetching profile:', error)
+          return Response.json({ error: 'Internal Server Error' }, { status: 500 })
         }
       },
     },

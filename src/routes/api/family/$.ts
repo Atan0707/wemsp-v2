@@ -115,7 +115,7 @@ export const Route = createFileRoute('/api/family/$')({
               relation
             )
 
-            return new Response('Family member added', { status: 201 })
+            return Response.json({ message: 'Family member added' }, { status: 201 })
           } else if (type === 'non-registered') {
             const { name, icNumber, relation, address, phoneNumber } = memberData
 
@@ -123,18 +123,39 @@ export const Route = createFileRoute('/api/family/$')({
               return new Response('Missing required fields', { status: 400 })
             }
 
-            await prisma.nonRegisteredFamilyMember.create({
-              data: {
-                userId: session.user.id,
-                name,
-                icNumber,
-                relation,
-                address: address || null,
-                phoneNumber: phoneNumber || null,
-              },
+            // Check if IC number already exists in the registry
+            const existingIc = await prisma.icRegistry.findUnique({
+              where: { icNumber },
             })
 
-            return new Response('Family member added', { status: 201 })
+            if (existingIc) {
+              return Response.json(
+                { error: 'IC number already exists in the system' },
+                { status: 409 }
+              )
+            }
+
+            // Create both IcRegistry entry and NonRegisteredFamilyMember in a transaction
+            await prisma.$transaction(async (tx) => {
+              // First create the IC registry entry
+              await tx.icRegistry.create({
+                data: { icNumber },
+              })
+
+              // Then create the non-registered family member
+              await tx.nonRegisteredFamilyMember.create({
+                data: {
+                  userId: session.user.id,
+                  name,
+                  icNumber,
+                  relation,
+                  address: address || null,
+                  phoneNumber: phoneNumber || null,
+                },
+              })
+            })
+
+            return Response.json({ message: 'Family member added' }, { status: 201 })
           }
 
           return new Response('Invalid type', { status: 400 })
@@ -171,7 +192,7 @@ export const Route = createFileRoute('/api/family/$')({
             return new Response('Invalid type', { status: 400 })
           }
 
-          return new Response('Family member deleted', { status: 200 })
+          return Response.json({ message: 'Family member deleted' }, { status: 200 })
         } catch (error) {
           console.error('Error deleting family member:', error)
           return new Response('Internal Server Error', { status: 500 })
@@ -224,7 +245,7 @@ export const Route = createFileRoute('/api/family/$')({
             return new Response('Invalid type', { status: 400 })
           }
 
-          return new Response('Family member updated', { status: 200 })
+          return Response.json({ message: 'Family member updated' }, { status: 200 })
         } catch (error) {
           console.error('Error updating family member:', error)
           return new Response('Internal Server Error', { status: 500 })

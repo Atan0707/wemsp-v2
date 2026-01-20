@@ -23,6 +23,11 @@ export * from './enums.ts';
  */
 export type Todo = Prisma.TodoModel
 /**
+ * Model IcRegistry
+ * 
+ */
+export type IcRegistry = Prisma.IcRegistryModel
+/**
  * Model User
  * 
  */

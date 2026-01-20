@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Todo: 'Todo',
+  IcRegistry: 'IcRegistry',
   User: 'User',
   FamilyMember: 'FamilyMember',
   NonRegisteredFamilyMember: 'NonRegisteredFamilyMember',
@@ -84,6 +85,14 @@ export const TodoScalarFieldEnum = {
 } as const
 
 export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof TodoScalarFieldEnum]
+
+
+export const IcRegistryScalarFieldEnum = {
+  icNumber: 'icNumber',
+  createdAt: 'createdAt'
+} as const
+
+export type IcRegistryScalarFieldEnum = (typeof IcRegistryScalarFieldEnum)[keyof typeof IcRegistryScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
