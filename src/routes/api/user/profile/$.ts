@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/db'
+import { convertNonRegisteredToFamilyMembers } from '@/lib/family'
 
 export const Route = createFileRoute('/api/user/profile/$')({ 
   server: {
@@ -19,7 +20,7 @@ export const Route = createFileRoute('/api/user/profile/$')({
 
         try {
           const body = await request.json()
-          const { name, icNumber, phoneNumber, address } = body
+          const { name, icNumber, phoneNumber, address, claimNonRegistered } = body
 
           // Validate required fields
           if (!name || !icNumber || !phoneNumber || !address) {
@@ -43,17 +44,67 @@ export const Route = createFileRoute('/api/user/profile/$')({
             select: { icNumber: true },
           })
 
-          // Check if IC number is already taken (in IcRegistry - covers both User and NonRegisteredFamilyMember)
+          // Check if IC number is already taken by another user
           if (icNumber !== currentUser?.icNumber) {
-            const existingIc = await prisma.icRegistry.findUnique({
-              where: { icNumber },
+            const existingUser = await prisma.user.findFirst({
+              where: {
+                icNumber,
+                id: { not: session.user.id },
+              },
             })
 
-            if (existingIc) {
+            if (existingUser) {
               return Response.json(
-                { error: 'IC number already exists' },
+                { error: 'IC number already registered to another user' },
                 { status: 409 }
               )
+            }
+
+            // Check if IC exists in NonRegisteredFamilyMember
+            const existingNonRegistered = await prisma.nonRegisteredFamilyMember.findFirst({
+              where: { icNumber },
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            })
+
+            // If IC exists in NonRegisteredFamilyMember and user hasn't confirmed claim
+            if (existingNonRegistered && !claimNonRegistered) {
+              // Return the non-registered data for user to confirm
+              const allNonRegistered = await prisma.nonRegisteredFamilyMember.findMany({
+                where: { icNumber },
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true,
+                    },
+                  },
+                },
+              })
+
+              return Response.json({
+                requiresClaim: true,
+                nonRegisteredData: allNonRegistered.map((nr) => ({
+                  id: nr.id,
+                  name: nr.name,
+                  icNumber: nr.icNumber,
+                  address: nr.address,
+                  phoneNumber: nr.phoneNumber,
+                  relation: nr.relation,
+                  addedBy: {
+                    id: nr.user.id,
+                    name: nr.user.name,
+                    email: nr.user.email,
+                  },
+                })),
+              }, { status: 200 })
             }
           }
 
@@ -68,7 +119,27 @@ export const Route = createFileRoute('/api/user/profile/$')({
               })
             }
 
-            // Create new IC registry entry if it doesn't exist
+            // Check if we need to claim non-registered family member
+            if (claimNonRegistered && icNumber !== currentUser?.icNumber) {
+              // The IC registry entry already exists from NonRegisteredFamilyMember
+              // We just need to delete the NonRegisteredFamilyMember records
+              // and create the family relationships
+              
+              // First update the user
+              const user = await tx.user.update({
+                where: { id: session.user.id },
+                data: {
+                  name,
+                  icNumber,
+                  phoneNumber,
+                  address,
+                },
+              })
+
+              return user
+            }
+
+            // Create new IC registry entry if it doesn't exist (normal flow)
             if (icNumber !== currentUser?.icNumber) {
               await tx.icRegistry.upsert({
                 where: { icNumber },
@@ -88,6 +159,11 @@ export const Route = createFileRoute('/api/user/profile/$')({
               },
             })
           })
+
+          // If claiming non-registered, convert to family relationships
+          if (claimNonRegistered && icNumber !== currentUser?.icNumber) {
+            await convertNonRegisteredToFamilyMembers(session.user.id, icNumber)
+          }
 
           return Response.json({
             success: true,
@@ -119,12 +195,6 @@ export const Route = createFileRoute('/api/user/profile/$')({
         }
 
         return Response.json({ user: session.user })
-        try {
-          return Response.json({ user: session?.user })
-        } catch (error) {
-          console.error('Error fetching profile:', error)
-          return Response.json({ error: 'Internal Server Error' }, { status: 500 })
-        }
       },
     },
   },

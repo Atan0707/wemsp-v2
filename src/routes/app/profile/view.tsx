@@ -42,7 +42,7 @@ function RouteComponent() {
   // Refetch session data on mount to ensure fresh data
   useEffect(() => {
     refetchSession()
-    console.log(session)
+    // console.log(session)
     // console.log(user)
   }, [])
 
