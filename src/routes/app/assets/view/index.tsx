@@ -13,7 +13,7 @@ import { AssetsTable } from '@/components/assets/assets-table'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 
-export const Route = createFileRoute('/app/assets/view')({
+export const Route = createFileRoute('/app/assets/view/')({
   component: RouteComponent,
 })
 

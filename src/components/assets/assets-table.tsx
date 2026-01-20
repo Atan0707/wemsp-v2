@@ -70,7 +70,8 @@ const getAssetTypeColor = (type: string) => {
 
 const createColumns = (
   onEdit: (asset: Asset) => void,
-  onDelete: (id: number) => void
+  onDelete: (id: number) => void,
+  router: ReturnType<typeof useRouter>
 ): ColumnDef<Asset>[] => [
   {
     accessorKey: 'name',
@@ -82,7 +83,12 @@ const createColumns = (
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Package className="h-4 w-4" />
           </div>
-          <span className="font-medium">{asset.name}</span>
+          <button
+            onClick={() => router.navigate({ to: `/app/assets/view/${asset.id}` as any })}
+            className="font-medium hover:underline hover:text-primary transition-colors text-left"
+          >
+            {asset.name}
+          </button>
         </div>
       )
     },
@@ -196,7 +202,7 @@ export function AssetsTable({
     }
   }
 
-  const columns = createColumns(handleEdit, handleDelete)
+  const columns = createColumns(handleEdit, handleDelete, router)
 
   const table = useReactTable({
     data,
