@@ -1183,6 +1183,7 @@ export const AssetScalarFieldEnum = {
   type: 'type',
   description: 'description',
   value: 'value',
+  documentUrl: 'documentUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId'

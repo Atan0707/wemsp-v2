@@ -35,6 +35,7 @@ import { Route as ApiFileSplatRouteImport } from './routes/api/file/$'
 import { Route as ApiFamilySearchRouteImport } from './routes/api/family/search'
 import { Route as ApiFamilySplatRouteImport } from './routes/api/family/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiAssetSplatRouteImport } from './routes/api/asset/$'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
@@ -171,6 +172,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssetSplatRoute = ApiAssetSplatRouteImport.update({
+  id: '/api/asset/$',
+  path: '/api/asset/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   id: '/demo/start/ssr/',
   path: '/demo/start/ssr/',
@@ -204,6 +210,7 @@ export interface FileRoutesByFullPath {
   '/app/dashboard': typeof AppDashboardRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/api/family/search': typeof ApiFamilySearchRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByTo {
   '/app/dashboard': typeof AppDashboardRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/api/family/search': typeof ApiFamilySearchRoute
@@ -271,6 +279,7 @@ export interface FileRoutesById {
   '/app/dashboard': typeof AppDashboardRoute
   '/demo/prisma': typeof DemoPrismaRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
   '/api/family/search': typeof ApiFamilySearchRoute
@@ -306,6 +315,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/demo/prisma'
     | '/demo/tanstack-query'
+    | '/api/asset/$'
     | '/api/auth/$'
     | '/api/family/$'
     | '/api/family/search'
@@ -339,6 +349,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/demo/prisma'
     | '/demo/tanstack-query'
+    | '/api/asset/$'
     | '/api/auth/$'
     | '/api/family/$'
     | '/api/family/search'
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/demo/prisma'
     | '/demo/tanstack-query'
+    | '/api/asset/$'
     | '/api/auth/$'
     | '/api/family/$'
     | '/api/family/search'
@@ -405,6 +417,7 @@ export interface RootRouteChildren {
   TestUploadRoute: typeof TestUploadRoute
   DemoPrismaRoute: typeof DemoPrismaRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  ApiAssetSplatRoute: typeof ApiAssetSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiFamilySplatRoute: typeof ApiFamilySplatRoute
   ApiFamilySearchRoute: typeof ApiFamilySearchRoute
@@ -606,6 +619,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/asset/$': {
+      id: '/api/asset/$'
+      path: '/api/asset/$'
+      fullPath: '/api/asset/$'
+      preLoaderRoute: typeof ApiAssetSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
       path: '/demo/start/ssr'
@@ -680,6 +700,7 @@ const rootRouteChildren: RootRouteChildren = {
   TestUploadRoute: TestUploadRoute,
   DemoPrismaRoute: DemoPrismaRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  ApiAssetSplatRoute: ApiAssetSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiFamilySplatRoute: ApiFamilySplatRoute,
   ApiFamilySearchRoute: ApiFamilySearchRoute,
