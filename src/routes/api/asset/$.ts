@@ -122,6 +122,39 @@ export const Route = createFileRoute('/api/asset/$')({
         }
 
         try {
+          const url = new URL(request.url)
+          const id = url.pathname.split('/').pop()
+
+          // If ID is present and numeric, fetch single asset
+          if (id && /^\d+$/.test(id)) {
+            const asset = await prisma.asset.findFirst({
+              where: {
+                id: parseInt(id),
+                userId: session.user.id,
+              },
+            })
+
+            if (!asset) {
+              return Response.json(
+                { error: 'Asset not found' },
+                { status: 404 }
+              )
+            }
+
+            return Response.json({
+              asset: {
+                id: asset.id,
+                name: asset.name,
+                type: asset.type,
+                description: asset.description,
+                value: asset.value,
+                documentUrl: asset.documentUrl,
+                createdAt: asset.createdAt.toISOString(),
+              },
+            })
+          }
+
+          // Otherwise, fetch all assets
           const assets = await prisma.asset.findMany({
             where: { userId: session.user.id },
             orderBy: { createdAt: 'desc' },
@@ -130,6 +163,146 @@ export const Route = createFileRoute('/api/asset/$')({
           return Response.json({ assets })
         } catch (error) {
           console.error('Error fetching assets:', error)
+          return Response.json(
+            { error: 'Internal Server Error' },
+            { status: 500 }
+          )
+        }
+      },
+
+      PUT: async ({ request }: { request: Request }) => {
+        const session = await auth.api.getSession({
+          headers: request.headers,
+        })
+
+        if (!session) {
+          return new Response('Unauthorized', { status: 401 })
+        }
+
+        try {
+          const url = new URL(request.url)
+          const id = url.pathname.split('/').pop()
+
+          if (!id) {
+            return Response.json(
+              { error: 'Missing asset id' },
+              { status: 400 }
+            )
+          }
+
+          // Check if asset exists and belongs to user
+          const existingAsset = await prisma.asset.findFirst({
+            where: {
+              id: parseInt(id),
+              userId: session.user.id,
+            },
+          })
+
+          if (!existingAsset) {
+            return Response.json(
+              { error: 'Asset not found' },
+              { status: 404 }
+            )
+          }
+
+          // Parse FormData
+          const formData = await request.formData()
+          const name = formData.get('name') as string
+          const type = formData.get('type') as string
+          const description = formData.get('description') as string | null
+          const value = formData.get('value') as string
+          const document = formData.get('document') as File | null
+
+          // Validate required fields
+          if (!name || !type || !value) {
+            return Response.json(
+              { error: 'Missing required fields' },
+              { status: 400 }
+            )
+          }
+
+          // Validate asset type
+          if (!Object.values(AssetType).includes(type as AssetType)) {
+            return Response.json(
+              { error: 'Invalid asset type' },
+              { status: 400 }
+            )
+          }
+
+          // Validate value is a positive number
+          const numValue = parseFloat(value)
+          if (isNaN(numValue) || numValue < 0) {
+            return Response.json(
+              { error: 'Value must be a positive number' },
+              { status: 400 }
+            )
+          }
+
+          let documentUrl = existingAsset.documentUrl
+
+          // Handle document replacement
+          if (document && document.size > 0) {
+            // Validate file type
+            const allowedTypes = ['application/pdf']
+
+            if (!allowedTypes.includes(document.type)) {
+              return Response.json(
+                { error: 'Invalid file type. Allowed types: PDF' },
+                { status: 400 }
+              )
+            }
+
+            // Validate file size (max 10MB)
+            const maxSize = 10 * 1024 * 1024 // 10MB
+            if (document.size > maxSize) {
+              return Response.json(
+                { error: 'File size exceeds 10MB limit' },
+                { status: 400 }
+              )
+            }
+
+            // Delete old file from S3 if exists
+            if (existingAsset.documentUrl) {
+              try {
+                const oldKey = extractKeyFromUrl(existingAsset.documentUrl)
+                await deleteFileFromS3(oldKey)
+              } catch (error) {
+                console.error('Error deleting old file from S3:', error)
+                // Continue with upload even if deletion fails
+              }
+            }
+
+            // Upload new file to S3
+            const key = generateS3Key(document.name, 'documents')
+            await uploadFileToS3(document, key)
+            documentUrl = getFileUrl(key)
+          }
+
+          // Update asset in database
+          const asset = await prisma.asset.update({
+            where: { id: parseInt(id) },
+            data: {
+              name,
+              type: type as AssetType,
+              description: description || null,
+              value: numValue,
+              documentUrl,
+            },
+          })
+
+          return Response.json({
+            success: true,
+            asset: {
+              id: asset.id,
+              name: asset.name,
+              type: asset.type,
+              description: asset.description,
+              value: asset.value,
+              documentUrl: asset.documentUrl,
+            },
+          })
+        } catch (error) {
+          console.error('Error updating asset:', error)
           return Response.json(
             { error: 'Internal Server Error' },
             { status: 500 }
