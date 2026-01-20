@@ -31,6 +31,7 @@ import { Route as AppFamilyViewRouteImport } from './routes/app/family/view'
 import { Route as AppFamilyEditRouteImport } from './routes/app/family/edit'
 import { Route as AppFamilyAddRouteImport } from './routes/app/family/add'
 import { Route as AppAssetsAddRouteImport } from './routes/app/assets/add'
+import { Route as AppAgreementCreateRouteImport } from './routes/app/agreement/create'
 import { Route as ApiFileKeyRouteImport } from './routes/api/file/$key'
 import { Route as ApiFileSplatRouteImport } from './routes/api/file/$'
 import { Route as ApiFamilySearchRouteImport } from './routes/api/family/search'
@@ -40,11 +41,13 @@ import { Route as ApiAssetSplatRouteImport } from './routes/api/asset/$'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as AppAssetsViewIndexRouteImport } from './routes/app/assets/view/index'
 import { Route as AppAssetsEditIndexRouteImport } from './routes/app/assets/edit/index'
+import { Route as AppAgreementViewIndexRouteImport } from './routes/app/agreement/view/index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 import { Route as AppAssetsViewIdRouteImport } from './routes/app/assets/view/$id'
 import { Route as AppAssetsEditIdRouteImport } from './routes/app/assets/edit/$id'
+import { Route as AppAgreementViewIdRouteImport } from './routes/app/agreement/view/$id'
 import { Route as ApiUserProfileSplatRouteImport } from './routes/api/user/profile/$'
 
 const TestUploadRoute = TestUploadRouteImport.update({
@@ -157,6 +160,11 @@ const AppAssetsAddRoute = AppAssetsAddRouteImport.update({
   path: '/assets/add',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAgreementCreateRoute = AppAgreementCreateRouteImport.update({
+  id: '/agreement/create',
+  path: '/agreement/create',
+  getParentRoute: () => AppRoute,
+} as any)
 const ApiFileKeyRoute = ApiFileKeyRouteImport.update({
   id: '/api/file/$key',
   path: '/api/file/$key',
@@ -202,6 +210,11 @@ const AppAssetsEditIndexRoute = AppAssetsEditIndexRouteImport.update({
   path: '/assets/edit/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAgreementViewIndexRoute = AppAgreementViewIndexRouteImport.update({
+  id: '/agreement/view/',
+  path: '/agreement/view/',
+  getParentRoute: () => AppRoute,
+} as any)
 const DemoStartSsrSpaModeRoute = DemoStartSsrSpaModeRouteImport.update({
   id: '/demo/start/ssr/spa-mode',
   path: '/demo/start/ssr/spa-mode',
@@ -227,6 +240,11 @@ const AppAssetsEditIdRoute = AppAssetsEditIdRouteImport.update({
   path: '/assets/edit/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAgreementViewIdRoute = AppAgreementViewIdRouteImport.update({
+  id: '/agreement/view/$id',
+  path: '/agreement/view/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 const ApiUserProfileSplatRoute = ApiUserProfileSplatRouteImport.update({
   id: '/api/user/profile/$',
   path: '/api/user/profile/$',
@@ -246,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/api/family/search': typeof ApiFamilySearchRoute
   '/api/file/$': typeof ApiFileSplatRoute
   '/api/file/$key': typeof ApiFileKeyRoute
+  '/app/agreement/create': typeof AppAgreementCreateRoute
   '/app/assets/add': typeof AppAssetsAddRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/edit': typeof AppFamilyEditRoute
@@ -263,11 +282,13 @@ export interface FileRoutesByFullPath {
   '/app/profile': typeof AppProfileIndexRoute
   '/app/settings': typeof AppSettingsIndexRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
+  '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
   '/app/assets/view/$id': typeof AppAssetsViewIdRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
+  '/app/agreement/view': typeof AppAgreementViewIndexRoute
   '/app/assets/edit': typeof AppAssetsEditIndexRoute
   '/app/assets/view': typeof AppAssetsViewIndexRoute
   '/demo/start/ssr': typeof DemoStartSsrIndexRoute
@@ -285,6 +306,7 @@ export interface FileRoutesByTo {
   '/api/family/search': typeof ApiFamilySearchRoute
   '/api/file/$': typeof ApiFileSplatRoute
   '/api/file/$key': typeof ApiFileKeyRoute
+  '/app/agreement/create': typeof AppAgreementCreateRoute
   '/app/assets/add': typeof AppAssetsAddRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/edit': typeof AppFamilyEditRoute
@@ -302,11 +324,13 @@ export interface FileRoutesByTo {
   '/app/profile': typeof AppProfileIndexRoute
   '/app/settings': typeof AppSettingsIndexRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
+  '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
   '/app/assets/view/$id': typeof AppAssetsViewIdRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
+  '/app/agreement/view': typeof AppAgreementViewIndexRoute
   '/app/assets/edit': typeof AppAssetsEditIndexRoute
   '/app/assets/view': typeof AppAssetsViewIndexRoute
   '/demo/start/ssr': typeof DemoStartSsrIndexRoute
@@ -325,6 +349,7 @@ export interface FileRoutesById {
   '/api/family/search': typeof ApiFamilySearchRoute
   '/api/file/$': typeof ApiFileSplatRoute
   '/api/file/$key': typeof ApiFileKeyRoute
+  '/app/agreement/create': typeof AppAgreementCreateRoute
   '/app/assets/add': typeof AppAssetsAddRoute
   '/app/family/add': typeof AppFamilyAddRoute
   '/app/family/edit': typeof AppFamilyEditRoute
@@ -342,11 +367,13 @@ export interface FileRoutesById {
   '/app/profile/': typeof AppProfileIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
+  '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
   '/app/assets/view/$id': typeof AppAssetsViewIdRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
+  '/app/agreement/view/': typeof AppAgreementViewIndexRoute
   '/app/assets/edit/': typeof AppAssetsEditIndexRoute
   '/app/assets/view/': typeof AppAssetsViewIndexRoute
   '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
@@ -366,6 +393,7 @@ export interface FileRouteTypes {
     | '/api/family/search'
     | '/api/file/$'
     | '/api/file/$key'
+    | '/app/agreement/create'
     | '/app/assets/add'
     | '/app/family/add'
     | '/app/family/edit'
@@ -383,11 +411,13 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/settings'
     | '/api/user/profile/$'
+    | '/app/agreement/view/$id'
     | '/app/assets/edit/$id'
     | '/app/assets/view/$id'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
+    | '/app/agreement/view'
     | '/app/assets/edit'
     | '/app/assets/view'
     | '/demo/start/ssr'
@@ -405,6 +435,7 @@ export interface FileRouteTypes {
     | '/api/family/search'
     | '/api/file/$'
     | '/api/file/$key'
+    | '/app/agreement/create'
     | '/app/assets/add'
     | '/app/family/add'
     | '/app/family/edit'
@@ -422,11 +453,13 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/settings'
     | '/api/user/profile/$'
+    | '/app/agreement/view/$id'
     | '/app/assets/edit/$id'
     | '/app/assets/view/$id'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
+    | '/app/agreement/view'
     | '/app/assets/edit'
     | '/app/assets/view'
     | '/demo/start/ssr'
@@ -444,6 +477,7 @@ export interface FileRouteTypes {
     | '/api/family/search'
     | '/api/file/$'
     | '/api/file/$key'
+    | '/app/agreement/create'
     | '/app/assets/add'
     | '/app/family/add'
     | '/app/family/edit'
@@ -461,11 +495,13 @@ export interface FileRouteTypes {
     | '/app/profile/'
     | '/app/settings/'
     | '/api/user/profile/$'
+    | '/app/agreement/view/$id'
     | '/app/assets/edit/$id'
     | '/app/assets/view/$id'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
+    | '/app/agreement/view/'
     | '/app/assets/edit/'
     | '/app/assets/view/'
     | '/demo/start/ssr/'
@@ -651,6 +687,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAssetsAddRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/agreement/create': {
+      id: '/app/agreement/create'
+      path: '/agreement/create'
+      fullPath: '/app/agreement/create'
+      preLoaderRoute: typeof AppAgreementCreateRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/api/file/$key': {
       id: '/api/file/$key'
       path: '/api/file/$key'
@@ -714,6 +757,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAssetsEditIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/agreement/view/': {
+      id: '/app/agreement/view/'
+      path: '/agreement/view'
+      fullPath: '/app/agreement/view'
+      preLoaderRoute: typeof AppAgreementViewIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/demo/start/ssr/spa-mode': {
       id: '/demo/start/ssr/spa-mode'
       path: '/demo/start/ssr/spa-mode'
@@ -749,6 +799,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAssetsEditIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/agreement/view/$id': {
+      id: '/app/agreement/view/$id'
+      path: '/agreement/view/$id'
+      fullPath: '/app/agreement/view/$id'
+      preLoaderRoute: typeof AppAgreementViewIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/api/user/profile/$': {
       id: '/api/user/profile/$'
       path: '/api/user/profile/$'
@@ -761,6 +818,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppAgreementCreateRoute: typeof AppAgreementCreateRoute
   AppAssetsAddRoute: typeof AppAssetsAddRoute
   AppFamilyAddRoute: typeof AppFamilyAddRoute
   AppFamilyEditRoute: typeof AppFamilyEditRoute
@@ -772,14 +830,17 @@ interface AppRouteChildren {
   AppFamilyIndexRoute: typeof AppFamilyIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+  AppAgreementViewIdRoute: typeof AppAgreementViewIdRoute
   AppAssetsEditIdRoute: typeof AppAssetsEditIdRoute
   AppAssetsViewIdRoute: typeof AppAssetsViewIdRoute
+  AppAgreementViewIndexRoute: typeof AppAgreementViewIndexRoute
   AppAssetsEditIndexRoute: typeof AppAssetsEditIndexRoute
   AppAssetsViewIndexRoute: typeof AppAssetsViewIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppAgreementCreateRoute: AppAgreementCreateRoute,
   AppAssetsAddRoute: AppAssetsAddRoute,
   AppFamilyAddRoute: AppFamilyAddRoute,
   AppFamilyEditRoute: AppFamilyEditRoute,
@@ -791,8 +852,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppFamilyIndexRoute: AppFamilyIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
+  AppAgreementViewIdRoute: AppAgreementViewIdRoute,
   AppAssetsEditIdRoute: AppAssetsEditIdRoute,
   AppAssetsViewIdRoute: AppAssetsViewIdRoute,
+  AppAgreementViewIndexRoute: AppAgreementViewIndexRoute,
   AppAssetsEditIndexRoute: AppAssetsEditIndexRoute,
   AppAssetsViewIndexRoute: AppAssetsViewIndexRoute,
 }
