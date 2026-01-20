@@ -56,16 +56,11 @@ export const Route = createFileRoute('/api/asset/$')({
             // Validate file type
             const allowedTypes = [
               'application/pdf',
-              'image/jpeg',
-              'image/jpg',
-              'image/png',
-              'image/gif',
-              'image/webp'
             ]
 
             if (!allowedTypes.includes(document.type)) {
               return Response.json(
-                { error: 'Invalid file type. Allowed types: PDF, JPEG, PNG, GIF, WebP' },
+                { error: 'Invalid file type. Allowed types: PDF' },
                 { status: 400 }
               )
             }
@@ -80,7 +75,7 @@ export const Route = createFileRoute('/api/asset/$')({
             }
 
             // Upload to S3
-            const key = generateS3Key(document.name, 'assets')
+            const key = generateS3Key(document.name, 'documents')
             await uploadFileToS3(document, key)
             documentUrl = getFileUrl(key)
           }

@@ -16,11 +16,6 @@ export const Route = createFileRoute('/api/upload/')({
           // Validate file type (accept PDF and images)
           const allowedTypes = [
             'application/pdf',
-            'image/jpeg',
-            'image/jpg',
-            'image/png',
-            'image/gif',
-            'image/webp'
           ]
 
           if (!allowedTypes.includes(file.type)) {
