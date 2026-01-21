@@ -32,6 +32,7 @@ import { Route as ApiFamilySearchRouteImport } from './routes/api/family/search'
 import { Route as ApiFamilySplatRouteImport } from './routes/api/family/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAssetSplatRouteImport } from './routes/api/asset/$'
+import { Route as ApiAgreementSplatRouteImport } from './routes/api/agreement/$'
 import { Route as AppAssetsViewIndexRouteImport } from './routes/app/assets/view/index'
 import { Route as AppAssetsEditIndexRouteImport } from './routes/app/assets/edit/index'
 import { Route as AppAgreementViewIndexRouteImport } from './routes/app/agreement/view/index'
@@ -39,6 +40,12 @@ import { Route as AppAssetsViewIdRouteImport } from './routes/app/assets/view/$i
 import { Route as AppAssetsEditIdRouteImport } from './routes/app/assets/edit/$id'
 import { Route as AppAgreementViewIdRouteImport } from './routes/app/agreement/view/$id'
 import { Route as ApiUserProfileSplatRouteImport } from './routes/api/user/profile/$'
+import { Route as ApiAgreementIdStatusSplatRouteImport } from './routes/api/agreement/$id/status/$'
+import { Route as ApiAgreementIdBeneficiariesSplatRouteImport } from './routes/api/agreement/$id/beneficiaries/$'
+import { Route as ApiAgreementIdAssetsSplatRouteImport } from './routes/api/agreement/$id/assets/$'
+import { Route as ApiAgreementIdSignWitnessSplatRouteImport } from './routes/api/agreement/$id/sign/witness/$'
+import { Route as ApiAgreementIdSignOwnerSplatRouteImport } from './routes/api/agreement/$id/sign/owner/$'
+import { Route as ApiAgreementIdSignBeneficiarySplatRouteImport } from './routes/api/agreement/$id/sign/beneficiary/$'
 
 const TestUploadRoute = TestUploadRouteImport.update({
   id: '/test-upload',
@@ -155,6 +162,11 @@ const ApiAssetSplatRoute = ApiAssetSplatRouteImport.update({
   path: '/api/asset/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgreementSplatRoute = ApiAgreementSplatRouteImport.update({
+  id: '/api/agreement/$',
+  path: '/api/agreement/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppAssetsViewIndexRoute = AppAssetsViewIndexRouteImport.update({
   id: '/assets/view/',
   path: '/assets/view/',
@@ -190,12 +202,49 @@ const ApiUserProfileSplatRoute = ApiUserProfileSplatRouteImport.update({
   path: '/api/user/profile/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgreementIdStatusSplatRoute =
+  ApiAgreementIdStatusSplatRouteImport.update({
+    id: '/api/agreement/$id/status/$',
+    path: '/api/agreement/$id/status/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAgreementIdBeneficiariesSplatRoute =
+  ApiAgreementIdBeneficiariesSplatRouteImport.update({
+    id: '/api/agreement/$id/beneficiaries/$',
+    path: '/api/agreement/$id/beneficiaries/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAgreementIdAssetsSplatRoute =
+  ApiAgreementIdAssetsSplatRouteImport.update({
+    id: '/api/agreement/$id/assets/$',
+    path: '/api/agreement/$id/assets/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAgreementIdSignWitnessSplatRoute =
+  ApiAgreementIdSignWitnessSplatRouteImport.update({
+    id: '/api/agreement/$id/sign/witness/$',
+    path: '/api/agreement/$id/sign/witness/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAgreementIdSignOwnerSplatRoute =
+  ApiAgreementIdSignOwnerSplatRouteImport.update({
+    id: '/api/agreement/$id/sign/owner/$',
+    path: '/api/agreement/$id/sign/owner/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAgreementIdSignBeneficiarySplatRoute =
+  ApiAgreementIdSignBeneficiarySplatRouteImport.update({
+    id: '/api/agreement/$id/sign/beneficiary/$',
+    path: '/api/agreement/$id/sign/beneficiary/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/api/agreement/$': typeof ApiAgreementSplatRoute
   '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
@@ -222,12 +271,19 @@ export interface FileRoutesByFullPath {
   '/app/agreement/view': typeof AppAgreementViewIndexRoute
   '/app/assets/edit': typeof AppAssetsEditIndexRoute
   '/app/assets/view': typeof AppAssetsViewIndexRoute
+  '/api/agreement/$id/assets/$': typeof ApiAgreementIdAssetsSplatRoute
+  '/api/agreement/$id/beneficiaries/$': typeof ApiAgreementIdBeneficiariesSplatRoute
+  '/api/agreement/$id/status/$': typeof ApiAgreementIdStatusSplatRoute
+  '/api/agreement/$id/sign/beneficiary/$': typeof ApiAgreementIdSignBeneficiarySplatRoute
+  '/api/agreement/$id/sign/owner/$': typeof ApiAgreementIdSignOwnerSplatRoute
+  '/api/agreement/$id/sign/witness/$': typeof ApiAgreementIdSignWitnessSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/api/agreement/$': typeof ApiAgreementSplatRoute
   '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
@@ -254,6 +310,12 @@ export interface FileRoutesByTo {
   '/app/agreement/view': typeof AppAgreementViewIndexRoute
   '/app/assets/edit': typeof AppAssetsEditIndexRoute
   '/app/assets/view': typeof AppAssetsViewIndexRoute
+  '/api/agreement/$id/assets/$': typeof ApiAgreementIdAssetsSplatRoute
+  '/api/agreement/$id/beneficiaries/$': typeof ApiAgreementIdBeneficiariesSplatRoute
+  '/api/agreement/$id/status/$': typeof ApiAgreementIdStatusSplatRoute
+  '/api/agreement/$id/sign/beneficiary/$': typeof ApiAgreementIdSignBeneficiarySplatRoute
+  '/api/agreement/$id/sign/owner/$': typeof ApiAgreementIdSignOwnerSplatRoute
+  '/api/agreement/$id/sign/witness/$': typeof ApiAgreementIdSignWitnessSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -261,6 +323,7 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/test-upload': typeof TestUploadRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/api/agreement/$': typeof ApiAgreementSplatRoute
   '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/family/$': typeof ApiFamilySplatRoute
@@ -287,6 +350,12 @@ export interface FileRoutesById {
   '/app/agreement/view/': typeof AppAgreementViewIndexRoute
   '/app/assets/edit/': typeof AppAssetsEditIndexRoute
   '/app/assets/view/': typeof AppAssetsViewIndexRoute
+  '/api/agreement/$id/assets/$': typeof ApiAgreementIdAssetsSplatRoute
+  '/api/agreement/$id/beneficiaries/$': typeof ApiAgreementIdBeneficiariesSplatRoute
+  '/api/agreement/$id/status/$': typeof ApiAgreementIdStatusSplatRoute
+  '/api/agreement/$id/sign/beneficiary/$': typeof ApiAgreementIdSignBeneficiarySplatRoute
+  '/api/agreement/$id/sign/owner/$': typeof ApiAgreementIdSignOwnerSplatRoute
+  '/api/agreement/$id/sign/witness/$': typeof ApiAgreementIdSignWitnessSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -295,6 +364,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/test-upload'
     | '/app/dashboard'
+    | '/api/agreement/$'
     | '/api/asset/$'
     | '/api/auth/$'
     | '/api/family/$'
@@ -321,12 +391,19 @@ export interface FileRouteTypes {
     | '/app/agreement/view'
     | '/app/assets/edit'
     | '/app/assets/view'
+    | '/api/agreement/$id/assets/$'
+    | '/api/agreement/$id/beneficiaries/$'
+    | '/api/agreement/$id/status/$'
+    | '/api/agreement/$id/sign/beneficiary/$'
+    | '/api/agreement/$id/sign/owner/$'
+    | '/api/agreement/$id/sign/witness/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/app'
     | '/test-upload'
     | '/app/dashboard'
+    | '/api/agreement/$'
     | '/api/asset/$'
     | '/api/auth/$'
     | '/api/family/$'
@@ -353,12 +430,19 @@ export interface FileRouteTypes {
     | '/app/agreement/view'
     | '/app/assets/edit'
     | '/app/assets/view'
+    | '/api/agreement/$id/assets/$'
+    | '/api/agreement/$id/beneficiaries/$'
+    | '/api/agreement/$id/status/$'
+    | '/api/agreement/$id/sign/beneficiary/$'
+    | '/api/agreement/$id/sign/owner/$'
+    | '/api/agreement/$id/sign/witness/$'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/test-upload'
     | '/app/dashboard'
+    | '/api/agreement/$'
     | '/api/asset/$'
     | '/api/auth/$'
     | '/api/family/$'
@@ -385,12 +469,19 @@ export interface FileRouteTypes {
     | '/app/agreement/view/'
     | '/app/assets/edit/'
     | '/app/assets/view/'
+    | '/api/agreement/$id/assets/$'
+    | '/api/agreement/$id/beneficiaries/$'
+    | '/api/agreement/$id/status/$'
+    | '/api/agreement/$id/sign/beneficiary/$'
+    | '/api/agreement/$id/sign/owner/$'
+    | '/api/agreement/$id/sign/witness/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   TestUploadRoute: typeof TestUploadRoute
+  ApiAgreementSplatRoute: typeof ApiAgreementSplatRoute
   ApiAssetSplatRoute: typeof ApiAssetSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiFamilySplatRoute: typeof ApiFamilySplatRoute
@@ -399,6 +490,12 @@ export interface RootRouteChildren {
   ApiFileKeyRoute: typeof ApiFileKeyRoute
   ApiUploadIndexRoute: typeof ApiUploadIndexRoute
   ApiUserProfileSplatRoute: typeof ApiUserProfileSplatRoute
+  ApiAgreementIdAssetsSplatRoute: typeof ApiAgreementIdAssetsSplatRoute
+  ApiAgreementIdBeneficiariesSplatRoute: typeof ApiAgreementIdBeneficiariesSplatRoute
+  ApiAgreementIdStatusSplatRoute: typeof ApiAgreementIdStatusSplatRoute
+  ApiAgreementIdSignBeneficiarySplatRoute: typeof ApiAgreementIdSignBeneficiarySplatRoute
+  ApiAgreementIdSignOwnerSplatRoute: typeof ApiAgreementIdSignOwnerSplatRoute
+  ApiAgreementIdSignWitnessSplatRoute: typeof ApiAgreementIdSignWitnessSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -564,6 +661,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAssetSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agreement/$': {
+      id: '/api/agreement/$'
+      path: '/api/agreement/$'
+      fullPath: '/api/agreement/$'
+      preLoaderRoute: typeof ApiAgreementSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/assets/view/': {
       id: '/app/assets/view/'
       path: '/assets/view'
@@ -611,6 +715,48 @@ declare module '@tanstack/react-router' {
       path: '/api/user/profile/$'
       fullPath: '/api/user/profile/$'
       preLoaderRoute: typeof ApiUserProfileSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agreement/$id/status/$': {
+      id: '/api/agreement/$id/status/$'
+      path: '/api/agreement/$id/status/$'
+      fullPath: '/api/agreement/$id/status/$'
+      preLoaderRoute: typeof ApiAgreementIdStatusSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agreement/$id/beneficiaries/$': {
+      id: '/api/agreement/$id/beneficiaries/$'
+      path: '/api/agreement/$id/beneficiaries/$'
+      fullPath: '/api/agreement/$id/beneficiaries/$'
+      preLoaderRoute: typeof ApiAgreementIdBeneficiariesSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agreement/$id/assets/$': {
+      id: '/api/agreement/$id/assets/$'
+      path: '/api/agreement/$id/assets/$'
+      fullPath: '/api/agreement/$id/assets/$'
+      preLoaderRoute: typeof ApiAgreementIdAssetsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agreement/$id/sign/witness/$': {
+      id: '/api/agreement/$id/sign/witness/$'
+      path: '/api/agreement/$id/sign/witness/$'
+      fullPath: '/api/agreement/$id/sign/witness/$'
+      preLoaderRoute: typeof ApiAgreementIdSignWitnessSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agreement/$id/sign/owner/$': {
+      id: '/api/agreement/$id/sign/owner/$'
+      path: '/api/agreement/$id/sign/owner/$'
+      fullPath: '/api/agreement/$id/sign/owner/$'
+      preLoaderRoute: typeof ApiAgreementIdSignOwnerSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agreement/$id/sign/beneficiary/$': {
+      id: '/api/agreement/$id/sign/beneficiary/$'
+      path: '/api/agreement/$id/sign/beneficiary/$'
+      fullPath: '/api/agreement/$id/sign/beneficiary/$'
+      preLoaderRoute: typeof ApiAgreementIdSignBeneficiarySplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -666,6 +812,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   TestUploadRoute: TestUploadRoute,
+  ApiAgreementSplatRoute: ApiAgreementSplatRoute,
   ApiAssetSplatRoute: ApiAssetSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiFamilySplatRoute: ApiFamilySplatRoute,
@@ -674,6 +821,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiFileKeyRoute: ApiFileKeyRoute,
   ApiUploadIndexRoute: ApiUploadIndexRoute,
   ApiUserProfileSplatRoute: ApiUserProfileSplatRoute,
+  ApiAgreementIdAssetsSplatRoute: ApiAgreementIdAssetsSplatRoute,
+  ApiAgreementIdBeneficiariesSplatRoute: ApiAgreementIdBeneficiariesSplatRoute,
+  ApiAgreementIdStatusSplatRoute: ApiAgreementIdStatusSplatRoute,
+  ApiAgreementIdSignBeneficiarySplatRoute:
+    ApiAgreementIdSignBeneficiarySplatRoute,
+  ApiAgreementIdSignOwnerSplatRoute: ApiAgreementIdSignOwnerSplatRoute,
+  ApiAgreementIdSignWitnessSplatRoute: ApiAgreementIdSignWitnessSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
