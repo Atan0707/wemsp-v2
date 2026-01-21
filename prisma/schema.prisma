@@ -258,6 +258,11 @@ model Agreement {
   ownerId           String
   owner             User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   
+  // Owner signature tracking
+  ownerHasSigned    Boolean          @default(false)
+  ownerSignedAt     DateTime?
+  ownerSignatureRef String?          // Reference to signature document/hash
+  
   // Witness (Admin)
   witnessId         String?
   witness           Admin?           @relation(fields: [witnessId], references: [id])

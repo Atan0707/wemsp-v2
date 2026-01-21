@@ -59,7 +59,11 @@ export const ModelName = {
   Asset: 'Asset',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  Admin: 'Admin',
+  Agreement: 'Agreement',
+  AgreementAsset: 'AgreementAsset',
+  AgreementBeneficiary: 'AgreementBeneficiary'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -196,6 +200,73 @@ export const VerificationScalarFieldEnum = {
 } as const
 
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+
+
+export const AdminScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  password: 'password',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdminScalarFieldEnum = (typeof AdminScalarFieldEnum)[keyof typeof AdminScalarFieldEnum]
+
+
+export const AgreementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  distributionType: 'distributionType',
+  status: 'status',
+  ownerId: 'ownerId',
+  ownerHasSigned: 'ownerHasSigned',
+  ownerSignedAt: 'ownerSignedAt',
+  ownerSignatureRef: 'ownerSignatureRef',
+  witnessId: 'witnessId',
+  witnessedAt: 'witnessedAt',
+  effectiveDate: 'effectiveDate',
+  expiryDate: 'expiryDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgreementScalarFieldEnum = (typeof AgreementScalarFieldEnum)[keyof typeof AgreementScalarFieldEnum]
+
+
+export const AgreementAssetScalarFieldEnum = {
+  id: 'id',
+  agreementId: 'agreementId',
+  assetId: 'assetId',
+  allocatedValue: 'allocatedValue',
+  allocatedPercentage: 'allocatedPercentage',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgreementAssetScalarFieldEnum = (typeof AgreementAssetScalarFieldEnum)[keyof typeof AgreementAssetScalarFieldEnum]
+
+
+export const AgreementBeneficiaryScalarFieldEnum = {
+  id: 'id',
+  agreementId: 'agreementId',
+  familyMemberId: 'familyMemberId',
+  nonRegisteredFamilyMemberId: 'nonRegisteredFamilyMemberId',
+  sharePercentage: 'sharePercentage',
+  shareDescription: 'shareDescription',
+  hasSigned: 'hasSigned',
+  signedAt: 'signedAt',
+  signatureRef: 'signatureRef',
+  isAccepted: 'isAccepted',
+  rejectionReason: 'rejectionReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgreementBeneficiaryScalarFieldEnum = (typeof AgreementBeneficiaryScalarFieldEnum)[keyof typeof AgreementBeneficiaryScalarFieldEnum]
 
 
 export const SortOrder = {

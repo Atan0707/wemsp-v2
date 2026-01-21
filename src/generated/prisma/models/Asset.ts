@@ -253,6 +253,7 @@ export type AssetWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   userId?: Prisma.StringFilter<"Asset"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  agreementAssets?: Prisma.AgreementAssetListRelationFilter
 }
 
 export type AssetOrderByWithRelationInput = {
@@ -266,6 +267,7 @@ export type AssetOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  agreementAssets?: Prisma.AgreementAssetOrderByRelationAggregateInput
 }
 
 export type AssetWhereUniqueInput = Prisma.AtLeast<{
@@ -282,6 +284,7 @@ export type AssetWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   userId?: Prisma.StringFilter<"Asset"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  agreementAssets?: Prisma.AgreementAssetListRelationFilter
 }, "id">
 
 export type AssetOrderByWithAggregationInput = {
@@ -325,6 +328,7 @@ export type AssetCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAssetsInput
+  agreementAssets?: Prisma.AgreementAssetCreateNestedManyWithoutAssetInput
 }
 
 export type AssetUncheckedCreateInput = {
@@ -337,6 +341,7 @@ export type AssetUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: string
+  agreementAssets?: Prisma.AgreementAssetUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type AssetUpdateInput = {
@@ -348,6 +353,7 @@ export type AssetUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAssetsNestedInput
+  agreementAssets?: Prisma.AgreementAssetUpdateManyWithoutAssetNestedInput
 }
 
 export type AssetUncheckedUpdateInput = {
@@ -360,6 +366,7 @@ export type AssetUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  agreementAssets?: Prisma.AgreementAssetUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type AssetCreateManyInput = {
@@ -452,6 +459,11 @@ export type AssetSumOrderByAggregateInput = {
   value?: Prisma.SortOrder
 }
 
+export type AssetScalarRelationFilter = {
+  is?: Prisma.AssetWhereInput
+  isNot?: Prisma.AssetWhereInput
+}
+
 export type AssetCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.AssetCreateWithoutUserInput, Prisma.AssetUncheckedCreateWithoutUserInput> | Prisma.AssetCreateWithoutUserInput[] | Prisma.AssetUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.AssetCreateOrConnectWithoutUserInput | Prisma.AssetCreateOrConnectWithoutUserInput[]
@@ -506,6 +518,20 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type AssetCreateNestedOneWithoutAgreementAssetsInput = {
+  create?: Prisma.XOR<Prisma.AssetCreateWithoutAgreementAssetsInput, Prisma.AssetUncheckedCreateWithoutAgreementAssetsInput>
+  connectOrCreate?: Prisma.AssetCreateOrConnectWithoutAgreementAssetsInput
+  connect?: Prisma.AssetWhereUniqueInput
+}
+
+export type AssetUpdateOneRequiredWithoutAgreementAssetsNestedInput = {
+  create?: Prisma.XOR<Prisma.AssetCreateWithoutAgreementAssetsInput, Prisma.AssetUncheckedCreateWithoutAgreementAssetsInput>
+  connectOrCreate?: Prisma.AssetCreateOrConnectWithoutAgreementAssetsInput
+  upsert?: Prisma.AssetUpsertWithoutAgreementAssetsInput
+  connect?: Prisma.AssetWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssetUpdateToOneWithWhereWithoutAgreementAssetsInput, Prisma.AssetUpdateWithoutAgreementAssetsInput>, Prisma.AssetUncheckedUpdateWithoutAgreementAssetsInput>
+}
+
 export type AssetCreateWithoutUserInput = {
   name: string
   type: $Enums.AssetType
@@ -514,6 +540,7 @@ export type AssetCreateWithoutUserInput = {
   documentUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  agreementAssets?: Prisma.AgreementAssetCreateNestedManyWithoutAssetInput
 }
 
 export type AssetUncheckedCreateWithoutUserInput = {
@@ -525,6 +552,7 @@ export type AssetUncheckedCreateWithoutUserInput = {
   documentUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  agreementAssets?: Prisma.AgreementAssetUncheckedCreateNestedManyWithoutAssetInput
 }
 
 export type AssetCreateOrConnectWithoutUserInput = {
@@ -568,6 +596,68 @@ export type AssetScalarWhereInput = {
   userId?: Prisma.StringFilter<"Asset"> | string
 }
 
+export type AssetCreateWithoutAgreementAssetsInput = {
+  name: string
+  type: $Enums.AssetType
+  description?: string | null
+  value: number
+  documentUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutAssetsInput
+}
+
+export type AssetUncheckedCreateWithoutAgreementAssetsInput = {
+  id?: number
+  name: string
+  type: $Enums.AssetType
+  description?: string | null
+  value: number
+  documentUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userId: string
+}
+
+export type AssetCreateOrConnectWithoutAgreementAssetsInput = {
+  where: Prisma.AssetWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssetCreateWithoutAgreementAssetsInput, Prisma.AssetUncheckedCreateWithoutAgreementAssetsInput>
+}
+
+export type AssetUpsertWithoutAgreementAssetsInput = {
+  update: Prisma.XOR<Prisma.AssetUpdateWithoutAgreementAssetsInput, Prisma.AssetUncheckedUpdateWithoutAgreementAssetsInput>
+  create: Prisma.XOR<Prisma.AssetCreateWithoutAgreementAssetsInput, Prisma.AssetUncheckedCreateWithoutAgreementAssetsInput>
+  where?: Prisma.AssetWhereInput
+}
+
+export type AssetUpdateToOneWithWhereWithoutAgreementAssetsInput = {
+  where?: Prisma.AssetWhereInput
+  data: Prisma.XOR<Prisma.AssetUpdateWithoutAgreementAssetsInput, Prisma.AssetUncheckedUpdateWithoutAgreementAssetsInput>
+}
+
+export type AssetUpdateWithoutAgreementAssetsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FloatFieldUpdateOperationsInput | number
+  documentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutAssetsNestedInput
+}
+
+export type AssetUncheckedUpdateWithoutAgreementAssetsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.FloatFieldUpdateOperationsInput | number
+  documentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
 export type AssetCreateManyUserInput = {
   id?: number
   name: string
@@ -587,6 +677,7 @@ export type AssetUpdateWithoutUserInput = {
   documentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  agreementAssets?: Prisma.AgreementAssetUpdateManyWithoutAssetNestedInput
 }
 
 export type AssetUncheckedUpdateWithoutUserInput = {
@@ -598,6 +689,7 @@ export type AssetUncheckedUpdateWithoutUserInput = {
   documentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  agreementAssets?: Prisma.AgreementAssetUncheckedUpdateManyWithoutAssetNestedInput
 }
 
 export type AssetUncheckedUpdateManyWithoutUserInput = {
@@ -612,6 +704,35 @@ export type AssetUncheckedUpdateManyWithoutUserInput = {
 }
 
 
+/**
+ * Count Type AssetCountOutputType
+ */
+
+export type AssetCountOutputType = {
+  agreementAssets: number
+}
+
+export type AssetCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  agreementAssets?: boolean | AssetCountOutputTypeCountAgreementAssetsArgs
+}
+
+/**
+ * AssetCountOutputType without action
+ */
+export type AssetCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AssetCountOutputType
+   */
+  select?: Prisma.AssetCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AssetCountOutputType without action
+ */
+export type AssetCountOutputTypeCountAgreementAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AgreementAssetWhereInput
+}
+
 
 export type AssetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -624,6 +745,8 @@ export type AssetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   updatedAt?: boolean
   userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  agreementAssets?: boolean | Prisma.Asset$agreementAssetsArgs<ExtArgs>
+  _count?: boolean | Prisma.AssetCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["asset"]>
 
 export type AssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -667,6 +790,8 @@ export type AssetSelectScalar = {
 export type AssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "description" | "value" | "documentUrl" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["asset"]>
 export type AssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  agreementAssets?: boolean | Prisma.Asset$agreementAssetsArgs<ExtArgs>
+  _count?: boolean | Prisma.AssetCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AssetIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -679,6 +804,7 @@ export type $AssetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name: "Asset"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    agreementAssets: Prisma.$AgreementAssetPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1085,6 +1211,7 @@ readonly fields: AssetFieldRefs;
 export interface Prisma__AssetClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  agreementAssets<T extends Prisma.Asset$agreementAssetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Asset$agreementAssetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgreementAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1516,6 +1643,30 @@ export type AssetDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Assets to delete.
    */
   limit?: number
+}
+
+/**
+ * Asset.agreementAssets
+ */
+export type Asset$agreementAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AgreementAsset
+   */
+  select?: Prisma.AgreementAssetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AgreementAsset
+   */
+  omit?: Prisma.AgreementAssetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgreementAssetInclude<ExtArgs> | null
+  where?: Prisma.AgreementAssetWhereInput
+  orderBy?: Prisma.AgreementAssetOrderByWithRelationInput | Prisma.AgreementAssetOrderByWithRelationInput[]
+  cursor?: Prisma.AgreementAssetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AgreementAssetScalarFieldEnum | Prisma.AgreementAssetScalarFieldEnum[]
 }
 
 /**

@@ -39,3 +39,26 @@ export const AssetType = {
 } as const
 
 export type AssetType = (typeof AssetType)[keyof typeof AssetType]
+
+
+export const DistributionType = {
+  FARAID: 'FARAID',
+  HIBAH: 'HIBAH',
+  WASIYYAH: 'WASIYYAH',
+  WAKAF: 'WAKAF'
+} as const
+
+export type DistributionType = (typeof DistributionType)[keyof typeof DistributionType]
+
+
+export const AgreementStatus = {
+  DRAFT: 'DRAFT',
+  PENDING_SIGNATURES: 'PENDING_SIGNATURES',
+  PENDING_WITNESS: 'PENDING_WITNESS',
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type AgreementStatus = (typeof AgreementStatus)[keyof typeof AgreementStatus]

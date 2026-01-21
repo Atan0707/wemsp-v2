@@ -62,3 +62,23 @@ export type Account = Prisma.AccountModel
  * 
  */
 export type Verification = Prisma.VerificationModel
+/**
+ * Model Admin
+ * 
+ */
+export type Admin = Prisma.AdminModel
+/**
+ * Model Agreement
+ * 
+ */
+export type Agreement = Prisma.AgreementModel
+/**
+ * Model AgreementAsset
+ * 
+ */
+export type AgreementAsset = Prisma.AgreementAssetModel
+/**
+ * Model AgreementBeneficiary
+ * 
+ */
+export type AgreementBeneficiary = Prisma.AgreementBeneficiaryModel

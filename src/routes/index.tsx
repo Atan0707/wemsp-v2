@@ -9,7 +9,6 @@ import Services from "../components/home/services";
 export const Route = createFileRoute('/')({ component: App })
 
 function App() {
-  
 
   return (
     <div className="items-center justify-items-center min-h-screen font-[family-name:var(--font-geist-sans)]">
