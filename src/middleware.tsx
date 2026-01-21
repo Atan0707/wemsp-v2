@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/db'
+import { getAdminFromSession } from '@/lib/admin-auth'
 
 /**
  * Check if a user has completed their profile.
@@ -164,5 +165,54 @@ export const getServerSession = createServerFn({ method: 'GET' }).handler(
       headers: request.headers,
     })
     return session
+  }
+)
+
+/**
+ * Admin authentication middleware for server-side route protection.
+ * Checks if the admin has a valid session before allowing access.
+ *
+ * Usage with server functions:
+ * ```ts
+ * const protectedAdminFn = createServerFn({ method: 'GET' })
+ *   .middleware([adminAuthMiddleware])
+ *   .handler(async ({ context }) => {
+ *     // context.admin is available here
+ *     return { admin: context.admin }
+ *   })
+ * ```
+ */
+export const adminAuthMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const admin = await getAdminFromSession(request.headers)
+
+  if (!admin) {
+    // Return a redirect response to the admin login page
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: '/admin/login',
+      },
+    })
+  }
+
+  // Pass the admin data to the next handler via context
+  return next({
+    context: {
+      admin,
+    },
+  })
+})
+
+/**
+ * Server function to get the current admin session.
+ * Can be used in loaders or beforeLoad hooks for server-side admin auth checks.
+ */
+export const getAdminSession = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const request = getRequest()
+    if (!request) {
+      return null
+    }
+    return await getAdminFromSession(request.headers)
   }
 )
