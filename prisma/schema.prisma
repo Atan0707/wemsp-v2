@@ -41,6 +41,25 @@ enum AssetType {
   OTHER
 }
 
+// Distribution type for Islamic agreements
+enum DistributionType {
+  FARAID      // Islamic inheritance law (fixed shares)
+  HIBAH       // Gift during lifetime
+  WASIYYAH    // Will (up to 1/3 for non-heirs)
+  WAKAF       // Endowment
+}
+
+// Status of an agreement
+enum AgreementStatus {
+  DRAFT                    // Initial creation
+  PENDING_SIGNATURES       // Waiting for beneficiaries to sign
+  PENDING_WITNESS          // All beneficiaries signed, waiting for admin witness
+  ACTIVE                   // Fully executed agreement
+  COMPLETED                // Distribution completed
+  CANCELLED                // Agreement cancelled
+  EXPIRED                  // Agreement expired
+}
+
 // Central registry for IC numbers to ensure global uniqueness
 // across User and NonRegisteredFamilyMember tables
 model IcRegistry {
@@ -76,6 +95,9 @@ model User {
   // Non-registered family members added by this user
   nonRegisteredFamilyMembers NonRegisteredFamilyMember[]
   
+  // Agreements owned by this user (as the distributor)
+  agreements    Agreement[]
+  
   // Reference to IC registry for global uniqueness
   icRegistry    IcRegistry? @relation(fields: [icNumber], references: [icNumber], onDelete: SetNull)
   
@@ -95,6 +117,9 @@ model FamilyMember {
   // The related family member (another user in the system)
   familyMemberUserId String
   familyMemberUser   User           @relation("RelatedFamilyMembers", fields: [familyMemberUserId], references: [id], onDelete: Cascade)
+  
+  // Agreement beneficiaries where this family member is a beneficiary
+  agreementBeneficiaries AgreementBeneficiary[]
   
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -126,6 +151,9 @@ model NonRegisteredFamilyMember {
   // Reference to IC registry for global uniqueness
   icRegistry    IcRegistry  @relation(fields: [icNumber], references: [icNumber], onDelete: Cascade)
   
+  // Agreement beneficiaries where this non-registered family member is a beneficiary
+  agreementBeneficiaries AgreementBeneficiary[]
+  
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -147,8 +175,11 @@ model Asset {
   // The user who owns this asset
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Agreements where this asset is allocated
+  agreementAssets AgreementAsset[]
+  
   @@map("asset")
-
 }
 
 model Session {
@@ -197,4 +228,115 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+// Admin model for system administrators who act as witnesses
+model Admin {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Agreements witnessed by this admin
+  witnessedAgreements Agreement[]
+
+  @@map("admin")
+}
+
+// Main agreement model for Islamic distribution
+model Agreement {
+  id                String           @id @default(cuid())
+  title             String
+  description       String?
+  distributionType  DistributionType
+  status            AgreementStatus  @default(DRAFT)
+  
+  // Owner of the agreement (the person distributing assets)
+  ownerId           String
+  owner             User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  // Witness (Admin)
+  witnessId         String?
+  witness           Admin?           @relation(fields: [witnessId], references: [id])
+  witnessedAt       DateTime?
+  
+  // Agreement validity
+  effectiveDate     DateTime?        // When agreement takes effect
+  expiryDate        DateTime?        // Optional expiry
+  
+  // Timestamps
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  
+  // Relations
+  assets            AgreementAsset[]
+  beneficiaries     AgreementBeneficiary[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@map("agreement")
+}
+
+// Junction table linking agreements to assets with optional allocation
+model AgreementAsset {
+  id            String    @id @default(cuid())
+  
+  agreementId   String
+  agreement     Agreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+  
+  assetId       Int
+  asset         Asset     @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  
+  // Optional: specific value allocated from this asset (if partial)
+  allocatedValue      Float?
+  allocatedPercentage Float?    // Percentage of asset included
+  notes               String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([agreementId, assetId])
+  @@index([agreementId])
+  @@index([assetId])
+  @@map("agreement_asset")
+}
+
+// Tracks beneficiaries with their share and signature status
+model AgreementBeneficiary {
+  id            String    @id @default(cuid())
+  
+  agreementId   String
+  agreement     Agreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+  
+  // Beneficiary can be either a registered family member OR non-registered
+  // Only one should be set at a time
+  familyMemberId              Int?
+  familyMember                FamilyMember? @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
+  
+  nonRegisteredFamilyMemberId Int?
+  nonRegisteredFamilyMember   NonRegisteredFamilyMember? @relation(fields: [nonRegisteredFamilyMemberId], references: [id], onDelete: SetNull)
+  
+  // Distribution share
+  sharePercentage   Float         // Percentage of total distribution
+  shareDescription  String?       // E.g., "1/6 as per Faraid for mother"
+  
+  // Signature tracking
+  hasSigned         Boolean       @default(false)
+  signedAt          DateTime?
+  signatureRef      String?       // Reference to signature document/hash
+  
+  // Status
+  isAccepted        Boolean?      // null = pending, true = accepted, false = rejected
+  rejectionReason   String?
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([agreementId])
+  @@index([familyMemberId])
+  @@index([nonRegisteredFamilyMemberId])
+  @@map("agreement_beneficiary")
 }
