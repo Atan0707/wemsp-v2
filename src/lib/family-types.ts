@@ -8,7 +8,8 @@ export const FamilyRelation = {
   SON: 'SON',
   DAUGHTER: 'DAUGHTER',
   SIBLING: 'SIBLING',
-  SPOUSE: 'SPOUSE',
+  HUSBAND: 'HUSBAND',
+  WIFE: 'WIFE',
   GRANDFATHER: 'GRANDFATHER',
   GRANDMOTHER: 'GRANDMOTHER',
   GRANDSON: 'GRANDSON',
@@ -30,28 +31,29 @@ export { FamilyRelationType }
  */
 export const INVERSE_RELATIONS: Record<FamilyRelationType, FamilyRelationType> = {
   // Parent ↔ Child
-  [FamilyRelation.FATHER]: FamilyRelation.SON,      // If A's father is B, then B's son is A
-  [FamilyRelation.MOTHER]: FamilyRelation.SON,      // If A's mother is B, then B's son is A
-  [FamilyRelation.SON]: FamilyRelation.FATHER,      // If A's son is B, then B's father is A
-  [FamilyRelation.DAUGHTER]: FamilyRelation.FATHER, // If A's daughter is B, then B's father is A
+  [FamilyRelation.FATHER]: FamilyRelation.SON,       // If A's father is B, then B's son is A
+  [FamilyRelation.MOTHER]: FamilyRelation.DAUGHTER,  // If A's mother is B, then B's daughter is A
+  [FamilyRelation.SON]: FamilyRelation.FATHER,       // If A's son is B, then B's father is A
+  [FamilyRelation.DAUGHTER]: FamilyRelation.MOTHER,  // If A's daughter is B, then B's mother is A
 
   // Sibling (symmetric)
   [FamilyRelation.SIBLING]: FamilyRelation.SIBLING,
 
-  // Spouse (symmetric)
-  [FamilyRelation.SPOUSE]: FamilyRelation.SPOUSE,
+  // Spouse (symmetric - husband ↔ wife)
+  [FamilyRelation.HUSBAND]: FamilyRelation.WIFE,
+  [FamilyRelation.WIFE]: FamilyRelation.HUSBAND,
 
   // Grandparent ↔ Grandchild
   [FamilyRelation.GRANDFATHER]: FamilyRelation.GRANDSON,
-  [FamilyRelation.GRANDMOTHER]: FamilyRelation.GRANDSON,
+  [FamilyRelation.GRANDMOTHER]: FamilyRelation.GRANDDAUGHTER,
   [FamilyRelation.GRANDSON]: FamilyRelation.GRANDFATHER,
-  [FamilyRelation.GRANDDAUGHTER]: FamilyRelation.GRANDFATHER,
+  [FamilyRelation.GRANDDAUGHTER]: FamilyRelation.GRANDMOTHER,
 
   // Uncle/Aunt ↔ Nephew/Niece
   [FamilyRelation.UNCLE]: FamilyRelation.NEPHEW,
-  [FamilyRelation.AUNT]: FamilyRelation.NEPHEW,
+  [FamilyRelation.AUNT]: FamilyRelation.NIECE,
   [FamilyRelation.NEPHEW]: FamilyRelation.UNCLE,
-  [FamilyRelation.NIECE]: FamilyRelation.UNCLE,
+  [FamilyRelation.NIECE]: FamilyRelation.AUNT,
 
   // Cousin (symmetric)
   [FamilyRelation.COUSIN]: FamilyRelation.COUSIN,

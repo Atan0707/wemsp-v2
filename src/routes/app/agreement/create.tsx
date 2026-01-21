@@ -23,10 +23,15 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
-import { Loader2, X, FileText, Package, Users, DollarSign } from 'lucide-react'
+import { Loader2, X, FileText, Package, Users, Info } from 'lucide-react'
 import { toast } from 'sonner'
-import { useState } from 'react'
-import { DistributionType, AssetType } from '@/generated/prisma/enums'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { DistributionType } from '@/generated/prisma/enums'
+import {
+  calculateAutoFaraidDistribution,
+  type FamilyMember,
+  type BeneficiaryWithShare,
+} from '@/lib/faraid-calculator'
 
 export const Route = createFileRoute('/app/agreement/create')({
   component: RouteComponent,
@@ -68,7 +73,10 @@ function RouteComponent() {
   })
 
   const assets = assetsData?.assets || []
-  const allMembers = [...(familyData?.registered || []), ...(familyData?.nonRegistered || [])]
+  const allMembers = useMemo(
+    () => [...(familyData?.registered || []), ...(familyData?.nonRegistered || [])],
+    [familyData?.registered, familyData?.nonRegistered]
+  )
 
   const [formData, setFormData] = useState({
     title: '',
@@ -89,6 +97,69 @@ function RouteComponent() {
     relation: string
     sharePercentage: number
   }>>([])
+
+  // Faraid calculation result
+  const [faraidResult, setFaraidResult] = useState<BeneficiaryWithShare[] | null>(null)
+  const [faraidDescription, setFaraidDescription] = useState<string>('')
+  const [faraidWarnings, setFaraidWarnings] = useState<string[]>([])
+
+  // Track the last calculated distribution type and member IDs to prevent infinite loops
+  const faraidCalculationRef = useRef<{
+    distributionType: string
+    memberIds: string
+  } | null>(null)
+
+  // Auto-calculate Faraid distribution when distribution type changes to FARAID
+  useEffect(() => {
+    if (formData.distributionType === 'FARAID' && allMembers.length > 0) {
+      // Create a stable key from member IDs
+      const currentMemberIds = allMembers.map((m: any) => m.id).sort().join(',')
+
+      // Check if we've already calculated for this exact set of members
+      if (faraidCalculationRef.current?.memberIds === currentMemberIds &&
+          faraidCalculationRef.current?.distributionType === formData.distributionType) {
+        return // Skip - already calculated
+      }
+
+      // Convert family members to the format expected by the calculator
+      const familyMembers: FamilyMember[] = allMembers.map((member: any) => ({
+        id: member.id,
+        type: member.type,
+        name: member.name,
+        relation: member.relation,
+        email: member.email,
+        icNumber: member.icNumber,
+      }))
+
+      const result = calculateAutoFaraidDistribution(familyMembers)
+      setFaraidResult(result.beneficiaries)
+      setFaraidDescription(result.description)
+      setFaraidWarnings(result.warnings)
+
+      // Set beneficiaries from Faraid calculation
+      setBeneficiaries(
+        result.beneficiaries.map((b) => ({
+          memberId: b.memberId,
+          type: b.type,
+          name: b.name,
+          relation: b.relation,
+          sharePercentage: b.sharePercentage,
+        }))
+      )
+
+      // Track this calculation
+      faraidCalculationRef.current = {
+        distributionType: formData.distributionType,
+        memberIds: currentMemberIds,
+      }
+    } else if (formData.distributionType !== 'FARAID') {
+      // Clear Faraid results when switching away from FARAID
+      setFaraidResult(null)
+      setFaraidDescription('')
+      setFaraidWarnings([])
+      faraidCalculationRef.current = null
+    }
+  }, [formData.distributionType, allMembers])
 
   // Create mutation
   const createMutation = useMutation({
@@ -203,7 +274,8 @@ function RouteComponent() {
 
     // Check if shares add up to 100
     const totalShare = getTotalShare()
-    if (Math.abs(totalShare - 100) > 0.1) {
+    const tolerance = formData.distributionType === 'FARAID' ? 5 : 0.1 // More tolerance for Faraid due to rounding
+    if (Math.abs(totalShare - 100) > tolerance) {
       toast.error(`Total shares must equal 100%. Current total: ${totalShare.toFixed(1)}%`)
       return
     }
@@ -371,107 +443,187 @@ function RouteComponent() {
               {/* Beneficiaries */}
               <Field className="group">
                 <FieldLabel className="text-sm font-medium">
-                  Add Beneficiaries <span className="text-destructive">*</span>
+                  {formData.distributionType === 'FARAID' ? 'Faraid Distribution' : 'Add Beneficiaries'}{' '}
+                  <span className="text-destructive">*</span>
                 </FieldLabel>
                 <p className="text-sm text-muted-foreground mt-1 mb-3">
-                  Add family members and specify their shares (must total 100%)
+                  {formData.distributionType === 'FARAID'
+                    ? 'Automatically calculated according to Islamic inheritance law (Faraid)'
+                    : 'Add family members and specify their shares (must total 100%)'}
                 </p>
 
-                {/* Available family members */}
-                <div className="space-y-2 mb-4">
-                  {allMembers.map((member: any) => {
-                    const isAdded = beneficiaries.find((b) => b.memberId === member.id)
-                    return (
-                      <div
-                        key={member.id}
-                        className="flex items-center gap-3 p-3 border rounded-lg"
-                      >
-                        <Users className="h-5 w-5 text-muted-foreground shrink-0" />
-                        <div className="flex-1">
-                          <div className="font-medium">{member.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {member.relation} {member.type === 'registered' ? `• ${member.email}` : `• ${member.icNumber}`}
-                          </div>
+                {/* FARAID: Auto-calculated distribution */}
+                {formData.distributionType === 'FARAID' ? (
+                  <div className="space-y-4">
+                    {/* Faraid explanation */}
+                    {faraidDescription && (
+                      <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg border">
+                        <Info className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                        <div className="flex-1 text-sm">
+                          <p className="font-medium mb-1">Faraid Calculation</p>
+                          <p className="text-muted-foreground">{faraidDescription}</p>
                         </div>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant={isAdded ? 'secondary' : 'outline'}
-                          onClick={() => !isAdded && addBeneficiary(member)}
-                          disabled={!!isAdded}
-                          className="shrink-0"
-                        >
-                          {isAdded ? 'Added' : 'Add'}
-                        </Button>
                       </div>
-                    )
-                  })}
-                </div>
+                    )}
 
-                {/* Selected beneficiaries table */}
-                {beneficiaries.length > 0 && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b bg-muted/50">
-                          <th className="text-left py-2 px-4 text-sm font-medium">Name</th>
-                          <th className="text-left py-2 px-4 text-sm font-medium">Relation</th>
-                          <th className="text-right py-2 px-4 text-sm font-medium">Share %</th>
-                          <th className="w-12"></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {beneficiaries.map((beneficiary) => (
-                          <tr key={beneficiary.memberId} className="border-b last:border-b-0">
-                            <td className="py-2 px-4">{beneficiary.name}</td>
-                            <td className="py-2 px-4 text-sm text-muted-foreground">
-                              {beneficiary.relation}
-                            </td>
-                            <td className="py-2 px-4">
-                              <Input
-                                type="number"
-                                min="0"
-                                max="100"
-                                step="0.1"
-                                value={beneficiary.sharePercentage}
-                                onChange={(e) =>
-                                  updateBeneficiaryShare(beneficiary.memberId, parseFloat(e.target.value) || 0)
-                                }
-                                className="w-full max-w-28 text-right h-9"
-                              />
-                            </td>
-                            <td className="py-2 px-4">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeBeneficiary(beneficiary.memberId)}
-                                className="text-destructive h-8 w-8 p-0"
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </td>
-                          </tr>
+                    {/* Warnings */}
+                    {faraidWarnings.length > 0 && (
+                      <div className="p-3 text-sm text-amber-700 bg-amber-50 border rounded-lg">
+                        {faraidWarnings.map((warning, i) => (
+                          <p key={i}>{warning}</p>
                         ))}
-                      </tbody>
-                      <tfoot>
-                        <tr className="border-t bg-muted/50">
-                          <td className="py-2 px-4 font-medium" colSpan={2}>
-                            Total
-                          </td>
-                          <td className="py-2 px-4 text-right font-medium">
-                            {getTotalShare().toFixed(1)}%
-                          </td>
-                          <td></td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                    {Math.abs(getTotalShare() - 100) > 0.1 && (
-                      <div className="p-3 text-sm text-amber-700 bg-amber-50 border-t">
-                        Total shares must equal 100%. Current: {getTotalShare().toFixed(1)}%
+                      </div>
+                    )}
+
+                    {/* No eligible heirs message */}
+                    {beneficiaries.length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground border rounded-lg">
+                        <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p>No eligible family members for Faraid distribution found.</p>
+                        <p className="text-sm mt-1">
+                          Please add family members with eligible relations (Father, Mother, Husband, Wife, Daughter, Son, etc.)
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Faraid beneficiaries table (read-only) */}
+                    {beneficiaries.length > 0 && (
+                      <div className="border rounded-lg overflow-hidden bg-muted/30">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b bg-muted/50">
+                              <th className="text-left py-2 px-4 text-sm font-medium">Name</th>
+                              <th className="text-left py-2 px-4 text-sm font-medium">Relation</th>
+                              <th className="text-right py-2 px-4 text-sm font-medium">Faraid Share</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {faraidResult?.map((beneficiary) => (
+                              <tr key={beneficiary.memberId} className="border-b last:border-b-0">
+                                <td className="py-3 px-4 font-medium">{beneficiary.name}</td>
+                                <td className="py-3 px-4 text-sm text-muted-foreground">
+                                  {beneficiary.relation}
+                                </td>
+                                <td className="py-3 px-4 text-right">
+                                  <div className="font-medium">{beneficiary.shareFormatted}</div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr className="border-t bg-muted/50">
+                              <td className="py-2 px-4 font-medium" colSpan={2}>
+                                Total
+                              </td>
+                              <td className="py-2 px-4 text-right font-medium">
+                                {getTotalShare().toFixed(1)}%
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
                       </div>
                     )}
                   </div>
+                ) : (
+                  /* NON-FARAID: Manual beneficiary selection */
+                  <>
+                    {/* Available family members */}
+                    <div className="space-y-2 mb-4">
+                      {allMembers.map((member: any) => {
+                        const isAdded = beneficiaries.find((b) => b.memberId === member.id)
+                        return (
+                          <div
+                            key={member.id}
+                            className="flex items-center gap-3 p-3 border rounded-lg"
+                          >
+                            <Users className="h-5 w-5 text-muted-foreground shrink-0" />
+                            <div className="flex-1">
+                              <div className="font-medium">{member.name}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {member.relation} {member.type === 'registered' ? `• ${member.email}` : `• ${member.icNumber}`}
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={isAdded ? 'secondary' : 'outline'}
+                              onClick={() => !isAdded && addBeneficiary(member)}
+                              disabled={!!isAdded}
+                              className="shrink-0"
+                            >
+                              {isAdded ? 'Added' : 'Add'}
+                            </Button>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Selected beneficiaries table */}
+                    {beneficiaries.length > 0 && (
+                      <div className="border rounded-lg overflow-hidden">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b bg-muted/50">
+                              <th className="text-left py-2 px-4 text-sm font-medium">Name</th>
+                              <th className="text-left py-2 px-4 text-sm font-medium">Relation</th>
+                              <th className="text-right py-2 px-4 text-sm font-medium">Share %</th>
+                              <th className="w-12"></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {beneficiaries.map((beneficiary) => (
+                              <tr key={beneficiary.memberId} className="border-b last:border-b-0">
+                                <td className="py-2 px-4">{beneficiary.name}</td>
+                                <td className="py-2 px-4 text-sm text-muted-foreground">
+                                  {beneficiary.relation}
+                                </td>
+                                <td className="py-2 px-4">
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.1"
+                                    value={beneficiary.sharePercentage}
+                                    onChange={(e) =>
+                                      updateBeneficiaryShare(beneficiary.memberId, parseFloat(e.target.value) || 0)
+                                    }
+                                    className="w-full max-w-28 text-right h-9"
+                                  />
+                                </td>
+                                <td className="py-2 px-4">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeBeneficiary(beneficiary.memberId)}
+                                    className="text-destructive h-8 w-8 p-0"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr className="border-t bg-muted/50">
+                              <td className="py-2 px-4 font-medium" colSpan={2}>
+                                Total
+                              </td>
+                              <td className="py-2 px-4 text-right font-medium">
+                                {getTotalShare().toFixed(1)}%
+                              </td>
+                              <td></td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                        {Math.abs(getTotalShare() - 100) > 0.1 && (
+                          <div className="p-3 text-sm text-amber-700 bg-amber-50 border-t">
+                            Total shares must equal 100%. Current: {getTotalShare().toFixed(1)}%
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
                 )}
               </Field>
             </FieldGroup>

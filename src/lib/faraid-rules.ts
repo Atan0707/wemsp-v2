@@ -24,18 +24,13 @@ export interface FaraidDistribution {
 /**
  * Fixed shares in Faraid
  * These shares are prescribed by Quran and are fixed
- *
- * Note: For spouse shares (SPOUSE), the actual share depends on gender:
- * - Husband gets 1/4 (with children) or 1/2 (without children)
- * - Wife gets 1/8 (with children) or 1/4 (without children)
- * Since our schema uses a generic SPOUSE relation, the actual percentage
- * will depend on the specific case and should be validated accordingly.
  */
 export const FIXED_SHARES: Record<FamilyRelation, { share: number; description: string }> = {
   // Fixed shares with Quranic basis
   FATHER: { share: 1/6, description: '1/6 fixed share, plus residuary if no male offspring' },
   MOTHER: { share: 1/6, description: '1/6 if children/grandchildren, 1/3 if no children' },
-  SPOUSE: { share: 0, description: 'Husband: 1/4 (with children) or 1/2 (without); Wife: 1/8 (with children) or 1/4 (without)' },
+  HUSBAND: { share: 1/4, description: '1/4 (with children) or 1/2 (without children)' },
+  WIFE: { share: 1/8, description: '1/8 (with children) or 1/4 (without children)' },
   DAUGHTER: { share: 1/2, description: '1/2 if single, 2/3 if multiple daughters' },
   GRANDDAUGHTER: { share: 1/6, description: '1/6 when representing deceased daughter' },
 
@@ -83,15 +78,25 @@ export function calculateFaraidDistribution(
   })
 
   const hasChildren = context?.hasChildren ?? isDescendantPresent(relations)
-  const hasSpouse = context?.hasSpouse ?? isSpousePresent(relations)
+  const hasHusband = relations.has('HUSBAND')
+  const hasWife = relations.has('WIFE')
   const hasParents = context?.hasParents ?? isParentPresent(relations)
   const isMaleDescendant = context?.isMaleDescendant ?? hasMaleDescendant(relations)
 
-  // Note: SPOUSE share calculation is context-dependent on gender
-  // Since our schema uses a generic SPOUSE relation, we add a warning
-  // rather than a strict calculation. The user should verify based on their specific case.
-  if (relations.has('SPOUSE')) {
-    explanations.push('SPOUSE: Share depends on gender - Husband: 1/4 (with children) or 1/2 (without); Wife: 1/8 (with children) or 1/4 (without)')
+  // Calculate husband's share
+  if (hasHusband) {
+    const husbandShare = hasChildren ? 1/4 : 1/2
+    shares.set('HUSBAND', husbandShare)
+    totalFixedShares += husbandShare
+    explanations.push(`Husband: ${formatFraction(husbandShare)} (${hasChildren ? 'with' : 'without'} children)`)
+  }
+
+  // Calculate wife's share
+  if (hasWife) {
+    const wifeShare = hasChildren ? 1/8 : 1/4
+    shares.set('WIFE', wifeShare)
+    totalFixedShares += wifeShare
+    explanations.push(`Wife: ${formatFraction(wifeShare)} (${hasChildren ? 'with' : 'without'} children)`)
   }
 
   // Calculate parent shares
@@ -103,7 +108,7 @@ export function calculateFaraidDistribution(
     if (!isMaleDescendant) {
       residuary.push('FATHER')
     }
-    explanations.push(`Father: 1/6 fixed ${!isMaleDescendant ? '+ residuary' : ''}`)
+    explanations.push(`Father: ${formatFraction(fatherShare)} fixed ${!isMaleDescendant ? '+ residuary' : ''}`)
   }
 
   if (relations.has('MOTHER')) {
@@ -112,7 +117,7 @@ export function calculateFaraidDistribution(
     const motherShare = hasChildren ? 1/6 : 1/3
     shares.set('MOTHER', motherShare)
     totalFixedShares += motherShare
-    explanations.push(`Mother: ${motherShare} (${hasChildren ? 'with' : 'without'} children)`)
+    explanations.push(`Mother: ${formatFraction(motherShare)} (${hasChildren ? 'with' : 'without'} children)`)
   } else if (relations.has('GRANDMOTHER') && !relations.has('MOTHER')) {
     // Paternal grandmother gets 1/6 if no mother
     const grandmotherShare = 1/6
@@ -261,28 +266,34 @@ function isDescendantPresent(relations: Map<FamilyRelation, number>): boolean {
 }
 
 function isSpousePresent(relations: Map<FamilyRelation, number>): boolean {
-  return relations.has('SPOUSE')
+  return relations.has('HUSBAND') || relations.has('WIFE')
 }
+
+// Re-export to mark as used
+export { isSpousePresent }
 
 function isParentPresent(relations: Map<FamilyRelation, number>): boolean {
   return !!(relations.has('FATHER') || relations.has('MOTHER'))
 }
 
-function hasMaleDescendant(relations: Map<FamilyRelation, number>): boolean {
-  return !!(relations.has('SON') || relations.has('GRANDSON'))
+function hasMaleDescendant(relations: Map<FamilyRelation, number> | Array<{ relation: FamilyRelation; count?: number }>): boolean {
+  if (relations instanceof Map) {
+    return !!(relations.has('SON') || relations.has('GRANDSON'))
+  }
+  return relations.some((b) => b.relation === 'SON' || b.relation === 'GRANDSON')
 }
 
-function hasChildren(beneficiaries: Array<{ relation: FamilyRelation }>): boolean {
+function hasChildren(beneficiaries: Array<{ relation: FamilyRelation; count?: number }>): boolean {
   return beneficiaries.some(
     (b) => b.relation === 'SON' || b.relation === 'DAUGHTER' || b.relation === 'GRANDSON' || b.relation === 'GRANDDAUGHTER'
   )
 }
 
-function hasSpouse(beneficiaries: Array<{ relation: FamilyRelation }>): boolean {
-  return beneficiaries.some((b) => b.relation === 'SPOUSE')
+function hasSpouse(beneficiaries: Array<{ relation: FamilyRelation; count?: number }>): boolean {
+  return beneficiaries.some((b) => b.relation === 'HUSBAND' || b.relation === 'WIFE')
 }
 
-function hasParents(beneficiaries: Array<{ relation: FamilyRelation }>): boolean {
+function hasParents(beneficiaries: Array<{ relation: FamilyRelation; count?: number }>): boolean {
   return beneficiaries.some((b) => b.relation === 'FATHER' || b.relation === 'MOTHER')
 }
 
@@ -299,4 +310,56 @@ export function getFaraidExplanation(relation: FamilyRelation): string {
 export function hasFixedShare(relation: FamilyRelation): boolean {
   const share = FIXED_SHARES[relation]?.share || 0
   return share > 0
+}
+
+/**
+ * Convert a decimal to a fraction string
+ * @param decimal - Decimal number (e.g., 0.1667)
+ * @returns Fraction string (e.g., "1/6")
+ */
+export function formatFraction(decimal: number): string {
+  // Common Faraid fractions mapping
+  const commonFractions: Record<number, string> = {
+    0: '0',
+    0.5: '1/2',
+    0.3333333333333333: '1/3',
+    0.6666666666666666: '2/3',
+    0.25: '1/4',
+    0.125: '1/8',
+    0.16666666666666666: '1/6',
+    0.75: '3/4',
+  }
+
+  // Check for exact match with common fractions
+  if (commonFractions[decimal]) {
+    return commonFractions[decimal]
+  }
+
+  // For other decimals, calculate fraction
+  const tolerance = 1.0E-9
+  let h1 = 1, h2 = 0, k1 = 0, k2 = 1
+  let b = decimal
+  do {
+    const a = Math.floor(b)
+    let aux = h1
+    h1 = a * h1 + h2
+    h2 = aux
+    aux = k1
+    k1 = a * k1 + k2
+    k2 = aux
+    b = 1 / (b - a)
+  } while (Math.abs(decimal - h1 / k1) > decimal * tolerance)
+
+  return `${h1}/${k1}`
+}
+
+/**
+ * Format share as both fraction and percentage
+ * @param decimal - Decimal share (e.g., 0.1667)
+ * @returns Formatted string (e.g., "1/6 (16.7%)")
+ */
+export function formatShare(decimal: number): string {
+  const fraction = formatFraction(decimal)
+  const percentage = (decimal * 100).toFixed(1)
+  return `${fraction} (${percentage}%)`
 }
