@@ -198,6 +198,11 @@ export const Route = createFileRoute('/api/agreement/$')({
                   beneficiaries: true,
                 },
               },
+              assets: {
+                select: {
+                  assetId: true,
+                },
+              },
               beneficiaries: {
                 include: {
                   familyMember: {
@@ -244,6 +249,7 @@ export const Route = createFileRoute('/api/agreement/$')({
                 signedBeneficiaryCount: signedBeneficiaries,
                 isOwner,
                 isBeneficiary,
+                assets: agreement.assets.map((a: any) => ({ assetId: a.assetId })),
               }
             })
           )

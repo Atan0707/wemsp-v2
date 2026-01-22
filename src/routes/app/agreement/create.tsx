@@ -23,7 +23,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field'
-import { Loader2, X, FileText, Package, Users, Info } from 'lucide-react'
+import { Loader2, X, FileText, Package, Users, Info, Ban } from 'lucide-react'
 import { toast } from 'sonner'
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { DistributionType } from '@/generated/prisma/enums'
@@ -60,6 +60,16 @@ function RouteComponent() {
     },
   })
 
+  // Fetch agreements to check which assets are already allocated
+  const { data: agreementsData } = useQuery({
+    queryKey: ['agreements'],
+    queryFn: async () => {
+      const response = await fetch('/api/agreement')
+      if (!response.ok) throw new Error('Failed to fetch agreements')
+      return response.json()
+    },
+  })
+
   // Fetch family members
   const { data: familyData } = useQuery({
     queryKey: ['familyMembers', session?.user?.id],
@@ -73,6 +83,22 @@ function RouteComponent() {
   })
 
   const assets = assetsData?.assets || []
+
+  // Get IDs of assets that are already allocated in active agreements
+  const allocatedAssetIds = useMemo(() => {
+    const activeAgreements = agreementsData?.agreements?.filter(
+      (agreement: any) => !['CANCELLED', 'COMPLETED', 'EXPIRED'].includes(agreement.status)
+    ) || []
+
+    const assetIds = new Set<number>()
+    activeAgreements.forEach((agreement: any) => {
+      agreement.assets?.forEach((aa: any) => {
+        assetIds.add(aa.assetId)
+      })
+    })
+
+    return assetIds
+  }, [agreementsData])
   const allMembers = useMemo(
     () => [...(familyData?.registered || []), ...(familyData?.nonRegistered || [])],
     [familyData?.registered, familyData?.nonRegistered]
@@ -208,6 +234,12 @@ function RouteComponent() {
   }
 
   const toggleAsset = (assetId: number) => {
+    // Prevent selecting assets that are already allocated in other agreements
+    if (allocatedAssetIds.has(assetId)) {
+      toast.error('This asset is already allocated in an active agreement')
+      return
+    }
+
     setSelectedAssetIds((prev) =>
       prev.includes(assetId)
         ? prev.filter((id) => id !== assetId)
@@ -413,26 +445,40 @@ function RouteComponent() {
                   <div className="space-y-2">
                     {assets.map((asset: any) => {
                       const isSelected = selectedAssetIds.includes(asset.id)
+                      const isAllocated = allocatedAssetIds.has(asset.id)
                       return (
                         <div
                           key={asset.id}
-                          className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                            isSelected ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                          className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${
+                            isAllocated
+                              ? 'bg-muted/30 opacity-60 cursor-not-allowed'
+                              : isSelected
+                              ? 'border-primary bg-primary/5 cursor-pointer'
+                              : 'cursor-pointer hover:bg-muted/50'
                           }`}
-                          onClick={() => toggleAsset(asset.id)}
+                          onClick={() => !isAllocated && toggleAsset(asset.id)}
                         >
-                          <Package className="h-5 w-5 text-muted-foreground shrink-0" />
+                          {isAllocated ? (
+                            <Ban className="h-5 w-5 text-destructive shrink-0" />
+                          ) : (
+                            <Package className="h-5 w-5 text-muted-foreground shrink-0" />
+                          )}
                           <div className="flex-1">
-                            <div className="font-medium">{asset.name}</div>
+                            <div className={`font-medium ${isAllocated ? 'text-muted-foreground' : ''}`}>
+                              {asset.name}
+                            </div>
                             <div className="text-sm text-muted-foreground">
                               {formatAssetType(asset.type)} • ${asset.value.toLocaleString()}
+                              {isAllocated && ' • Already allocated'}
                             </div>
                           </div>
                           <input
                             type="checkbox"
                             checked={isSelected}
-                            onChange={() => toggleAsset(asset.id)}
+                            disabled={isAllocated}
+                            onChange={() => !isAllocated && toggleAsset(asset.id)}
                             className="shrink-0"
+                            onClick={(e) => e.stopPropagation()}
                           />
                         </div>
                       )
