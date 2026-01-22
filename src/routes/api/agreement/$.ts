@@ -33,8 +33,20 @@ export const Route = createFileRoute('/api/agreement/$')({
             const agreement = await prisma.agreement.findFirst({
               where: {
                 id: idParam,
-                // User must be owner to view
-                ownerId: session.user.id,
+                OR: [
+                  // User is the owner
+                  { ownerId: session.user.id },
+                  // User is a beneficiary (through registered family member)
+                  {
+                    beneficiaries: {
+                      some: {
+                        familyMember: {
+                          familyMemberUserId: session.user.id,
+                        },
+                      },
+                    },
+                  },
+                ],
               },
               include: {
                 owner: {
@@ -164,7 +176,20 @@ export const Route = createFileRoute('/api/agreement/$')({
           // List agreements
           const agreements = await prisma.agreement.findMany({
             where: {
-              ownerId: session.user.id,
+              OR: [
+                // User is the owner
+                { ownerId: session.user.id },
+                // User is a beneficiary (through registered family member)
+                {
+                  beneficiaries: {
+                    some: {
+                      familyMember: {
+                        familyMemberUserId: session.user.id,
+                      },
+                    },
+                  },
+                },
+              ],
             },
             include: {
               _count: {
@@ -173,11 +198,20 @@ export const Route = createFileRoute('/api/agreement/$')({
                   beneficiaries: true,
                 },
               },
+              beneficiaries: {
+                include: {
+                  familyMember: {
+                    select: {
+                      familyMemberUserId: true,
+                    },
+                  },
+                },
+              },
             },
             orderBy: { createdAt: 'desc' },
           })
 
-          // Get signature counts for each agreement
+          // Get signature counts and user role for each agreement
           const agreementsWithStats = await Promise.all(
             agreements.map(async (agreement) => {
               const signedBeneficiaries = await prisma.agreementBeneficiary.count({
@@ -186,6 +220,12 @@ export const Route = createFileRoute('/api/agreement/$')({
                   hasSigned: true,
                 },
               })
+
+              // Determine user's role in this agreement
+              const isOwner = agreement.ownerId === session.user.id
+              const isBeneficiary = agreement.beneficiaries.some(
+                (b) => b.familyMember?.familyMemberUserId === session.user.id
+              )
 
               return {
                 id: agreement.id,
@@ -202,6 +242,8 @@ export const Route = createFileRoute('/api/agreement/$')({
                 assetCount: agreement._count.assets,
                 beneficiaryCount: agreement._count.beneficiaries,
                 signedBeneficiaryCount: signedBeneficiaries,
+                isOwner,
+                isBeneficiary,
               }
             })
           )

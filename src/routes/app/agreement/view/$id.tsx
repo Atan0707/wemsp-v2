@@ -125,6 +125,31 @@ function RouteComponent() {
     },
   })
 
+  // Submit mutation (for owner to submit after signing)
+  const submitMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/agreement/${id}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'submit' }),
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to submit agreement')
+      }
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['agreement', id] })
+      queryClient.invalidateQueries({ queryKey: ['agreements'] })
+      toast.success('Agreement submitted for signatures')
+    },
+    onError: (error: Error) => {
+      console.error('Error submitting agreement:', error)
+      toast.error(error.message || 'Failed to submit agreement')
+    },
+  })
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -209,9 +234,24 @@ function RouteComponent() {
     signOwnerMutation.mutate(submit)
   }
 
+  const handleSubmitAgreement = () => {
+    submitMutation.mutate()
+  }
+
   const handleSignAsBeneficiary = (beneficiaryId: string, accept = true) => {
     signBeneficiaryMutation.mutate({ beneficiaryId, accept })
   }
+
+  // Find current beneficiary if user is a beneficiary
+  const currentBeneficiary = agreement.beneficiaries.find((b: any) => {
+    const userId = b.familyMember?.user?.id
+    const sessionUserId = session?.user?.id
+    // Ensure both are strings for comparison
+    return String(userId) === String(sessionUserId)
+  })
+
+  const isCurrentBeneficiary = !!currentBeneficiary
+  const hasSigned = currentBeneficiary?.hasSigned || false
 
   return (
     <div className="flex flex-col gap-4">
@@ -542,7 +582,7 @@ function RouteComponent() {
             <p className="text-xs text-muted-foreground">
               {getStatusDescription(agreement.status)}
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {/* Owner actions */}
               {isOwner && agreement.status === 'DRAFT' && !agreement.ownerSignature?.hasSigned && (
                 <>
@@ -551,13 +591,48 @@ function RouteComponent() {
                     onClick={() => handleSignAsOwner(false)}
                     disabled={signOwnerMutation.isPending}
                   >
+                    <Signature className="mr-2 h-4 w-4" />
                     Sign
                   </Button>
                   <Button
                     onClick={() => handleSignAsOwner(true)}
                     disabled={signOwnerMutation.isPending}
                   >
+                    <Signature className="mr-2 h-4 w-4" />
                     Sign & Submit
+                  </Button>
+                </>
+              )}
+
+              {/* Owner submit button (after signing but before submitting) */}
+              {isOwner && agreement.status === 'DRAFT' && agreement.ownerSignature?.hasSigned && (
+                <Button
+                  onClick={handleSubmitAgreement}
+                  disabled={submitMutation.isPending}
+                >
+                  <Signature className="mr-2 h-4 w-4" />
+                  Submit Agreement
+                </Button>
+              )}
+
+              {/* Beneficiary actions */}
+              {!isOwner && isCurrentBeneficiary && !hasSigned && agreement.status === 'PENDING_SIGNATURES' && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleSignAsBeneficiary(currentBeneficiary.id, true)}
+                    disabled={signBeneficiaryMutation.isPending}
+                  >
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Accept & Sign
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleSignAsBeneficiary(currentBeneficiary.id, false)}
+                    disabled={signBeneficiaryMutation.isPending}
+                  >
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Reject
                   </Button>
                 </>
               )}
@@ -565,7 +640,8 @@ function RouteComponent() {
               {/* Cancel button */}
               {isOwner && ['DRAFT', 'PENDING_SIGNATURES', 'PENDING_WITNESS'].includes(agreement.status) && (
                 <Button
-                  variant="destructive"
+                  variant="outline"
+                  className="text-destructive hover:text-destructive"
                   onClick={() => cancelMutation.mutate()}
                   disabled={cancelMutation.isPending}
                 >

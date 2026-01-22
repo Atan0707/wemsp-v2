@@ -10,7 +10,8 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Plus, FileText, Loader2 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Plus, FileText, Loader2, Crown, User } from 'lucide-react'
 import { toast } from 'sonner'
 import { AgreementStatus, DistributionType } from '@/generated/prisma/enums'
 import { getStatusColor } from '@/lib/agreement-workflow'
@@ -198,6 +199,9 @@ function RouteComponent() {
                       Title
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
+                      Your Role
+                    </th>
+                    <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
                       Type
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
@@ -209,9 +213,6 @@ function RouteComponent() {
                     <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
                       Assets
                     </th>
-                    <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">
-                      Beneficiaries
-                    </th>
                     <th className="text-right py-3 px-4 font-medium text-sm text-muted-foreground">
                       Actions
                     </th>
@@ -220,6 +221,9 @@ function RouteComponent() {
                 <tbody>
                   {agreements.map((agreement: any) => {
                     const statusColors = getStatusColor(agreement.status)
+                    const isOwner = agreement.isOwner
+                    const isBeneficiary = agreement.isBeneficiary
+
                     return (
                       <tr key={agreement.id} className="border-b hover:bg-muted/50">
                         <td className="py-3 px-4">
@@ -231,6 +235,21 @@ function RouteComponent() {
                               </div>
                             )}
                           </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          {isOwner ? (
+                            <Badge variant="secondary" className="gap-1">
+                              <Crown className="h-3 w-3" />
+                              Owner
+                            </Badge>
+                          ) : isBeneficiary ? (
+                            <Badge variant="outline" className="gap-1">
+                              <User className="h-3 w-3" />
+                              Beneficiary
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline">Unknown</Badge>
+                          )}
                         </td>
                         <td className="py-3 px-4 text-sm">
                           {getDistributionTypeLabel(agreement.distributionType)}
@@ -248,9 +267,6 @@ function RouteComponent() {
                         <td className="py-3 px-4 text-sm">
                           {agreement.assetCount || 0}
                         </td>
-                        <td className="py-3 px-4 text-sm">
-                          {agreement.beneficiaryCount || 0}
-                        </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <Button
@@ -260,7 +276,7 @@ function RouteComponent() {
                             >
                               View
                             </Button>
-                            {agreement.status === 'DRAFT' && (
+                            {isOwner && agreement.status === 'DRAFT' && (
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -270,7 +286,7 @@ function RouteComponent() {
                                 Delete
                               </Button>
                             )}
-                            {['PENDING_SIGNATURES', 'PENDING_WITNESS'].includes(agreement.status) && (
+                            {isOwner && ['PENDING_SIGNATURES', 'PENDING_WITNESS'].includes(agreement.status) && (
                               <Button
                                 variant="ghost"
                                 size="sm"
