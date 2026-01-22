@@ -175,6 +175,7 @@ function RouteComponent() {
           familyMemberId: b.type === 'registered' ? b.memberId : undefined,
           nonRegisteredFamilyMemberId: b.type === 'non-registered' ? b.memberId : undefined,
           sharePercentage: b.sharePercentage,
+          relation: b.relation,
         })),
       }
 

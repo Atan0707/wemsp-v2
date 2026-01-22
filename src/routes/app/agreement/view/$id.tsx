@@ -9,7 +9,12 @@ import {
   CardContent,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock, FileText } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import {
+  FieldGroup,
+} from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock, FileText, Package, Users, Scale, Calendar, Tag, Eye, Signature } from 'lucide-react'
 import { toast } from 'sonner'
 import { AgreementStatus, DistributionType } from '@/generated/prisma/enums'
 import { getStatusColor, getStatusDescription, canUserSign } from '@/lib/agreement-workflow'
@@ -177,6 +182,29 @@ function RouteComponent() {
     return labels[type] || type
   }
 
+  const getDistributionTypeColor = (type: DistributionType) => {
+    switch (type) {
+      case 'FARAID':
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+      case 'HIBAH':
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+      case 'WASIYYAH':
+        return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+      case 'WAKAF':
+        return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+      default:
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-MY', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
+
   const handleSignAsOwner = (submit = false) => {
     signOwnerMutation.mutate(submit)
   }
@@ -186,196 +214,328 @@ function RouteComponent() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => router.navigate({ to: '/app/agreement/view' })}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Agreements
-      </Button>
-
-      {/* Header */}
+    <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <CardTitle className="text-2xl">{agreement.title}</CardTitle>
-              {agreement.description && (
-                <CardDescription className="mt-2">{agreement.description}</CardDescription>
-              )}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle>Agreement Details</CardTitle>
+              <CardDescription>
+                {isOwner ? 'View your agreement information' : 'View agreement details'}
+              </CardDescription>
             </div>
-            <span
-              className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium border ${statusColors.bg} ${statusColors.text} ${statusColors.border}`}
-            >
-              {getStatusLabel(agreement.status)}
-            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => router.navigate({ to: '/app/agreement/view' })}
+                variant="outline"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-muted-foreground">Distribution Type:</span>
-              <span className="ml-2 font-medium">{getDistributionTypeLabel(agreement.distributionType)}</span>
+        <CardContent className="space-y-6">
+          {/* Agreement Title & Status Header */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <FileText className="h-8 w-8" />
             </div>
-            <div>
-              <span className="text-muted-foreground">Status:</span>
-              <span className="ml-2 font-medium">{getStatusLabel(agreement.status)}</span>
+            <div className="flex-1">
+              <h2 className="text-2xl font-semibold">{agreement.title}</h2>
+              <div className="flex flex-wrap items-center gap-2 mt-2">
+                <span
+                  className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${statusColors.bg} ${statusColors.text} ${statusColors.border}`}
+                >
+                  {getStatusLabel(agreement.status)}
+                </span>
+                <Badge className={getDistributionTypeColor(agreement.distributionType)}>
+                  {getDistributionTypeLabel(agreement.distributionType)}
+                </Badge>
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border-primary/20">
+                  <Calendar className="h-3 w-3" />
+                  {formatDate(agreement.createdAt)}
+                </span>
+              </div>
             </div>
+          </div>
+
+          {/* Description */}
+          {agreement.description && (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Description</p>
+              <p className="text-sm">{agreement.description}</p>
+            </div>
+          )}
+
+          {/* Fields */}
+          <FieldGroup className="gap-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Distribution Type</p>
+              <div className="relative">
+                <Scale className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  value={getDistributionTypeLabel(agreement.distributionType)}
+                  disabled
+                  className="h-10 pl-10 bg-muted/50"
+                />
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Status</p>
+              <div className="relative">
+                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  value={getStatusLabel(agreement.status)}
+                  disabled
+                  className="h-10 pl-10 bg-muted/50"
+                />
+              </div>
+            </div>
+
             {agreement.effectiveDate && (
               <div>
-                <span className="text-muted-foreground">Effective Date:</span>
-                <span className="ml-2">{new Date(agreement.effectiveDate).toLocaleDateString()}</span>
+                <p className="text-xs font-medium text-muted-foreground mb-1">Effective Date</p>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    value={formatDate(agreement.effectiveDate)}
+                    disabled
+                    className="h-10 pl-10 bg-muted/50"
+                  />
+                </div>
               </div>
             )}
+
             {agreement.expiryDate && (
               <div>
-                <span className="text-muted-foreground">Expiry Date:</span>
-                <span className="ml-2">{new Date(agreement.expiryDate).toLocaleDateString()}</span>
-              </div>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground mt-4">{getStatusDescription(agreement.status)}</p>
-        </CardContent>
-      </Card>
-
-      {/* Signature Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Signature Progress</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Owner */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {agreement.ownerSignature?.hasSigned ? (
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
-                ) : (
-                  <Clock className="h-5 w-5 text-amber-600" />
-                )}
-                <div>
-                  <div className="font-medium">Owner (You)</div>
-                  <div className="text-sm text-muted-foreground">{agreement.owner.name}</div>
-                </div>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {agreement.ownerSignature?.hasSigned
-                  ? `Signed on ${new Date(agreement.ownerSignature.signedAt).toLocaleDateString()}`
-                  : 'Pending'}
-              </div>
-            </div>
-
-            {/* Beneficiaries */}
-            {agreement.beneficiaries.map((beneficiary: any) => (
-              <div key={beneficiary.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {beneficiary.hasSigned && beneficiary.isAccepted !== false ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  ) : beneficiary.isAccepted === false ? (
-                    <XCircle className="h-5 w-5 text-red-600" />
-                  ) : (
-                    <Clock className="h-5 w-5 text-amber-600" />
-                  )}
-                  <div>
-                    <div className="font-medium">{beneficiary.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {beneficiary.relation} • {beneficiary.sharePercentage}%
-                    </div>
-                  </div>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {beneficiary.hasSigned && beneficiary.isAccepted !== false
-                    ? `Signed on ${new Date(beneficiary.signedAt).toLocaleDateString()}`
-                    : beneficiary.isAccepted === false
-                    ? 'Rejected'
-                    : 'Pending'}
-                </div>
-              </div>
-            ))}
-
-            {/* Witness */}
-            {agreement.status !== 'DRAFT' && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {agreement.witnessedAt ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  ) : (
-                    <Clock className="h-5 w-5 text-amber-600" />
-                  )}
-                  <div>
-                    <div className="font-medium">Admin Witness</div>
-                    <div className="text-sm text-muted-foreground">
-                      {agreement.witness ? agreement.witness.name : 'Pending assignment'}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {agreement.witnessedAt
-                    ? `Witnessed on ${new Date(agreement.witnessedAt).toLocaleDateString()}`
-                    : 'Pending'}
+                <p className="text-xs font-medium text-muted-foreground mb-1">Expiry Date</p>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    value={formatDate(agreement.expiryDate)}
+                    disabled
+                    className="h-10 pl-10 bg-muted/50"
+                  />
                 </div>
               </div>
             )}
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Assets */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Allocated Assets ({agreement.assets.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {agreement.assets.map((item: any) => (
-              <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex-1">
-                  <div className="font-medium">{item.asset.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {item.asset.type} • ${item.asset.value.toLocaleString()}
-                  </div>
-                </div>
-                {item.allocatedPercentage && (
-                  <div className="text-sm font-medium">{item.allocatedPercentage}%</div>
-                )}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Created Date</p>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  value={formatDate(agreement.createdAt)}
+                  disabled
+                  className="h-10 pl-10 bg-muted/50"
+                />
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Beneficiaries */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Beneficiaries ({agreement.beneficiaries.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {agreement.beneficiaries.map((beneficiary: any) => (
-              <div key={beneficiary.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex-1">
-                  <div className="font-medium">{beneficiary.name}</div>
-                  <div className="text-sm text-muted-foreground">{beneficiary.relation}</div>
-                </div>
-                <div className="font-medium">{beneficiary.sharePercentage}%</div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 text-right text-sm font-medium">
-            Total: {agreement.beneficiaries.reduce((sum: number, b: any) => sum + b.sharePercentage, 0)}%
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Actions */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              Created on {new Date(agreement.createdAt).toLocaleDateString()}
             </div>
+          </FieldGroup>
+
+          {/* Signature Progress Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Signature className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm font-medium">Signature Progress</p>
+            </div>
+            <div className="border rounded-lg overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="text-left py-2.5 px-4 text-xs font-medium">Role</th>
+                    <th className="text-left py-2.5 px-4 text-xs font-medium">Name</th>
+                    <th className="text-right py-2.5 px-4 text-xs font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Owner */}
+                  <tr className="border-b last:border-b-0">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        {agreement.ownerSignature?.hasSigned ? (
+                          <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                        ) : (
+                          <Clock className="h-4 w-4 text-amber-600 shrink-0" />
+                        )}
+                        <span className="text-sm font-medium">Owner</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="text-sm">{agreement.owner.name}</div>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <div className="text-xs text-muted-foreground">
+                        {agreement.ownerSignature?.hasSigned
+                          ? formatDate(agreement.ownerSignature.signedAt)
+                          : 'Pending'}
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Beneficiaries */}
+                  {agreement.beneficiaries.map((beneficiary: any) => (
+                    <tr key={beneficiary.id} className="border-b last:border-b-0">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          {beneficiary.hasSigned && beneficiary.isAccepted !== false ? (
+                            <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                          ) : beneficiary.isAccepted === false ? (
+                            <XCircle className="h-4 w-4 text-red-600 shrink-0" />
+                          ) : (
+                            <Clock className="h-4 w-4 text-amber-600 shrink-0" />
+                          )}
+                          <span className="text-sm font-medium">Beneficiary</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm">{beneficiary.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {beneficiary.relation} • {beneficiary.sharePercentage}%
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="text-xs text-muted-foreground">
+                          {beneficiary.hasSigned && beneficiary.isAccepted !== false
+                            ? formatDate(beneficiary.signedAt)
+                            : beneficiary.isAccepted === false
+                            ? 'Rejected'
+                            : 'Pending'}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {/* Witness */}
+                  {agreement.status !== 'DRAFT' && (
+                    <tr className="border-b last:border-b-0">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          {agreement.witnessedAt ? (
+                            <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                          ) : (
+                            <Clock className="h-4 w-4 text-amber-600 shrink-0" />
+                          )}
+                          <span className="text-sm font-medium">Witness</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm">
+                          {agreement.witness ? agreement.witness.name : 'Pending assignment'}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="text-xs text-muted-foreground">
+                          {agreement.witnessedAt
+                            ? formatDate(agreement.witnessedAt)
+                            : 'Pending'}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Assets Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Package className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm font-medium">Allocated Assets ({agreement.assets.length})</p>
+            </div>
+            <div className="border rounded-lg overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="text-left py-2.5 px-4 text-xs font-medium">Asset Name</th>
+                    <th className="text-left py-2.5 px-4 text-xs font-medium">Type</th>
+                    <th className="text-right py-2.5 px-4 text-xs font-medium">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {agreement.assets.map((item: any) => (
+                    <tr key={item.id} className="border-b last:border-b-0">
+                      <td className="py-3 px-4">
+                        <div className="text-sm font-medium">{item.asset.name}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm text-muted-foreground">{item.asset.type}</div>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="text-sm font-medium">${item.asset.value.toLocaleString()}</div>
+                        {item.allocatedPercentage && (
+                          <div className="text-xs text-muted-foreground">{item.allocatedPercentage}%</div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t bg-muted/50">
+                    <td className="py-2 px-4 font-medium text-xs" colSpan={2}>
+                      Total Assets
+                    </td>
+                    <td className="py-2 px-4 text-right font-medium text-xs">
+                      {agreement.assets.reduce((sum: number, item: any) => sum + item.asset.value, 0).toLocaleString()}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          {/* Beneficiaries Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm font-medium">Beneficiaries ({agreement.beneficiaries.length})</p>
+            </div>
+            <div className="border rounded-lg overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="text-left py-2.5 px-4 text-xs font-medium">Name</th>
+                    <th className="text-left py-2.5 px-4 text-xs font-medium">Relation</th>
+                    <th className="text-right py-2.5 px-4 text-xs font-medium">Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {agreement.beneficiaries.map((beneficiary: any) => (
+                    <tr key={beneficiary.id} className="border-b last:border-b-0">
+                      <td className="py-3 px-4">
+                        <div className="text-sm font-medium">{beneficiary.name}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm text-muted-foreground">{beneficiary.relation}</div>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="text-sm font-medium">{beneficiary.sharePercentage}%</div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t bg-muted/50">
+                    <td className="py-2 px-4 font-medium text-xs" colSpan={2}>
+                      Total
+                    </td>
+                    <td className="py-2 px-4 text-right font-medium text-xs">
+                      {agreement.beneficiaries.reduce((sum: number, b: any) => sum + b.sharePercentage, 0)}%
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t">
+            <p className="text-xs text-muted-foreground">
+              {getStatusDescription(agreement.status)}
+            </p>
             <div className="flex gap-2">
               {/* Owner actions */}
               {isOwner && agreement.status === 'DRAFT' && !agreement.ownerSignature?.hasSigned && (
