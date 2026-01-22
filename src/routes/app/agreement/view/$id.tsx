@@ -391,9 +391,11 @@ function RouteComponent() {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="text-sm">{beneficiary.name}</div>
+                        <div className="text-sm">
+                          {beneficiary.familyMember?.user?.name || beneficiary.nonRegisteredFamilyMember?.name || 'Unknown'}
+                        </div>
                         <div className="text-xs text-muted-foreground">
-                          {beneficiary.relation} • {beneficiary.sharePercentage}%
+                          {beneficiary.familyMember?.relation || beneficiary.nonRegisteredFamilyMember?.relation || 'N/A'} • {beneficiary.sharePercentage}%
                         </div>
                       </td>
                       <td className="py-3 px-4 text-right">
@@ -506,10 +508,14 @@ function RouteComponent() {
                   {agreement.beneficiaries.map((beneficiary: any) => (
                     <tr key={beneficiary.id} className="border-b last:border-b-0">
                       <td className="py-3 px-4">
-                        <div className="text-sm font-medium">{beneficiary.name}</div>
+                        <div className="text-sm font-medium">
+                          {beneficiary.familyMember?.user?.name || beneficiary.nonRegisteredFamilyMember?.name || 'Unknown'}
+                        </div>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="text-sm text-muted-foreground">{beneficiary.relation}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {beneficiary.familyMember?.relation || beneficiary.nonRegisteredFamilyMember?.relation || 'N/A'}
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="text-sm font-medium">{beneficiary.sharePercentage}%</div>
