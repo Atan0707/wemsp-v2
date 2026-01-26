@@ -27,7 +27,7 @@ async function main() {
   console.log(`✅ Created ${todos.count} todos`)
 
   // Create default admin account
-  const adminEmail = 'admin@wemsp.com'
+  const adminEmail = 'admin@wesmp.com'
   const existingAdmin = await prisma.admin.findUnique({
     where: { email: adminEmail },
   })
