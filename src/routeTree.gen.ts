@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestUploadRouteImport } from './routes/test-upload'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
@@ -68,15 +69,20 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
@@ -84,14 +90,14 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin/login',
-  path: '/admin/login',
-  getParentRoute: () => rootRouteImport,
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
-  id: '/admin/dashboard',
-  path: '/admin/dashboard',
-  getParentRoute: () => rootRouteImport,
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
   id: '/settings/',
@@ -124,9 +130,9 @@ const ApiUploadIndexRoute = ApiUploadIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
-  id: '/admin/users/',
-  path: '/admin/users/',
-  getParentRoute: () => rootRouteImport,
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AppProfileViewRoute = AppProfileViewRouteImport.update({
   id: '/profile/view',
@@ -199,9 +205,9 @@ const ApiAgreementSplatRoute = ApiAgreementSplatRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersIdRoute = AdminUsersIdRouteImport.update({
-  id: '/admin/users/$id',
-  path: '/admin/users/$id',
-  getParentRoute: () => rootRouteImport,
+  id: '/users/$id',
+  path: '/users/$id',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AppAssetsViewIndexRoute = AppAssetsViewIndexRouteImport.update({
   id: '/assets/view/',
@@ -307,12 +313,13 @@ const ApiAgreementIdSignBeneficiarySplatRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/test-upload': typeof TestUploadRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/app/dashboard': typeof AppDashboardRoute
-  '/admin': typeof AdminIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/admin/users/$id': typeof AdminUsersIdRoute
   '/api/agreement/$': typeof ApiAgreementSplatRoute
   '/api/asset/$': typeof ApiAssetSplatRoute
@@ -408,6 +415,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/test-upload': typeof TestUploadRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -460,12 +468,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/app'
     | '/test-upload'
     | '/admin/dashboard'
     | '/admin/login'
     | '/app/dashboard'
-    | '/admin'
+    | '/admin/'
     | '/admin/users/$id'
     | '/api/agreement/$'
     | '/api/asset/$'
@@ -560,6 +569,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/app'
     | '/test-upload'
     | '/admin/dashboard'
@@ -611,12 +621,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   TestUploadRoute: typeof TestUploadRoute
-  AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminLoginRoute: typeof AdminLoginRoute
-  AdminIndexRoute: typeof AdminIndexRoute
-  AdminUsersIdRoute: typeof AdminUsersIdRoute
   ApiAgreementSplatRoute: typeof ApiAgreementSplatRoute
   ApiAssetSplatRoute: typeof ApiAssetSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -624,7 +631,6 @@ export interface RootRouteChildren {
   ApiFamilySearchRoute: typeof ApiFamilySearchRoute
   ApiFileSplatRoute: typeof ApiFileSplatRoute
   ApiFileKeyRoute: typeof ApiFileKeyRoute
-  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   ApiUploadIndexRoute: typeof ApiUploadIndexRoute
   ApiAdminLoginSplatRoute: typeof ApiAdminLoginSplatRoute
   ApiAdminLogoutSplatRoute: typeof ApiAdminLogoutSplatRoute
@@ -657,6 +663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -666,10 +679,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/': {
       id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin'
+      path: '/'
+      fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/app/dashboard': {
       id: '/app/dashboard'
@@ -680,17 +693,17 @@ declare module '@tanstack/react-router' {
     }
     '/admin/login': {
       id: '/admin/login'
-      path: '/admin/login'
+      path: '/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/dashboard': {
       id: '/admin/dashboard'
-      path: '/admin/dashboard'
+      path: '/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AdminDashboardRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/app/settings/': {
       id: '/app/settings/'
@@ -736,10 +749,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/users/': {
       id: '/admin/users/'
-      path: '/admin/users'
+      path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/app/profile/view': {
       id: '/app/profile/view'
@@ -841,10 +854,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/users/$id': {
       id: '/admin/users/$id'
-      path: '/admin/users/$id'
+      path: '/users/$id'
       fullPath: '/admin/users/$id'
       preLoaderRoute: typeof AdminUsersIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/app/assets/view/': {
       id: '/app/assets/view/'
@@ -982,6 +995,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminUsersIdRoute: typeof AdminUsersIdRoute
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminUsersIdRoute: AdminUsersIdRoute,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppAgreementCreateRoute: typeof AppAgreementCreateRoute
@@ -1030,12 +1061,9 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   TestUploadRoute: TestUploadRoute,
-  AdminDashboardRoute: AdminDashboardRoute,
-  AdminLoginRoute: AdminLoginRoute,
-  AdminIndexRoute: AdminIndexRoute,
-  AdminUsersIdRoute: AdminUsersIdRoute,
   ApiAgreementSplatRoute: ApiAgreementSplatRoute,
   ApiAssetSplatRoute: ApiAssetSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
@@ -1043,7 +1071,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiFamilySearchRoute: ApiFamilySearchRoute,
   ApiFileSplatRoute: ApiFileSplatRoute,
   ApiFileKeyRoute: ApiFileKeyRoute,
-  AdminUsersIndexRoute: AdminUsersIndexRoute,
   ApiUploadIndexRoute: ApiUploadIndexRoute,
   ApiAdminLoginSplatRoute: ApiAdminLoginSplatRoute,
   ApiAdminLogoutSplatRoute: ApiAdminLogoutSplatRoute,

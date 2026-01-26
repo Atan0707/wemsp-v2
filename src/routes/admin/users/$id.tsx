@@ -303,10 +303,6 @@ function RouteComponent() {
             </div>
             <CardAction>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => navigate({ to: '/admin/users' })}>
-                  <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                  Back
-                </Button>
                 <Button variant="outline" size="sm" onClick={() => setEditDialogOpen(true)}>
                   <EditIcon className="h-4 w-4 mr-2" />
                   Edit

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { getAdminSession } from '@/middleware'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -63,9 +63,6 @@ export const Route = createFileRoute('/admin/users/')({
 })
 
 function RouteComponent() {
-  const navigate = useNavigate()
-  const { admin } = Route.useLoaderData()
-
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState({
@@ -238,23 +235,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="bg-background border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate({ to: '/admin/dashboard' })}>
-              ← Back
-            </Button>
-            <h1 className="text-xl font-semibold">User Management</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">Welcome, {admin.name}</span>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
-        <div className="space-y-6">
+    <div className="space-y-6">
           {/* Search and Create */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 flex-1 max-w-md">
@@ -391,8 +372,6 @@ function RouteComponent() {
               </div>
             )}
           </div>
-        </div>
-      </main>
 
       {/* Create User Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>

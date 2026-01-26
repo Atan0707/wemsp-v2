@@ -1,7 +1,5 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { getAdminSession } from '@/middleware'
-import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
 
 export const Route = createFileRoute('/admin/dashboard')({
   loader: async () => {
@@ -15,59 +13,26 @@ export const Route = createFileRoute('/admin/dashboard')({
 })
 
 function RouteComponent() {
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('/api/admin/logout', {
-        method: 'POST',
-      })
-
-      if (response.ok) {
-        toast.success('Logged out successfully')
-        window.location.href = '/admin/login'
-      }
-    } catch (error) {
-      toast.error('Failed to logout')
-    }
-  }
-
-  // Get admin data from loader
-  const { admin } = Route.useLoaderData()
-
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="bg-background border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Admin Dashboard</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">Welcome, {admin.name}</span>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
-      <main className="container mx-auto px-4 py-8">
-        <div className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <a
-              href="/admin/users"
-              className="bg-background rounded-lg border p-6 hover:bg-accent/50 transition-colors cursor-pointer block"
-            >
-              <h3 className="text-lg font-semibold mb-2">User Management</h3>
-              <p className="text-muted-foreground text-sm">
-                Manage user accounts, view user details, and perform CRUD operations.
-              </p>
-            </a>
-          </div>
+    <div className="space-y-6">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Link
+          to="/admin/users"
+          className="bg-background rounded-lg border p-6 hover:bg-accent/50 transition-colors cursor-pointer block"
+        >
+          <h3 className="text-lg font-semibold mb-2">User Management</h3>
+          <p className="text-muted-foreground text-sm">
+            Manage user accounts, view user details, and perform CRUD operations.
+          </p>
+        </Link>
+      </div>
 
-          <div className="bg-background rounded-lg border p-6">
-            <h2 className="text-lg font-semibold mb-2">Welcome to the Admin Portal</h2>
-            <p className="text-muted-foreground">
-              This is the admin dashboard where you can manage agreements, users, and system settings.
-            </p>
-          </div>
-        </div>
-      </main>
+      <div className="bg-background rounded-lg border p-6">
+        <h2 className="text-lg font-semibold mb-2">Welcome to the Admin Portal</h2>
+        <p className="text-muted-foreground">
+          This is the admin dashboard where you can manage agreements, users, and system settings.
+        </p>
+      </div>
     </div>
   )
 }
