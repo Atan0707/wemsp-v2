@@ -22,6 +22,7 @@ import { Route as AppFamilyIndexRouteImport } from './routes/app/family/index'
 import { Route as AppAssetsIndexRouteImport } from './routes/app/assets/index'
 import { Route as AppAgreementIndexRouteImport } from './routes/app/agreement/index'
 import { Route as ApiUploadIndexRouteImport } from './routes/api/upload/index'
+import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AppProfileViewRouteImport } from './routes/app/profile/view'
 import { Route as AppProfileEditRouteImport } from './routes/app/profile/edit'
 import { Route as AppFamilyViewRouteImport } from './routes/app/family/view'
@@ -36,6 +37,7 @@ import { Route as ApiFamilySplatRouteImport } from './routes/api/family/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiAssetSplatRouteImport } from './routes/api/asset/$'
 import { Route as ApiAgreementSplatRouteImport } from './routes/api/agreement/$'
+import { Route as AdminUsersIdRouteImport } from './routes/admin/users/$id'
 import { Route as AppAssetsViewIndexRouteImport } from './routes/app/assets/view/index'
 import { Route as AppAssetsEditIndexRouteImport } from './routes/app/assets/edit/index'
 import { Route as AppAgreementViewIndexRouteImport } from './routes/app/agreement/view/index'
@@ -43,12 +45,15 @@ import { Route as AppAssetsViewIdRouteImport } from './routes/app/assets/view/$i
 import { Route as AppAssetsEditIdRouteImport } from './routes/app/assets/edit/$id'
 import { Route as AppAgreementViewIdRouteImport } from './routes/app/agreement/view/$id'
 import { Route as ApiUserProfileSplatRouteImport } from './routes/api/user/profile/$'
+import { Route as ApiAdminUsersSplatRouteImport } from './routes/api/admin/users/$'
 import { Route as ApiAdminSessionSplatRouteImport } from './routes/api/admin/session/$'
 import { Route as ApiAdminLogoutSplatRouteImport } from './routes/api/admin/logout/$'
 import { Route as ApiAdminLoginSplatRouteImport } from './routes/api/admin/login/$'
 import { Route as ApiAgreementIdStatusSplatRouteImport } from './routes/api/agreement/$id/status/$'
 import { Route as ApiAgreementIdBeneficiariesSplatRouteImport } from './routes/api/agreement/$id/beneficiaries/$'
 import { Route as ApiAgreementIdAssetsSplatRouteImport } from './routes/api/agreement/$id/assets/$'
+import { Route as ApiAdminUsersIdDetailRouteImport } from './routes/api/admin/users/$id/detail'
+import { Route as ApiAdminUsersIdSplatRouteImport } from './routes/api/admin/users/$id/$'
 import { Route as ApiAgreementIdSignWitnessSplatRouteImport } from './routes/api/agreement/$id/sign/witness/$'
 import { Route as ApiAgreementIdSignOwnerSplatRouteImport } from './routes/api/agreement/$id/sign/owner/$'
 import { Route as ApiAgreementIdSignBeneficiarySplatRouteImport } from './routes/api/agreement/$id/sign/beneficiary/$'
@@ -116,6 +121,11 @@ const AppAgreementIndexRoute = AppAgreementIndexRouteImport.update({
 const ApiUploadIndexRoute = ApiUploadIndexRouteImport.update({
   id: '/api/upload/',
   path: '/api/upload/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
+  id: '/admin/users/',
+  path: '/admin/users/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppProfileViewRoute = AppProfileViewRouteImport.update({
@@ -188,6 +198,11 @@ const ApiAgreementSplatRoute = ApiAgreementSplatRouteImport.update({
   path: '/api/agreement/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersIdRoute = AdminUsersIdRouteImport.update({
+  id: '/admin/users/$id',
+  path: '/admin/users/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppAssetsViewIndexRoute = AppAssetsViewIndexRouteImport.update({
   id: '/assets/view/',
   path: '/assets/view/',
@@ -223,6 +238,11 @@ const ApiUserProfileSplatRoute = ApiUserProfileSplatRouteImport.update({
   path: '/api/user/profile/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminUsersSplatRoute = ApiAdminUsersSplatRouteImport.update({
+  id: '/api/admin/users/$',
+  path: '/api/admin/users/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminSessionSplatRoute = ApiAdminSessionSplatRouteImport.update({
   id: '/api/admin/session/$',
   path: '/api/admin/session/$',
@@ -256,6 +276,16 @@ const ApiAgreementIdAssetsSplatRoute =
     path: '/api/agreement/$id/assets/$',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdminUsersIdDetailRoute = ApiAdminUsersIdDetailRouteImport.update({
+  id: '/api/admin/users/$id/detail',
+  path: '/api/admin/users/$id/detail',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminUsersIdSplatRoute = ApiAdminUsersIdSplatRouteImport.update({
+  id: '/api/admin/users/$id/$',
+  path: '/api/admin/users/$id/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAgreementIdSignWitnessSplatRoute =
   ApiAgreementIdSignWitnessSplatRouteImport.update({
     id: '/api/agreement/$id/sign/witness/$',
@@ -283,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/users/$id': typeof AdminUsersIdRoute
   '/api/agreement/$': typeof ApiAgreementSplatRoute
   '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -297,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/app/family/view': typeof AppFamilyViewRoute
   '/app/profile/edit': typeof AppProfileEditRoute
   '/app/profile/view': typeof AppProfileViewRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/api/upload': typeof ApiUploadIndexRoute
   '/app/agreement': typeof AppAgreementIndexRoute
   '/app/assets': typeof AppAssetsIndexRoute
@@ -306,6 +338,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/login/$': typeof ApiAdminLoginSplatRoute
   '/api/admin/logout/$': typeof ApiAdminLogoutSplatRoute
   '/api/admin/session/$': typeof ApiAdminSessionSplatRoute
+  '/api/admin/users/$': typeof ApiAdminUsersSplatRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
@@ -313,6 +346,8 @@ export interface FileRoutesByFullPath {
   '/app/agreement/view': typeof AppAgreementViewIndexRoute
   '/app/assets/edit': typeof AppAssetsEditIndexRoute
   '/app/assets/view': typeof AppAssetsViewIndexRoute
+  '/api/admin/users/$id/$': typeof ApiAdminUsersIdSplatRoute
+  '/api/admin/users/$id/detail': typeof ApiAdminUsersIdDetailRoute
   '/api/agreement/$id/assets/$': typeof ApiAgreementIdAssetsSplatRoute
   '/api/agreement/$id/beneficiaries/$': typeof ApiAgreementIdBeneficiariesSplatRoute
   '/api/agreement/$id/status/$': typeof ApiAgreementIdStatusSplatRoute
@@ -328,6 +363,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/users/$id': typeof AdminUsersIdRoute
   '/api/agreement/$': typeof ApiAgreementSplatRoute
   '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -342,6 +378,7 @@ export interface FileRoutesByTo {
   '/app/family/view': typeof AppFamilyViewRoute
   '/app/profile/edit': typeof AppProfileEditRoute
   '/app/profile/view': typeof AppProfileViewRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/api/upload': typeof ApiUploadIndexRoute
   '/app/agreement': typeof AppAgreementIndexRoute
   '/app/assets': typeof AppAssetsIndexRoute
@@ -351,6 +388,7 @@ export interface FileRoutesByTo {
   '/api/admin/login/$': typeof ApiAdminLoginSplatRoute
   '/api/admin/logout/$': typeof ApiAdminLogoutSplatRoute
   '/api/admin/session/$': typeof ApiAdminSessionSplatRoute
+  '/api/admin/users/$': typeof ApiAdminUsersSplatRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
@@ -358,6 +396,8 @@ export interface FileRoutesByTo {
   '/app/agreement/view': typeof AppAgreementViewIndexRoute
   '/app/assets/edit': typeof AppAssetsEditIndexRoute
   '/app/assets/view': typeof AppAssetsViewIndexRoute
+  '/api/admin/users/$id/$': typeof ApiAdminUsersIdSplatRoute
+  '/api/admin/users/$id/detail': typeof ApiAdminUsersIdDetailRoute
   '/api/agreement/$id/assets/$': typeof ApiAgreementIdAssetsSplatRoute
   '/api/agreement/$id/beneficiaries/$': typeof ApiAgreementIdBeneficiariesSplatRoute
   '/api/agreement/$id/status/$': typeof ApiAgreementIdStatusSplatRoute
@@ -374,6 +414,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/users/$id': typeof AdminUsersIdRoute
   '/api/agreement/$': typeof ApiAgreementSplatRoute
   '/api/asset/$': typeof ApiAssetSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -388,6 +429,7 @@ export interface FileRoutesById {
   '/app/family/view': typeof AppFamilyViewRoute
   '/app/profile/edit': typeof AppProfileEditRoute
   '/app/profile/view': typeof AppProfileViewRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
   '/api/upload/': typeof ApiUploadIndexRoute
   '/app/agreement/': typeof AppAgreementIndexRoute
   '/app/assets/': typeof AppAssetsIndexRoute
@@ -397,6 +439,7 @@ export interface FileRoutesById {
   '/api/admin/login/$': typeof ApiAdminLoginSplatRoute
   '/api/admin/logout/$': typeof ApiAdminLogoutSplatRoute
   '/api/admin/session/$': typeof ApiAdminSessionSplatRoute
+  '/api/admin/users/$': typeof ApiAdminUsersSplatRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
@@ -404,6 +447,8 @@ export interface FileRoutesById {
   '/app/agreement/view/': typeof AppAgreementViewIndexRoute
   '/app/assets/edit/': typeof AppAssetsEditIndexRoute
   '/app/assets/view/': typeof AppAssetsViewIndexRoute
+  '/api/admin/users/$id/$': typeof ApiAdminUsersIdSplatRoute
+  '/api/admin/users/$id/detail': typeof ApiAdminUsersIdDetailRoute
   '/api/agreement/$id/assets/$': typeof ApiAgreementIdAssetsSplatRoute
   '/api/agreement/$id/beneficiaries/$': typeof ApiAgreementIdBeneficiariesSplatRoute
   '/api/agreement/$id/status/$': typeof ApiAgreementIdStatusSplatRoute
@@ -421,6 +466,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/app/dashboard'
     | '/admin'
+    | '/admin/users/$id'
     | '/api/agreement/$'
     | '/api/asset/$'
     | '/api/auth/$'
@@ -435,6 +481,7 @@ export interface FileRouteTypes {
     | '/app/family/view'
     | '/app/profile/edit'
     | '/app/profile/view'
+    | '/admin/users'
     | '/api/upload'
     | '/app/agreement'
     | '/app/assets'
@@ -444,6 +491,7 @@ export interface FileRouteTypes {
     | '/api/admin/login/$'
     | '/api/admin/logout/$'
     | '/api/admin/session/$'
+    | '/api/admin/users/$'
     | '/api/user/profile/$'
     | '/app/agreement/view/$id'
     | '/app/assets/edit/$id'
@@ -451,6 +499,8 @@ export interface FileRouteTypes {
     | '/app/agreement/view'
     | '/app/assets/edit'
     | '/app/assets/view'
+    | '/api/admin/users/$id/$'
+    | '/api/admin/users/$id/detail'
     | '/api/agreement/$id/assets/$'
     | '/api/agreement/$id/beneficiaries/$'
     | '/api/agreement/$id/status/$'
@@ -466,6 +516,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/app/dashboard'
     | '/admin'
+    | '/admin/users/$id'
     | '/api/agreement/$'
     | '/api/asset/$'
     | '/api/auth/$'
@@ -480,6 +531,7 @@ export interface FileRouteTypes {
     | '/app/family/view'
     | '/app/profile/edit'
     | '/app/profile/view'
+    | '/admin/users'
     | '/api/upload'
     | '/app/agreement'
     | '/app/assets'
@@ -489,6 +541,7 @@ export interface FileRouteTypes {
     | '/api/admin/login/$'
     | '/api/admin/logout/$'
     | '/api/admin/session/$'
+    | '/api/admin/users/$'
     | '/api/user/profile/$'
     | '/app/agreement/view/$id'
     | '/app/assets/edit/$id'
@@ -496,6 +549,8 @@ export interface FileRouteTypes {
     | '/app/agreement/view'
     | '/app/assets/edit'
     | '/app/assets/view'
+    | '/api/admin/users/$id/$'
+    | '/api/admin/users/$id/detail'
     | '/api/agreement/$id/assets/$'
     | '/api/agreement/$id/beneficiaries/$'
     | '/api/agreement/$id/status/$'
@@ -511,6 +566,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/app/dashboard'
     | '/admin/'
+    | '/admin/users/$id'
     | '/api/agreement/$'
     | '/api/asset/$'
     | '/api/auth/$'
@@ -525,6 +581,7 @@ export interface FileRouteTypes {
     | '/app/family/view'
     | '/app/profile/edit'
     | '/app/profile/view'
+    | '/admin/users/'
     | '/api/upload/'
     | '/app/agreement/'
     | '/app/assets/'
@@ -534,6 +591,7 @@ export interface FileRouteTypes {
     | '/api/admin/login/$'
     | '/api/admin/logout/$'
     | '/api/admin/session/$'
+    | '/api/admin/users/$'
     | '/api/user/profile/$'
     | '/app/agreement/view/$id'
     | '/app/assets/edit/$id'
@@ -541,6 +599,8 @@ export interface FileRouteTypes {
     | '/app/agreement/view/'
     | '/app/assets/edit/'
     | '/app/assets/view/'
+    | '/api/admin/users/$id/$'
+    | '/api/admin/users/$id/detail'
     | '/api/agreement/$id/assets/$'
     | '/api/agreement/$id/beneficiaries/$'
     | '/api/agreement/$id/status/$'
@@ -556,6 +616,7 @@ export interface RootRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminUsersIdRoute: typeof AdminUsersIdRoute
   ApiAgreementSplatRoute: typeof ApiAgreementSplatRoute
   ApiAssetSplatRoute: typeof ApiAssetSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -563,11 +624,15 @@ export interface RootRouteChildren {
   ApiFamilySearchRoute: typeof ApiFamilySearchRoute
   ApiFileSplatRoute: typeof ApiFileSplatRoute
   ApiFileKeyRoute: typeof ApiFileKeyRoute
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   ApiUploadIndexRoute: typeof ApiUploadIndexRoute
   ApiAdminLoginSplatRoute: typeof ApiAdminLoginSplatRoute
   ApiAdminLogoutSplatRoute: typeof ApiAdminLogoutSplatRoute
   ApiAdminSessionSplatRoute: typeof ApiAdminSessionSplatRoute
+  ApiAdminUsersSplatRoute: typeof ApiAdminUsersSplatRoute
   ApiUserProfileSplatRoute: typeof ApiUserProfileSplatRoute
+  ApiAdminUsersIdSplatRoute: typeof ApiAdminUsersIdSplatRoute
+  ApiAdminUsersIdDetailRoute: typeof ApiAdminUsersIdDetailRoute
   ApiAgreementIdAssetsSplatRoute: typeof ApiAgreementIdAssetsSplatRoute
   ApiAgreementIdBeneficiariesSplatRoute: typeof ApiAgreementIdBeneficiariesSplatRoute
   ApiAgreementIdStatusSplatRoute: typeof ApiAgreementIdStatusSplatRoute
@@ -669,6 +734,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUploadIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users/': {
+      id: '/admin/users/'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/profile/view': {
       id: '/app/profile/view'
       path: '/profile/view'
@@ -767,6 +839,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgreementSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users/$id': {
+      id: '/admin/users/$id'
+      path: '/admin/users/$id'
+      fullPath: '/admin/users/$id'
+      preLoaderRoute: typeof AdminUsersIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/assets/view/': {
       id: '/app/assets/view/'
       path: '/assets/view'
@@ -816,6 +895,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUserProfileSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/users/$': {
+      id: '/api/admin/users/$'
+      path: '/api/admin/users/$'
+      fullPath: '/api/admin/users/$'
+      preLoaderRoute: typeof ApiAdminUsersSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/session/$': {
       id: '/api/admin/session/$'
       path: '/api/admin/session/$'
@@ -856,6 +942,20 @@ declare module '@tanstack/react-router' {
       path: '/api/agreement/$id/assets/$'
       fullPath: '/api/agreement/$id/assets/$'
       preLoaderRoute: typeof ApiAgreementIdAssetsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/users/$id/detail': {
+      id: '/api/admin/users/$id/detail'
+      path: '/api/admin/users/$id/detail'
+      fullPath: '/api/admin/users/$id/detail'
+      preLoaderRoute: typeof ApiAdminUsersIdDetailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/users/$id/$': {
+      id: '/api/admin/users/$id/$'
+      path: '/api/admin/users/$id/$'
+      fullPath: '/api/admin/users/$id/$'
+      preLoaderRoute: typeof ApiAdminUsersIdSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/agreement/$id/sign/witness/$': {
@@ -935,6 +1035,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminUsersIdRoute: AdminUsersIdRoute,
   ApiAgreementSplatRoute: ApiAgreementSplatRoute,
   ApiAssetSplatRoute: ApiAssetSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
@@ -942,11 +1043,15 @@ const rootRouteChildren: RootRouteChildren = {
   ApiFamilySearchRoute: ApiFamilySearchRoute,
   ApiFileSplatRoute: ApiFileSplatRoute,
   ApiFileKeyRoute: ApiFileKeyRoute,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
   ApiUploadIndexRoute: ApiUploadIndexRoute,
   ApiAdminLoginSplatRoute: ApiAdminLoginSplatRoute,
   ApiAdminLogoutSplatRoute: ApiAdminLogoutSplatRoute,
   ApiAdminSessionSplatRoute: ApiAdminSessionSplatRoute,
+  ApiAdminUsersSplatRoute: ApiAdminUsersSplatRoute,
   ApiUserProfileSplatRoute: ApiUserProfileSplatRoute,
+  ApiAdminUsersIdSplatRoute: ApiAdminUsersIdSplatRoute,
+  ApiAdminUsersIdDetailRoute: ApiAdminUsersIdDetailRoute,
   ApiAgreementIdAssetsSplatRoute: ApiAgreementIdAssetsSplatRoute,
   ApiAgreementIdBeneficiariesSplatRoute: ApiAgreementIdBeneficiariesSplatRoute,
   ApiAgreementIdStatusSplatRoute: ApiAgreementIdStatusSplatRoute,

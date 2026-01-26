@@ -48,6 +48,18 @@ function RouteComponent() {
       </header>
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <a
+              href="/admin/users"
+              className="bg-background rounded-lg border p-6 hover:bg-accent/50 transition-colors cursor-pointer block"
+            >
+              <h3 className="text-lg font-semibold mb-2">User Management</h3>
+              <p className="text-muted-foreground text-sm">
+                Manage user accounts, view user details, and perform CRUD operations.
+              </p>
+            </a>
+          </div>
+
           <div className="bg-background rounded-lg border p-6">
             <h2 className="text-lg font-semibold mb-2">Welcome to the Admin Portal</h2>
             <p className="text-muted-foreground">
