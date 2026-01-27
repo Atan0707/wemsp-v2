@@ -5,6 +5,7 @@ import {
   Users,
   Shield,
   Package,
+  FileText,
 } from "lucide-react"
 
 import {
@@ -81,6 +82,14 @@ export function AdminSidebar({ adminName }: AdminSidebarProps) {
                   <Link to="/admin/assets">
                     <Package />
                     <span>Assets</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/admin/agreements">
+                    <FileText />
+                    <span>Agreements</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
