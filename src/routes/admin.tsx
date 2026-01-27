@@ -20,7 +20,12 @@ import { getAdminSession } from '@/middleware'
 
 export const Route = createFileRoute('/admin')({
   component: RouteComponent,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
+    // Skip auth check if already navigating to login page
+    if (location.pathname === '/admin/login') {
+      return { admin: null }
+    }
+    
     // Server-side authentication check using server function
     const admin = await getAdminSession()
     if (!admin) {
@@ -76,9 +81,9 @@ function RouteComponent() {
     }
   }, [admin, navigate, location.pathname])
 
-  // If no admin, show nothing (beforeLoad will handle redirect)
+  // If no admin and on login page, render only the outlet (login form)
   if (!admin) {
-    return null
+    return <Outlet />
   }
 
   return (
