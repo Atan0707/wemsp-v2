@@ -4,6 +4,7 @@ import {
   ChevronUp,
   Users,
   Shield,
+  Package,
 } from "lucide-react"
 
 import {
@@ -72,6 +73,14 @@ export function AdminSidebar({ adminName }: AdminSidebarProps) {
                   <Link to="/admin/users">
                     <Users />
                     <span>Users</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/admin/assets">
+                    <Package />
+                    <span>Assets</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
