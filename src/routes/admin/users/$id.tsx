@@ -159,6 +159,9 @@ function RouteComponent() {
   const [loading, setLoading] = useState(true)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<Agreement | Asset | null>(null)
+  const [detailType, setDetailType] = useState<'agreement' | 'asset' | null>(null)
   const [editForm, setEditForm] = useState({
     name: '',
     email: '',
@@ -271,6 +274,12 @@ function RouteComponent() {
   }
 
   const canDeleteUser = user ? user.agreements.length === 0 && user.assets.length === 0 : false
+
+  const openDetailDialog = (item: Agreement | Asset, type: 'agreement' | 'asset') => {
+    setSelectedItem(item)
+    setDetailType(type)
+    setDetailDialogOpen(true)
+  }
 
   if (loading) {
     return (
@@ -440,7 +449,11 @@ function RouteComponent() {
               </TableHeader>
               <TableBody>
                 {user.assets.map((asset) => (
-                  <TableRow key={asset.id}>
+                  <TableRow
+                    key={asset.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => openDetailDialog(asset, 'asset')}
+                  >
                     <TableCell className="font-medium">{asset.name}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{asset.type}</Badge>
@@ -469,86 +482,38 @@ function RouteComponent() {
           {user.agreements.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">No agreements found</p>
           ) : (
-            <div className="space-y-4">
-              {user.agreements.map((agreement) => (
-                <div key={agreement.id} className="border rounded-lg p-4 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="font-semibold">{agreement.title}</h4>
-                      <p className="text-sm text-muted-foreground">{agreement.description || 'No description'}</p>
-                    </div>
-                    <Badge variant={getStatusBadge(agreement.status)}>{agreement.status}</Badge>
-                  </div>
-                  <div className="flex gap-4 text-sm">
-                    <span className="text-muted-foreground">
-                      Type: <Badge variant="outline" className="ml-1">{agreement.distributionType}</Badge>
-                    </span>
-                    <span className="text-muted-foreground">
-                      Created: {formatDate(agreement.createdAt)}
-                    </span>
-                  </div>
-                  {agreement.assets.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium mb-2">Allocated Assets:</p>
-                      <div className="grid gap-2 md:grid-cols-2">
-                        {agreement.assets.map((aa) => (
-                          <div key={aa.id} className="text-sm bg-muted/50 rounded p-2">
-                            <span className="font-medium">{aa.asset.name}</span>
-                            <span className="text-muted-foreground"> ({aa.asset.type})</span>
-                            {aa.allocatedValue && (
-                              <span className="ml-2 text-muted-foreground">
-                                {formatCurrency(aa.allocatedValue)}
-                              </span>
-                            )}
-                            {aa.allocatedPercentage && (
-                              <span className="ml-2 text-muted-foreground">
-                                {aa.allocatedPercentage}%
-                              </span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {agreement.beneficiaries.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium mb-2">Beneficiaries:</p>
-                      <div className="space-y-2">
-                        {agreement.beneficiaries.map((ab) => (
-                          <div key={ab.id} className="text-sm bg-muted/50 rounded p-2">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">
-                                {ab.familyMember?.familyMemberUser?.name || ab.nonRegisteredFamilyMember?.name}
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {ab.familyMember?.relation || ab.nonRegisteredFamilyMember?.relation}
-                              </Badge>
-                              <span className="text-muted-foreground">
-                                {ab.sharePercentage}%
-                              </span>
-                              {ab.hasSigned ? (
-                                <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                              ) : (
-                                <XCircleIcon className="h-4 w-4 text-red-600" />
-                              )}
-                              {ab.isAccepted === true && (
-                                <Badge variant="default" className="text-xs">Accepted</Badge>
-                              )}
-                              {ab.isAccepted === false && (
-                                <Badge variant="destructive" className="text-xs">Rejected</Badge>
-                              )}
-                            </div>
-                            {ab.shareDescription && (
-                              <p className="text-xs text-muted-foreground mt-1">{ab.shareDescription}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Assets</TableHead>
+                  <TableHead>Beneficiaries</TableHead>
+                  <TableHead>Created</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {user.agreements.map((agreement) => (
+                  <TableRow
+                    key={agreement.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => openDetailDialog(agreement, 'agreement')}
+                  >
+                    <TableCell className="font-medium">{agreement.title}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{agreement.distributionType}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusBadge(agreement.status)}>{agreement.status}</Badge>
+                    </TableCell>
+                    <TableCell>{agreement.assets.length}</TableCell>
+                    <TableCell>{agreement.beneficiaries.length}</TableCell>
+                    <TableCell>{formatDate(agreement.createdAt)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
@@ -815,6 +780,170 @@ function RouteComponent() {
             >
               Delete User
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Detail Dialog */}
+      <Dialog
+        open={detailDialogOpen}
+        onOpenChange={(open) => {
+          setDetailDialogOpen(open)
+          if (!open) {
+            setSelectedItem(null)
+            setDetailType(null)
+          }
+        }}
+      >
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {detailType === 'agreement' ? 'Agreement Details' : 'Asset Details'}
+            </DialogTitle>
+            <DialogDescription>
+              {detailType === 'agreement'
+                ? selectedItem && (selectedItem as Agreement).title
+                : selectedItem && (selectedItem as Asset).name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {detailType === 'agreement' && selectedItem ? (
+              <div className="space-y-4">
+                <div>
+                  <h5 className="text-sm font-medium mb-1">Description</h5>
+                  <p className="text-sm text-muted-foreground">
+                    {(selectedItem as Agreement).description || 'No description'}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="text-sm font-medium mb-1">Distribution Type</h5>
+                    <Badge variant="outline">
+                      {(selectedItem as Agreement).distributionType}
+                    </Badge>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-medium mb-1">Status</h5>
+                    <Badge variant={getStatusBadge((selectedItem as Agreement).status)}>
+                      {(selectedItem as Agreement).status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-medium mb-1">Created</h5>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate((selectedItem as Agreement).createdAt)}
+                    </p>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-medium mb-1">Last Updated</h5>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate((selectedItem as Agreement).updatedAt)}
+                    </p>
+                  </div>
+                </div>
+                {(selectedItem as Agreement).assets.length > 0 && (
+                  <div>
+                    <h5 className="text-sm font-medium mb-2">Allocated Assets</h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(selectedItem as Agreement).assets.map((aa) => (
+                        <div key={aa.id} className="text-sm p-3 bg-muted/50 rounded">
+                          <div className="font-medium">{aa.asset.name}</div>
+                          <div className="text-muted-foreground text-xs">
+                            {aa.asset.type}
+                            {aa.allocatedPercentage && ` • ${aa.allocatedPercentage}%`}
+                            {aa.allocatedValue && ` • ${formatCurrency(aa.allocatedValue)}`}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {(selectedItem as Agreement).beneficiaries.length > 0 && (
+                  <div>
+                    <h5 className="text-sm font-medium mb-2">Beneficiaries</h5>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(selectedItem as Agreement).beneficiaries.map((ab) => (
+                        <div key={ab.id} className="text-sm p-3 bg-muted/50 rounded">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium">
+                              {ab.familyMember?.familyMemberUser?.name ||
+                                ab.nonRegisteredFamilyMember?.name}
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {ab.familyMember?.relation || ab.nonRegisteredFamilyMember?.relation}
+                            </Badge>
+                          </div>
+                          <div className="text-muted-foreground text-xs mb-2">
+                            {ab.sharePercentage}% share
+                            {ab.shareDescription && ` • ${ab.shareDescription}`}
+                          </div>
+                          <div className="flex gap-3 text-xs">
+                            <span
+                              className={ab.hasSigned ? 'text-green-600' : 'text-red-600'}
+                            >
+                              {ab.hasSigned ? 'Signed' : 'Not Signed'}
+                            </span>
+                            {ab.isAccepted === true && (
+                              <span className="text-green-600">Accepted</span>
+                            )}
+                            {ab.isAccepted === false && (
+                              <span className="text-red-600">Rejected</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : detailType === 'asset' && selectedItem ? (
+              <div className="space-y-4">
+                <div>
+                  <h5 className="text-sm font-medium mb-1">Name</h5>
+                  <p className="text-base">{(selectedItem as Asset).name}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="text-sm font-medium mb-1">Type</h5>
+                    <Badge variant="outline">{(selectedItem as Asset).type}</Badge>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-medium mb-1">Value</h5>
+                    <p className="text-base font-medium">
+                      {formatCurrency((selectedItem as Asset).value)}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <h5 className="text-sm font-medium mb-1">Description</h5>
+                  <p className="text-sm text-muted-foreground">
+                    {(selectedItem as Asset).description || 'No description'}
+                  </p>
+                </div>
+                {(selectedItem as Asset).documentUrl && (
+                  <div>
+                    <h5 className="text-sm font-medium mb-1">Document</h5>
+                    <a
+                      href={(selectedItem as Asset).documentUrl!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary hover:underline"
+                    >
+                      View Document
+                    </a>
+                  </div>
+                )}
+                <div>
+                  <h5 className="text-sm font-medium mb-1">Created</h5>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDate((selectedItem as Asset).createdAt)}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setDetailDialogOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

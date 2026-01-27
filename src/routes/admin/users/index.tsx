@@ -51,6 +51,67 @@ interface UsersResponse {
   }
 }
 
+interface Asset {
+  id: string
+  name: string
+  type: string
+  description: string | null
+  value: number | null
+  documentUrl: string | null
+  createdAt: string
+}
+
+interface AgreementAsset {
+  id: string
+  assetId: string
+  allocatedValue: number | null
+  allocatedPercentage: number | null
+  asset: {
+    name: string
+    type: string
+  }
+}
+
+interface Beneficiary {
+  id: string
+  familyMemberId: string | null
+  nonRegisteredFamilyMemberId: string | null
+  sharePercentage: number | null
+  shareDescription: string | null
+  hasSigned: boolean
+  isAccepted: boolean
+  familyMember: {
+    relation: string
+    familyMemberUser: {
+      name: string
+    } | null
+  } | null
+  nonRegisteredFamilyMember: {
+    name: string
+    relation: string
+  } | null
+}
+
+interface Agreement {
+  id: string
+  title: string
+  description: string | null
+  distributionType: string
+  status: string
+  createdAt: string
+  updatedAt: string
+  assets: AgreementAsset[]
+  beneficiaries: Beneficiary[]
+}
+
+interface UserDetails {
+  id: string
+  name: string
+  email: string
+  assets: Asset[]
+  agreements: Agreement[]
+}
+
 export const Route = createFileRoute('/admin/users/')({
   loader: async () => {
     const admin = await getAdminSession()
@@ -77,7 +138,11 @@ function RouteComponent() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
+  const [detailsLoading, setDetailsLoading] = useState(false)
+  const [selectedAgreement, setSelectedAgreement] = useState<Agreement | null>(null)
 
   // Form states
   const [createForm, setCreateForm] = useState({
@@ -229,6 +294,28 @@ function RouteComponent() {
     }
   }
 
+  // View user details handlers
+  const openDetailsDialog = async (user: User, _view: 'agreements' | 'assets') => {
+    setSelectedUser(user)
+    setDetailsDialogOpen(true)
+    setDetailsLoading(true)
+
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}/detail`)
+      if (response.ok) {
+        const data = await response.json()
+        setUserDetails(data.user)
+      } else {
+        toast.error('Failed to fetch user details')
+      }
+    } catch (error) {
+      console.error('Error fetching user details:', error)
+      toast.error('Failed to fetch user details')
+    } finally {
+      setDetailsLoading(false)
+    }
+  }
+
   // Format date
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()
@@ -307,9 +394,33 @@ function RouteComponent() {
                       </TableCell>
                       <TableCell>{formatDate(user.createdAt)}</TableCell>
                       <TableCell>
-                        <span className="text-xs text-muted-foreground">
-                          {user._count.agreements} agreements, {user._count.assets} assets
-                        </span>
+                        <div className="flex gap-3 text-xs">
+                          {user._count.agreements > 0 ? (
+                            <button
+                              onClick={() => openDetailsDialog(user, 'agreements')}
+                              className="hover:underline hover:text-primary cursor-pointer text-muted-foreground"
+                            >
+                              {user._count.agreements} agreements
+                            </button>
+                          ) : (
+                            <span className="text-muted-foreground">
+                              {user._count.agreements} agreements
+                            </span>
+                          )}
+                          <span className="text-muted-foreground">•</span>
+                          {user._count.assets > 0 ? (
+                            <button
+                              onClick={() => openDetailsDialog(user, 'assets')}
+                              className="hover:underline hover:text-primary cursor-pointer text-muted-foreground"
+                            >
+                              {user._count.assets} assets
+                            </button>
+                          ) : (
+                            <span className="text-muted-foreground">
+                              {user._count.assets} assets
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
@@ -553,6 +664,234 @@ function RouteComponent() {
               disabled={selectedUser ? (selectedUser._count.agreements > 0 || selectedUser._count.assets > 0) : true}
             >
               Delete User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* User Details Dialog */}
+      <Dialog
+        open={detailsDialogOpen}
+        onOpenChange={(open) => {
+          setDetailsDialogOpen(open)
+          if (!open) {
+            setUserDetails(null)
+            setSelectedAgreement(null)
+          }
+        }}
+      >
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>User Details</DialogTitle>
+            <DialogDescription>
+              {selectedUser?.name} ({selectedUser?.email})
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {detailsLoading ? (
+              <div className="text-center py-8">Loading...</div>
+            ) : userDetails ? (
+              <div className="space-y-6">
+                {/* Agreements Section */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">
+                    Agreements ({userDetails.agreements.length})
+                  </h3>
+                  {userDetails.agreements.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No agreements found</p>
+                  ) : (
+                    <div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Assets</TableHead>
+                            <TableHead>Beneficiaries</TableHead>
+                            <TableHead>Created</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {userDetails.agreements.map((agreement) => (
+                            <>
+                              <TableRow
+                                key={agreement.id}
+                                className="cursor-pointer hover:bg-muted/50"
+                                onClick={() =>
+                                  setSelectedAgreement(
+                                    selectedAgreement?.id === agreement.id ? null : agreement
+                                  )
+                                }
+                              >
+                                <TableCell className="font-medium">{agreement.title}</TableCell>
+                                <TableCell>{agreement.distributionType}</TableCell>
+                                <TableCell>
+                                  <span
+                                    className={`px-2 py-1 rounded text-xs ${
+                                      agreement.status === 'ACTIVE'
+                                        ? 'bg-green-100 text-green-700'
+                                        : agreement.status === 'DRAFT'
+                                          ? 'bg-yellow-100 text-yellow-700'
+                                          : 'bg-gray-100 text-gray-700'
+                                    }`}
+                                  >
+                                    {agreement.status}
+                                  </span>
+                                </TableCell>
+                                <TableCell>{agreement.assets.length}</TableCell>
+                                <TableCell>{agreement.beneficiaries.length}</TableCell>
+                                <TableCell>{formatDate(agreement.createdAt)}</TableCell>
+                              </TableRow>
+                              {selectedAgreement?.id === agreement.id && (
+                                <TableRow>
+                                  <TableCell colSpan={6} className="bg-muted/30">
+                                    <div className="p-4 space-y-4">
+                                      {agreement.description && (
+                                        <div>
+                                          <h5 className="text-sm font-medium mb-1">Description</h5>
+                                          <p className="text-sm text-muted-foreground">
+                                            {agreement.description}
+                                          </p>
+                                        </div>
+                                      )}
+
+                                      {/* Assets in agreement */}
+                                      {agreement.assets.length > 0 && (
+                                        <div>
+                                          <h5 className="text-sm font-medium mb-2">Assets:</h5>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            {agreement.assets.map((aa) => (
+                                              <div
+                                                key={aa.id}
+                                                className="text-sm p-3 bg-background border rounded"
+                                              >
+                                                <div className="font-medium">{aa.asset.name}</div>
+                                                <div className="text-muted-foreground text-xs">
+                                                  {aa.asset.type}
+                                                  {aa.allocatedPercentage &&
+                                                    ` • ${aa.allocatedPercentage}%`}
+                                                  {aa.allocatedValue &&
+                                                    ` • RM${aa.allocatedValue.toLocaleString()}`}
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Beneficiaries */}
+                                      {agreement.beneficiaries.length > 0 && (
+                                        <div>
+                                          <h5 className="text-sm font-medium mb-2">Beneficiaries:</h5>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            {agreement.beneficiaries.map((beneficiary) => (
+                                              <div
+                                                key={beneficiary.id}
+                                                className="text-sm p-3 bg-background border rounded"
+                                              >
+                                                <div className="font-medium">
+                                                  {beneficiary.familyMember?.familyMemberUser?.name ||
+                                                    beneficiary.nonRegisteredFamilyMember?.name}
+                                                </div>
+                                                <div className="text-muted-foreground text-xs">
+                                                  {beneficiary.familyMember?.relation ||
+                                                    beneficiary.nonRegisteredFamilyMember?.relation}
+                                                  {beneficiary.sharePercentage &&
+                                                    ` • ${beneficiary.sharePercentage}%`}
+                                                  {beneficiary.shareDescription &&
+                                                    ` • ${beneficiary.shareDescription}`}
+                                                </div>
+                                                <div className="flex gap-3 mt-2 text-xs">
+                                                  <span
+                                                    className={
+                                                      beneficiary.hasSigned
+                                                        ? 'text-green-600'
+                                                        : 'text-red-600'
+                                                    }
+                                                  >
+                                                    {beneficiary.hasSigned ? 'Signed' : 'Not Signed'}
+                                                  </span>
+                                                  <span
+                                                    className={
+                                                      beneficiary.isAccepted
+                                                        ? 'text-green-600'
+                                                        : 'text-red-600'
+                                                    }
+                                                  >
+                                                    {beneficiary.isAccepted
+                                                      ? 'Accepted'
+                                                      : 'Not Accepted'}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Assets Section */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">
+                    Assets ({userDetails.assets.length})
+                  </h3>
+                  {userDetails.assets.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No assets found</p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      {userDetails.assets.map((asset) => (
+                        <div key={asset.id} className="border rounded-lg p-4 space-y-2">
+                          <h4 className="font-medium">{asset.name}</h4>
+                          <p className="text-sm text-muted-foreground">{asset.type}</p>
+                          {asset.description && (
+                            <p className="text-sm text-muted-foreground">
+                              {asset.description}
+                            </p>
+                          )}
+                          {asset.value && (
+                            <p className="text-sm font-medium">
+                              Value: RM{asset.value.toLocaleString()}
+                            </p>
+                          )}
+                          {asset.documentUrl && (
+                            <a
+                              href={asset.documentUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-primary hover:underline"
+                            >
+                              View Document
+                            </a>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            Added {formatDate(asset.createdAt)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                No details available
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setDetailsDialogOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
