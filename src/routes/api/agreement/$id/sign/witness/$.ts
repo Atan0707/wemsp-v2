@@ -1,17 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { auth } from '@/lib/auth'
 import { prisma } from '@/db'
-import { AgreementStatus } from '@/generated/prisma/enums'
+import { getAdminFromSession } from '@/lib/admin-auth'
 
 export const Route = createFileRoute('/api/agreement/$id/sign/witness/$')({
   server: {
     handlers: {
       POST: async ({ request, params }: { request: Request; params: { id: string } }) => {
-        const session = await auth.api.getSession({
-          headers: request.headers,
-        })
+        const adminSession = await getAdminFromSession(request.headers)
 
-        if (!session) {
+        if (!adminSession) {
           return new Response('Unauthorized', { status: 401 })
         }
 
@@ -46,10 +43,10 @@ export const Route = createFileRoute('/api/agreement/$id/sign/witness/$')({
             )
           }
 
-          // Check if user is an admin
+          // Verify admin is still active
           const admin = await prisma.admin.findFirst({
             where: {
-              email: session.user.email,
+              id: adminSession.adminId,
               isActive: true,
             },
           })
@@ -65,7 +62,7 @@ export const Route = createFileRoute('/api/agreement/$id/sign/witness/$')({
           const updatedAgreement = await prisma.agreement.update({
             where: { id: agreementId },
             data: {
-              witnessId: admin.id,
+              witnessId: adminSession.adminId,
               witnessedAt: new Date(),
               status: 'ACTIVE',
             },

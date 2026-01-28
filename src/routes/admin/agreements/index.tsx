@@ -527,8 +527,13 @@ function RouteComponent() {
         setSelectedAgreement(null)
         fetchAgreements(pagination.page, searchQuery)
       } else {
-        const error = await response.json()
-        toast.error(error.error || 'Failed to witness agreement')
+        const errorText = await response.text()
+        try {
+          const error = JSON.parse(errorText)
+          toast.error(error.error || 'Failed to witness agreement')
+        } catch {
+          toast.error(errorText || 'Failed to witness agreement')
+        }
       }
     } catch (error) {
       console.error('Error witnessing agreement:', error)
