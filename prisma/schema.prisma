@@ -243,6 +243,8 @@ model Admin {
 
   // Agreements witnessed by this admin
   witnessedAgreements Agreement[]
+  // Beneficiaries signed by this admin (proxy signing)
+  proxySignedBeneficiaries AgreementBeneficiary[] @relation("AdminProxySigning")
 
   @@map("admin")
 }
@@ -313,36 +315,42 @@ model AgreementAsset {
 // Tracks beneficiaries with their share and signature status
 model AgreementBeneficiary {
   id            String    @id @default(cuid())
-  
+
   agreementId   String
   agreement     Agreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
-  
+
   // Beneficiary can be either a registered family member OR non-registered
   // Only one should be set at a time
   familyMemberId              Int?
   familyMember                FamilyMember? @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
-  
+
   nonRegisteredFamilyMemberId Int?
   nonRegisteredFamilyMember   NonRegisteredFamilyMember? @relation(fields: [nonRegisteredFamilyMemberId], references: [id], onDelete: SetNull)
-  
+
   // Distribution share
   sharePercentage   Float         // Percentage of total distribution
   shareDescription  String?       // E.g., "1/6 as per Faraid for mother"
-  
+
   // Signature tracking
   hasSigned         Boolean       @default(false)
   signedAt          DateTime?
   signatureRef      String?       // Reference to signature document/hash
-  
+
   // Status
   isAccepted        Boolean?      // null = pending, true = accepted, false = rejected
   rejectionReason   String?
-  
+
+  // Admin signing audit fields
+  adminNotes      String?
+  adminSignedById String?
+  adminSignedBy   Admin?   @relation("AdminProxySigning", fields: [adminSignedById], references: [id])
+
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
   @@index([agreementId])
   @@index([familyMemberId])
   @@index([nonRegisteredFamilyMemberId])
+  @@index([adminSignedById])
   @@map("agreement_beneficiary")
 }
