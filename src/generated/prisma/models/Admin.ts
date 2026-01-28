@@ -199,6 +199,7 @@ export type AdminWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Admin"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Admin"> | Date | string
   witnessedAgreements?: Prisma.AgreementListRelationFilter
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryListRelationFilter
 }
 
 export type AdminOrderByWithRelationInput = {
@@ -210,6 +211,7 @@ export type AdminOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   witnessedAgreements?: Prisma.AgreementOrderByRelationAggregateInput
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryOrderByRelationAggregateInput
 }
 
 export type AdminWhereUniqueInput = Prisma.AtLeast<{
@@ -224,6 +226,7 @@ export type AdminWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Admin"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Admin"> | Date | string
   witnessedAgreements?: Prisma.AgreementListRelationFilter
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryListRelationFilter
 }, "id" | "email">
 
 export type AdminOrderByWithAggregationInput = {
@@ -261,6 +264,7 @@ export type AdminCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   witnessedAgreements?: Prisma.AgreementCreateNestedManyWithoutWitnessInput
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryCreateNestedManyWithoutAdminSignedByInput
 }
 
 export type AdminUncheckedCreateInput = {
@@ -272,6 +276,7 @@ export type AdminUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   witnessedAgreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutWitnessInput
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryUncheckedCreateNestedManyWithoutAdminSignedByInput
 }
 
 export type AdminUpdateInput = {
@@ -283,6 +288,7 @@ export type AdminUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   witnessedAgreements?: Prisma.AgreementUpdateManyWithoutWitnessNestedInput
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryUpdateManyWithoutAdminSignedByNestedInput
 }
 
 export type AdminUncheckedUpdateInput = {
@@ -294,6 +300,7 @@ export type AdminUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   witnessedAgreements?: Prisma.AgreementUncheckedUpdateManyWithoutWitnessNestedInput
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryUncheckedUpdateManyWithoutAdminSignedByNestedInput
 }
 
 export type AdminCreateManyInput = {
@@ -377,6 +384,22 @@ export type AdminUpdateOneWithoutWitnessedAgreementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUpdateToOneWithWhereWithoutWitnessedAgreementsInput, Prisma.AdminUpdateWithoutWitnessedAgreementsInput>, Prisma.AdminUncheckedUpdateWithoutWitnessedAgreementsInput>
 }
 
+export type AdminCreateNestedOneWithoutProxySignedBeneficiariesInput = {
+  create?: Prisma.XOR<Prisma.AdminCreateWithoutProxySignedBeneficiariesInput, Prisma.AdminUncheckedCreateWithoutProxySignedBeneficiariesInput>
+  connectOrCreate?: Prisma.AdminCreateOrConnectWithoutProxySignedBeneficiariesInput
+  connect?: Prisma.AdminWhereUniqueInput
+}
+
+export type AdminUpdateOneWithoutProxySignedBeneficiariesNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminCreateWithoutProxySignedBeneficiariesInput, Prisma.AdminUncheckedCreateWithoutProxySignedBeneficiariesInput>
+  connectOrCreate?: Prisma.AdminCreateOrConnectWithoutProxySignedBeneficiariesInput
+  upsert?: Prisma.AdminUpsertWithoutProxySignedBeneficiariesInput
+  disconnect?: Prisma.AdminWhereInput | boolean
+  delete?: Prisma.AdminWhereInput | boolean
+  connect?: Prisma.AdminWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUpdateToOneWithWhereWithoutProxySignedBeneficiariesInput, Prisma.AdminUpdateWithoutProxySignedBeneficiariesInput>, Prisma.AdminUncheckedUpdateWithoutProxySignedBeneficiariesInput>
+}
+
 export type AdminCreateWithoutWitnessedAgreementsInput = {
   id?: string
   name: string
@@ -385,6 +408,7 @@ export type AdminCreateWithoutWitnessedAgreementsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryCreateNestedManyWithoutAdminSignedByInput
 }
 
 export type AdminUncheckedCreateWithoutWitnessedAgreementsInput = {
@@ -395,6 +419,7 @@ export type AdminUncheckedCreateWithoutWitnessedAgreementsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryUncheckedCreateNestedManyWithoutAdminSignedByInput
 }
 
 export type AdminCreateOrConnectWithoutWitnessedAgreementsInput = {
@@ -421,6 +446,7 @@ export type AdminUpdateWithoutWitnessedAgreementsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryUpdateManyWithoutAdminSignedByNestedInput
 }
 
 export type AdminUncheckedUpdateWithoutWitnessedAgreementsInput = {
@@ -431,6 +457,67 @@ export type AdminUncheckedUpdateWithoutWitnessedAgreementsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  proxySignedBeneficiaries?: Prisma.AgreementBeneficiaryUncheckedUpdateManyWithoutAdminSignedByNestedInput
+}
+
+export type AdminCreateWithoutProxySignedBeneficiariesInput = {
+  id?: string
+  name: string
+  email: string
+  password: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  witnessedAgreements?: Prisma.AgreementCreateNestedManyWithoutWitnessInput
+}
+
+export type AdminUncheckedCreateWithoutProxySignedBeneficiariesInput = {
+  id?: string
+  name: string
+  email: string
+  password: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  witnessedAgreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutWitnessInput
+}
+
+export type AdminCreateOrConnectWithoutProxySignedBeneficiariesInput = {
+  where: Prisma.AdminWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminCreateWithoutProxySignedBeneficiariesInput, Prisma.AdminUncheckedCreateWithoutProxySignedBeneficiariesInput>
+}
+
+export type AdminUpsertWithoutProxySignedBeneficiariesInput = {
+  update: Prisma.XOR<Prisma.AdminUpdateWithoutProxySignedBeneficiariesInput, Prisma.AdminUncheckedUpdateWithoutProxySignedBeneficiariesInput>
+  create: Prisma.XOR<Prisma.AdminCreateWithoutProxySignedBeneficiariesInput, Prisma.AdminUncheckedCreateWithoutProxySignedBeneficiariesInput>
+  where?: Prisma.AdminWhereInput
+}
+
+export type AdminUpdateToOneWithWhereWithoutProxySignedBeneficiariesInput = {
+  where?: Prisma.AdminWhereInput
+  data: Prisma.XOR<Prisma.AdminUpdateWithoutProxySignedBeneficiariesInput, Prisma.AdminUncheckedUpdateWithoutProxySignedBeneficiariesInput>
+}
+
+export type AdminUpdateWithoutProxySignedBeneficiariesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  witnessedAgreements?: Prisma.AgreementUpdateManyWithoutWitnessNestedInput
+}
+
+export type AdminUncheckedUpdateWithoutProxySignedBeneficiariesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  witnessedAgreements?: Prisma.AgreementUncheckedUpdateManyWithoutWitnessNestedInput
 }
 
 
@@ -440,10 +527,12 @@ export type AdminUncheckedUpdateWithoutWitnessedAgreementsInput = {
 
 export type AdminCountOutputType = {
   witnessedAgreements: number
+  proxySignedBeneficiaries: number
 }
 
 export type AdminCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   witnessedAgreements?: boolean | AdminCountOutputTypeCountWitnessedAgreementsArgs
+  proxySignedBeneficiaries?: boolean | AdminCountOutputTypeCountProxySignedBeneficiariesArgs
 }
 
 /**
@@ -463,6 +552,13 @@ export type AdminCountOutputTypeCountWitnessedAgreementsArgs<ExtArgs extends run
   where?: Prisma.AgreementWhereInput
 }
 
+/**
+ * AdminCountOutputType without action
+ */
+export type AdminCountOutputTypeCountProxySignedBeneficiariesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AgreementBeneficiaryWhereInput
+}
+
 
 export type AdminSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -473,6 +569,7 @@ export type AdminSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   createdAt?: boolean
   updatedAt?: boolean
   witnessedAgreements?: boolean | Prisma.Admin$witnessedAgreementsArgs<ExtArgs>
+  proxySignedBeneficiaries?: boolean | Prisma.Admin$proxySignedBeneficiariesArgs<ExtArgs>
   _count?: boolean | Prisma.AdminCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["admin"]>
 
@@ -509,6 +606,7 @@ export type AdminSelectScalar = {
 export type AdminOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["admin"]>
 export type AdminInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   witnessedAgreements?: boolean | Prisma.Admin$witnessedAgreementsArgs<ExtArgs>
+  proxySignedBeneficiaries?: boolean | Prisma.Admin$proxySignedBeneficiariesArgs<ExtArgs>
   _count?: boolean | Prisma.AdminCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AdminIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -518,6 +616,7 @@ export type $AdminPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name: "Admin"
   objects: {
     witnessedAgreements: Prisma.$AgreementPayload<ExtArgs>[]
+    proxySignedBeneficiaries: Prisma.$AgreementBeneficiaryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -922,6 +1021,7 @@ readonly fields: AdminFieldRefs;
 export interface Prisma__AdminClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   witnessedAgreements<T extends Prisma.Admin$witnessedAgreementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Admin$witnessedAgreementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgreementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  proxySignedBeneficiaries<T extends Prisma.Admin$proxySignedBeneficiariesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Admin$proxySignedBeneficiariesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgreementBeneficiaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1367,6 +1467,30 @@ export type Admin$witnessedAgreementsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.AgreementScalarFieldEnum | Prisma.AgreementScalarFieldEnum[]
+}
+
+/**
+ * Admin.proxySignedBeneficiaries
+ */
+export type Admin$proxySignedBeneficiariesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AgreementBeneficiary
+   */
+  select?: Prisma.AgreementBeneficiarySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AgreementBeneficiary
+   */
+  omit?: Prisma.AgreementBeneficiaryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgreementBeneficiaryInclude<ExtArgs> | null
+  where?: Prisma.AgreementBeneficiaryWhereInput
+  orderBy?: Prisma.AgreementBeneficiaryOrderByWithRelationInput | Prisma.AgreementBeneficiaryOrderByWithRelationInput[]
+  cursor?: Prisma.AgreementBeneficiaryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AgreementBeneficiaryScalarFieldEnum | Prisma.AgreementBeneficiaryScalarFieldEnum[]
 }
 
 /**

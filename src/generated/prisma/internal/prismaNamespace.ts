@@ -1597,6 +1597,8 @@ export const AgreementBeneficiaryScalarFieldEnum = {
   signatureRef: 'signatureRef',
   isAccepted: 'isAccepted',
   rejectionReason: 'rejectionReason',
+  adminNotes: 'adminNotes',
+  adminSignedById: 'adminSignedById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

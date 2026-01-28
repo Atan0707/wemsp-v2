@@ -158,6 +158,8 @@ function RouteComponent() {
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [witnessDialogOpen, setWitnessDialogOpen] = useState(false)
+  const [witnessing, setWitnessing] = useState(false)
   const [selectedAgreement, setSelectedAgreement] = useState<Agreement | null>(null)
 
   // Form states
@@ -503,6 +505,39 @@ function RouteComponent() {
     setViewDialogOpen(true)
   }
 
+  // Witness agreement handlers
+  const openWitnessDialog = (agreement: Agreement) => {
+    setSelectedAgreement(agreement)
+    setWitnessDialogOpen(true)
+  }
+
+  const handleWitnessAgreement = async () => {
+    if (!selectedAgreement) return
+
+    setWitnessing(true)
+    try {
+      const response = await fetch(`/api/agreement/${selectedAgreement.id}/sign/witness/`, {
+        method: 'POST',
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        toast.success(data.message || 'Agreement witnessed successfully')
+        setWitnessDialogOpen(false)
+        setSelectedAgreement(null)
+        fetchAgreements(pagination.page, searchQuery)
+      } else {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to witness agreement')
+      }
+    } catch (error) {
+      console.error('Error witnessing agreement:', error)
+      toast.error('Failed to witness agreement')
+    } finally {
+      setWitnessing(false)
+    }
+  }
+
   // Format date
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-'
@@ -638,6 +673,16 @@ function RouteComponent() {
                       >
                         <EyeIcon className="h-4 w-4" />
                       </Button>
+                      {agreement.status === 'PENDING_WITNESS' && (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => openWitnessDialog(agreement)}
+                        >
+                          <CheckCircle2Icon className="h-4 w-4 mr-2" />
+                          Witness
+                        </Button>
+                      )}
                       {agreement.status === 'DRAFT' && (
                         <>
                           <Button
@@ -1369,6 +1414,67 @@ function RouteComponent() {
           <DialogFooter>
             <Button onClick={() => setViewDialogOpen(false)}>
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Witness Agreement Dialog */}
+      <Dialog open={witnessDialogOpen} onOpenChange={setWitnessDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Witness Agreement</DialogTitle>
+            <DialogDescription>
+              You are about to witness this agreement. By confirming, you verify that all parties
+              have signed and the agreement is ready to be activated.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedAgreement && (
+            <div className="py-4 space-y-4">
+              <div className="space-y-2">
+                <h3 className="font-semibold">{selectedAgreement.title}</h3>
+                {selectedAgreement.description && (
+                  <p className="text-sm text-muted-foreground">{selectedAgreement.description}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Owner:</span>
+                  <p className="font-medium">{selectedAgreement.owner.name}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Distribution Type:</span>
+                  <p>{selectedAgreement.distributionType}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Effective Date:</span>
+                  <p>{formatDate(selectedAgreement.effectiveDate)}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Assets:</span>
+                  <p>{selectedAgreement._count.assets}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2Icon className="h-4 w-4 text-green-600" />
+                  <span>Owner has signed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2Icon className="h-4 w-4 text-green-600" />
+                  <span>All {selectedAgreement.signedBeneficiaryCount} beneficiaries have signed</span>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setWitnessDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleWitnessAgreement} disabled={witnessing}>
+              {witnessing ? 'Witnessing...' : 'Confirm Witness'}
             </Button>
           </DialogFooter>
         </DialogContent>
