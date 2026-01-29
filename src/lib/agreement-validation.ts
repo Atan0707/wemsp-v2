@@ -309,3 +309,10 @@ export function canEditAgreement(status: AgreementStatus, userId: string, ownerI
 export function canCancelAgreement(status: AgreementStatus): boolean {
   return ['DRAFT', 'PENDING_SIGNATURES', 'PENDING_WITNESS'].includes(status)
 }
+
+/**
+ * Check if an agreement can be completed
+ */
+export function canComplete(status: AgreementStatus): boolean {
+  return status === 'ACTIVE'
+}

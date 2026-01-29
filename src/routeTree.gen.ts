@@ -44,6 +44,7 @@ import { Route as AdminUsersIdRouteImport } from './routes/admin/users/$id'
 import { Route as AppAssetsViewIndexRouteImport } from './routes/app/assets/view/index'
 import { Route as AppAssetsEditIndexRouteImport } from './routes/app/assets/edit/index'
 import { Route as AppAgreementViewIndexRouteImport } from './routes/app/agreement/view/index'
+import { Route as ApiUploadJsonIndexRouteImport } from './routes/api/upload/json/index'
 import { Route as AdminAgreementsSignByIcIndexRouteImport } from './routes/admin/agreements/sign-by-ic/index'
 import { Route as AdminAgreementsPendingWitnessIndexRouteImport } from './routes/admin/agreements/pending-witness/index'
 import { Route as AppAssetsViewIdRouteImport } from './routes/app/assets/view/$id'
@@ -243,6 +244,11 @@ const AppAgreementViewIndexRoute = AppAgreementViewIndexRouteImport.update({
   path: '/agreement/view/',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiUploadJsonIndexRoute = ApiUploadJsonIndexRouteImport.update({
+  id: '/api/upload/json/',
+  path: '/api/upload/json/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAgreementsSignByIcIndexRoute =
   AdminAgreementsSignByIcIndexRouteImport.update({
     id: '/agreements/sign-by-ic/',
@@ -415,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/app/assets/view/$id': typeof AppAssetsViewIdRoute
   '/admin/agreements/pending-witness': typeof AdminAgreementsPendingWitnessIndexRoute
   '/admin/agreements/sign-by-ic': typeof AdminAgreementsSignByIcIndexRoute
+  '/api/upload/json': typeof ApiUploadJsonIndexRoute
   '/app/agreement/view': typeof AppAgreementViewIndexRoute
   '/app/assets/edit': typeof AppAssetsEditIndexRoute
   '/app/assets/view': typeof AppAssetsViewIndexRoute
@@ -474,6 +481,7 @@ export interface FileRoutesByTo {
   '/app/assets/view/$id': typeof AppAssetsViewIdRoute
   '/admin/agreements/pending-witness': typeof AdminAgreementsPendingWitnessIndexRoute
   '/admin/agreements/sign-by-ic': typeof AdminAgreementsSignByIcIndexRoute
+  '/api/upload/json': typeof ApiUploadJsonIndexRoute
   '/app/agreement/view': typeof AppAgreementViewIndexRoute
   '/app/assets/edit': typeof AppAssetsEditIndexRoute
   '/app/assets/view': typeof AppAssetsViewIndexRoute
@@ -535,6 +543,7 @@ export interface FileRoutesById {
   '/app/assets/view/$id': typeof AppAssetsViewIdRoute
   '/admin/agreements/pending-witness/': typeof AdminAgreementsPendingWitnessIndexRoute
   '/admin/agreements/sign-by-ic/': typeof AdminAgreementsSignByIcIndexRoute
+  '/api/upload/json/': typeof ApiUploadJsonIndexRoute
   '/app/agreement/view/': typeof AppAgreementViewIndexRoute
   '/app/assets/edit/': typeof AppAssetsEditIndexRoute
   '/app/assets/view/': typeof AppAssetsViewIndexRoute
@@ -597,6 +606,7 @@ export interface FileRouteTypes {
     | '/app/assets/view/$id'
     | '/admin/agreements/pending-witness'
     | '/admin/agreements/sign-by-ic'
+    | '/api/upload/json'
     | '/app/agreement/view'
     | '/app/assets/edit'
     | '/app/assets/view'
@@ -656,6 +666,7 @@ export interface FileRouteTypes {
     | '/app/assets/view/$id'
     | '/admin/agreements/pending-witness'
     | '/admin/agreements/sign-by-ic'
+    | '/api/upload/json'
     | '/app/agreement/view'
     | '/app/assets/edit'
     | '/app/assets/view'
@@ -716,6 +727,7 @@ export interface FileRouteTypes {
     | '/app/assets/view/$id'
     | '/admin/agreements/pending-witness/'
     | '/admin/agreements/sign-by-ic/'
+    | '/api/upload/json/'
     | '/app/agreement/view/'
     | '/app/assets/edit/'
     | '/app/assets/view/'
@@ -752,6 +764,7 @@ export interface RootRouteChildren {
   ApiAdminSessionSplatRoute: typeof ApiAdminSessionSplatRoute
   ApiAdminUsersSplatRoute: typeof ApiAdminUsersSplatRoute
   ApiUserProfileSplatRoute: typeof ApiUserProfileSplatRoute
+  ApiUploadJsonIndexRoute: typeof ApiUploadJsonIndexRoute
   ApiAdminAgreementsByIcIcNumberRoute: typeof ApiAdminAgreementsByIcIcNumberRoute
   ApiAdminAgreementsPendingWitnessSplatRoute: typeof ApiAdminAgreementsPendingWitnessSplatRoute
   ApiAdminAgreementsSignOnBehalfSplatRoute: typeof ApiAdminAgreementsSignOnBehalfSplatRoute
@@ -1012,6 +1025,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAgreementViewIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/upload/json/': {
+      id: '/api/upload/json/'
+      path: '/api/upload/json'
+      fullPath: '/api/upload/json'
+      preLoaderRoute: typeof ApiUploadJsonIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/agreements/sign-by-ic/': {
       id: '/admin/agreements/sign-by-ic/'
       path: '/agreements/sign-by-ic'
@@ -1269,6 +1289,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminSessionSplatRoute: ApiAdminSessionSplatRoute,
   ApiAdminUsersSplatRoute: ApiAdminUsersSplatRoute,
   ApiUserProfileSplatRoute: ApiUserProfileSplatRoute,
+  ApiUploadJsonIndexRoute: ApiUploadJsonIndexRoute,
   ApiAdminAgreementsByIcIcNumberRoute: ApiAdminAgreementsByIcIcNumberRoute,
   ApiAdminAgreementsPendingWitnessSplatRoute:
     ApiAdminAgreementsPendingWitnessSplatRoute,

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Upload, FileText, CheckCircle, XCircle, Trash2 } from 'lucide-react'
+import { Upload, FileText, CheckCircle, XCircle, Trash2, FileJson } from 'lucide-react'
 import { getFileUrl } from '@/lib/aws'
 
 export const Route = createFileRoute('/test-upload')({
@@ -21,6 +21,9 @@ function TestUploadPage() {
   const [uploading, setUploading] = useState(false)
   const [result, setResult] = useState<UploadResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [jsonUploading, setJsonUploading] = useState(false)
+  const [jsonResult, setJsonResult] = useState<{ url: string; key: string } | null>(null)
+  const [jsonError, setJsonError] = useState<string | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -76,6 +79,32 @@ function TestUploadPage() {
       setFile(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete file')
+    }
+  }
+
+  const handleJsonUpload = async () => {
+    setJsonUploading(true)
+    setJsonError(null)
+    setJsonResult(null)
+
+    try {
+      const response = await fetch('/api/upload/json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: 'Hello World' }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Upload failed')
+      }
+
+      const data = await response.json()
+      setJsonResult({ url: data.url, key: data.key })
+    } catch (err) {
+      setJsonError(err instanceof Error ? err.message : 'Failed to upload JSON')
+    } finally {
+      setJsonUploading(false)
     }
   }
 
@@ -135,6 +164,68 @@ function TestUploadPage() {
               </>
             )}
           </button>
+        </div>
+
+        {/* JSON Test Upload */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Test JSON Upload</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Upload a test JSON file with content <code className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">{`{ "text": "Hello World" }`}</code> to the <code className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">/test</code> folder.
+          </p>
+
+          <button
+            onClick={handleJsonUpload}
+            disabled={jsonUploading}
+            className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+          >
+            {jsonUploading ? (
+              <>Uploading JSON...</>
+            ) : (
+              <>
+                <FileJson className="w-4 h-4" />
+                Upload Test JSON
+              </>
+            )}
+          </button>
+
+          {/* JSON Error Display */}
+          {jsonError && (
+            <div className="mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                <XCircle className="w-5 h-5" />
+                <p className="text-sm">{jsonError}</p>
+              </div>
+            </div>
+          )}
+
+          {/* JSON Success Display */}
+          {jsonResult && (
+            <div className="mt-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-green-600 dark:text-green-400 mb-2">
+                <CheckCircle className="w-5 h-5" />
+                <p className="font-medium text-sm">JSON Upload Successful!</p>
+              </div>
+              <div className="space-y-1 text-sm">
+                <div>
+                  <span className="font-medium">S3 Key:</span>
+                  <code className="ml-1 px-2 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">
+                    {jsonResult.key}
+                  </code>
+                </div>
+                <div>
+                  <span className="font-medium">URL:</span>
+                  <a
+                    href={getFileUrl(jsonResult.key)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1 text-green-600 dark:text-green-400 hover:underline break-all"
+                  >
+                    {window.location.origin + getFileUrl(jsonResult.key)}
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Error Display */}
