@@ -264,16 +264,23 @@ model Agreement {
   // Owner signature tracking
   ownerHasSigned    Boolean          @default(false)
   ownerSignedAt     DateTime?
-  ownerSignatureRef String?          // Reference to signature document/hash
+  ownerSignatureRef String?          // Transaction hash for owner signature
   
   // Witness (Admin)
   witnessId         String?
   witness           Admin?           @relation(fields: [witnessId], references: [id])
   witnessedAt       DateTime?
+  witnessSignatureRef String?        // Transaction hash for witness signature
   
   // Agreement validity
   effectiveDate     DateTime?        // When agreement takes effect
   expiryDate        DateTime?        // Optional expiry
+  
+  // On-chain tracking (NFT)
+  tokenId           Int?             // NFT token ID on the contract
+  contractAddress   String?          // Smart contract address
+  metadataUri       String?          // S3 URI for agreement JSON metadata
+  mintTxHash        String?          // Transaction hash for minting the NFT
   
   // Timestamps
   createdAt         DateTime         @default(now())
@@ -285,6 +292,7 @@ model Agreement {
 
   @@index([ownerId])
   @@index([status])
+  @@index([tokenId])
   @@map("agreement")
 }
 
