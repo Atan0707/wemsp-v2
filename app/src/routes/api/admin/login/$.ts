@@ -1,19 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { prisma } from '@/db'
 import { verifyPassword, createAdminSessionToken } from '@/lib/admin-auth'
-
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': 'http://localhost:5051',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Credentials': 'true',
-}
+import { corsHeaders } from '@/lib/cors'
 
 export const Route = createFileRoute('/api/admin/login/$')({
   server: {
     handlers: {
       OPTIONS: async () => {
-        return new Response(null, { headers: CORS_HEADERS })
+        return new Response(null, { headers: corsHeaders })
       },
       POST: async ({ request }: { request: Request }) => {
         try {
@@ -23,7 +17,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
           if (!email || !password) {
             return Response.json(
               { error: 'Email and password are required' },
-              { status: 400, headers: CORS_HEADERS }
+              { status: 400, headers: corsHeaders }
             )
           }
 
@@ -42,7 +36,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
           if (!admin) {
             return Response.json(
               { error: 'Invalid credentials' },
-              { status: 401, headers: CORS_HEADERS }
+              { status: 401, headers: corsHeaders }
             )
           }
 
@@ -50,7 +44,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
           if (!admin.isActive) {
             return Response.json(
               { error: 'Account is inactive' },
-              { status: 401, headers: CORS_HEADERS }
+              { status: 401, headers: corsHeaders }
             )
           }
 
@@ -59,7 +53,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
           if (!isValidPassword) {
             return Response.json(
               { error: 'Invalid credentials' },
-              { status: 401, headers: CORS_HEADERS }
+              { status: 401, headers: corsHeaders }
             )
           }
 
@@ -79,12 +73,12 @@ export const Route = createFileRoute('/api/admin/login/$')({
               email: admin.email,
               name: admin.name,
             },
-          }, { headers: CORS_HEADERS })
+          }, { headers: corsHeaders })
         } catch (error) {
           console.error('Admin login error:', error)
           return Response.json(
             { error: 'Internal server error' },
-            { status: 500, headers: CORS_HEADERS }
+            { status: 500, headers: corsHeaders }
           )
         }
       },
