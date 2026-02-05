@@ -20,14 +20,14 @@ interface Asset {
   id: number
   name: string
   type: string
-  value: number
+  value: number | null
 }
 
 interface AgreementAsset {
   id: string
   assetId: number
-  allocatedValue: number
-  allocatedPercentage: number
+  allocatedValue: number | null
+  allocatedPercentage: number | null
   notes: string | null
   asset: Asset
 }
@@ -233,12 +233,18 @@ function RouteComponent() {
                         <div>
                           <p className="font-medium">{aa.asset.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {aa.asset.type} • RM {aa.asset.value.toLocaleString()}
+                            {aa.asset.type} • RM {aa.asset.value?.toLocaleString() ?? '0'}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">RM {aa.allocatedValue.toLocaleString()}</p>
-                          <p className="text-sm text-muted-foreground">{aa.allocatedPercentage}%</p>
+                          <p className="font-medium">
+                            RM {aa.allocatedValue?.toLocaleString() ?? aa.asset.value?.toLocaleString() ?? '0'}
+                          </p>
+                          {/* Allocated Percentage */}
+                          <p className="text-sm text-muted-foreground">
+                            {aa.allocatedPercentage ?? 100}%
+                            {aa.allocatedValue === null && <span className="text-xs"> (Full)</span>}
+                          </p>
                           {aa.notes && (
                             <p className="text-xs text-muted-foreground mt-1">{aa.notes}</p>
                           )}
