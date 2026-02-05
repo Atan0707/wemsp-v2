@@ -16,7 +16,9 @@ import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as AppUsersIndexRouteImport } from './routes/app/users/index'
 import { Route as AppAssetsIndexRouteImport } from './routes/app/assets/index'
+import { Route as AppAgreementsIndexRouteImport } from './routes/app/agreements/index'
 import { Route as AppUsersIdRouteImport } from './routes/app/users/$id'
+import { Route as AppAgreementsIdRouteImport } from './routes/app/agreements/$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -53,9 +55,19 @@ const AppAssetsIndexRoute = AppAssetsIndexRouteImport.update({
   path: '/assets/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAgreementsIndexRoute = AppAgreementsIndexRouteImport.update({
+  id: '/agreements/',
+  path: '/agreements/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppUsersIdRoute = AppUsersIdRouteImport.update({
   id: '/users/$id',
   path: '/users/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAgreementsIdRoute = AppAgreementsIdRouteImport.update({
+  id: '/agreements/$id',
+  path: '/agreements/$id',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -65,7 +77,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/': typeof AppIndexRoute
+  '/app/agreements/$id': typeof AppAgreementsIdRoute
   '/app/users/$id': typeof AppUsersIdRoute
+  '/app/agreements/': typeof AppAgreementsIndexRoute
   '/app/assets/': typeof AppAssetsIndexRoute
   '/app/users/': typeof AppUsersIndexRoute
 }
@@ -74,7 +88,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app': typeof AppIndexRoute
+  '/app/agreements/$id': typeof AppAgreementsIdRoute
   '/app/users/$id': typeof AppUsersIdRoute
+  '/app/agreements': typeof AppAgreementsIndexRoute
   '/app/assets': typeof AppAssetsIndexRoute
   '/app/users': typeof AppUsersIndexRoute
 }
@@ -85,7 +101,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/': typeof AppIndexRoute
+  '/app/agreements/$id': typeof AppAgreementsIdRoute
   '/app/users/$id': typeof AppUsersIdRoute
+  '/app/agreements/': typeof AppAgreementsIndexRoute
   '/app/assets/': typeof AppAssetsIndexRoute
   '/app/users/': typeof AppUsersIndexRoute
 }
@@ -97,7 +115,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/dashboard'
     | '/app/'
+    | '/app/agreements/$id'
     | '/app/users/$id'
+    | '/app/agreements/'
     | '/app/assets/'
     | '/app/users/'
   fileRoutesByTo: FileRoutesByTo
@@ -106,7 +126,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/dashboard'
     | '/app'
+    | '/app/agreements/$id'
     | '/app/users/$id'
+    | '/app/agreements'
     | '/app/assets'
     | '/app/users'
   id:
@@ -116,7 +138,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/dashboard'
     | '/app/'
+    | '/app/agreements/$id'
     | '/app/users/$id'
+    | '/app/agreements/'
     | '/app/assets/'
     | '/app/users/'
   fileRoutesById: FileRoutesById
@@ -178,11 +202,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAssetsIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/agreements/': {
+      id: '/app/agreements/'
+      path: '/agreements'
+      fullPath: '/app/agreements/'
+      preLoaderRoute: typeof AppAgreementsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/users/$id': {
       id: '/app/users/$id'
       path: '/users/$id'
       fullPath: '/app/users/$id'
       preLoaderRoute: typeof AppUsersIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/agreements/$id': {
+      id: '/app/agreements/$id'
+      path: '/agreements/$id'
+      fullPath: '/app/agreements/$id'
+      preLoaderRoute: typeof AppAgreementsIdRouteImport
       parentRoute: typeof AppRoute
     }
   }
@@ -191,7 +229,9 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppAgreementsIdRoute: typeof AppAgreementsIdRoute
   AppUsersIdRoute: typeof AppUsersIdRoute
+  AppAgreementsIndexRoute: typeof AppAgreementsIndexRoute
   AppAssetsIndexRoute: typeof AppAssetsIndexRoute
   AppUsersIndexRoute: typeof AppUsersIndexRoute
 }
@@ -199,7 +239,9 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppIndexRoute: AppIndexRoute,
+  AppAgreementsIdRoute: AppAgreementsIdRoute,
   AppUsersIdRoute: AppUsersIdRoute,
+  AppAgreementsIndexRoute: AppAgreementsIndexRoute,
   AppAssetsIndexRoute: AppAssetsIndexRoute,
   AppUsersIndexRoute: AppUsersIndexRoute,
 }
