@@ -70,23 +70,16 @@ export const Route = createFileRoute('/api/admin/login/$')({
             name: admin.name,
           })
 
-          // Create response with session cookie and CORS headers
-          const response = Response.json({
+          // Return token in response body for client-side storage
+          return Response.json({
             success: true,
+            token: sessionToken,
             admin: {
               id: admin.id,
               email: admin.email,
               name: admin.name,
             },
           }, { headers: CORS_HEADERS })
-
-          // Set HTTP-only cookie
-          response.headers.set(
-            'Set-Cookie',
-            `admin_session=${sessionToken}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${60 * 60 * 24}` // 24 hours
-          )
-
-          return response
         } catch (error) {
           console.error('Admin login error:', error)
           return Response.json(

@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getAdminFromSession } from '@/lib/admin-auth'
+import { verifyAdminSessionToken } from '@/lib/admin-auth'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'http://localhost:5051',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Allow-Credentials': 'true',
 }
 
@@ -15,7 +15,17 @@ export const Route = createFileRoute('/api/admin/session/$')({
         return new Response(null, { headers: CORS_HEADERS })
       },
       GET: async ({ request }: { request: Request }) => {
-        const adminSession = await getAdminFromSession(request.headers)
+        // Check Authorization header
+        const authHeader = request.headers.get('Authorization')
+        if (!authHeader?.startsWith('Bearer ')) {
+          return Response.json(
+            { admin: null },
+            { status: 401, headers: CORS_HEADERS }
+          )
+        }
+
+        const token = authHeader.substring(7)
+        const adminSession = await verifyAdminSessionToken(token)
 
         if (!adminSession) {
           return Response.json(

@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, redirect } from '@tanstack/react-router'
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,25 +15,38 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { loginAdmin } from "@/lib/admin-auth"
-import { redirectIfAuthenticated } from "@/middleware"
+import { loginAdmin, getAdminToken, verifyAdminSession } from "@/lib/admin-auth"
 
 export const Route = createFileRoute('/login')({
   component: RouteComponent,
-  beforeLoad: async () => {
-    const result = await redirectIfAuthenticated()
-    if (result?.admin) {
-      throw redirect({ to: '/app/dashboard' })
-    }
-    return { admin: null }
-  },
 })
 
 function RouteComponent() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isChecking, setIsChecking] = useState(true)
   const navigate = useNavigate()
+
+  // Client-side check: redirect if already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = getAdminToken()
+      if (token) {
+        // Verify token is still valid
+        const admin = await verifyAdminSession()
+        if (admin) {
+          navigate({ to: '/app/dashboard' })
+          return
+        }
+        // Token is invalid, clear it
+        localStorage.removeItem('admin_token')
+      }
+      setIsChecking(false)
+    }
+
+    checkAuth()
+  }, [navigate])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,6 +64,15 @@ function RouteComponent() {
 
     // Redirect to admin dashboard
     navigate({ to: '/app/dashboard' })
+  }
+
+  // Show loading while checking auth
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+        <div className="text-muted-foreground">Checking session...</div>
+      </div>
+    )
   }
 
   return (
