@@ -1,0 +1,41 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .container/Dockerfile.app.dev
+    container_name: wemsp-app-dev
+    restart: unless-stopped
+    ports:
+    - "5050:3000"
+    networks:
+    - wemsp-network
+    volumes:
+    - ../app:/app
+    - app_node_modules:/app/node_modules
+    command: pnpm dev --host 0.0.0.0
+  admin:
+    build:
+      context: ..
+      dockerfile: .container/Dockerfile.admin.dev
+    container_name: wemsp-admin-dev
+    restart: unless-stopped
+    ports:
+    - "5051:3000"
+    volumes:
+    - ../admin:/app
+    - admin_node_modules:/app/node_modules
+    networks:
+    - wemsp-network
+    depends_on:
+    - app
+    command: pnpm dev --host 0.0.0.0
+
+networks:
+  wemsp-network:
+    driver: bridge
+
+volumes:
+  app_node_modules:
+    driver: local
+  admin_node_modules:
+    driver: local
