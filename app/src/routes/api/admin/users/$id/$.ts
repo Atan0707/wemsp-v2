@@ -1,16 +1,21 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { prisma } from '@/db'
 import { getAdminFromSession } from '@/lib/admin-auth'
+import { corsHeaders } from '@/lib/cors'
 
 export const Route = createFileRoute('/api/admin/users/$id/$')({
   server: {
     handlers: {
+      OPTIONS: async () => {
+        return new Response(null, { headers: corsHeaders })
+      },
+
       GET: async ({ request }: { request: Request }) => {
         try {
           // Verify admin session
           const admin = await getAdminFromSession(request.headers)
           if (!admin) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
           }
 
           // Extract user ID from URL
@@ -19,7 +24,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           const userId = pathParts[pathParts.length - 2]
 
           if (!userId) {
-            return Response.json({ error: 'User ID is required' }, { status: 400 })
+            return Response.json({ error: 'User ID is required' }, { status: 400, headers: corsHeaders })
           }
 
           // Get user by ID
@@ -50,13 +55,13 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           })
 
           if (!user) {
-            return Response.json({ error: 'User not found' }, { status: 404 })
+            return Response.json({ error: 'User not found' }, { status: 404, headers: corsHeaders })
           }
 
-          return Response.json({ user })
+          return Response.json({ user }, { headers: corsHeaders })
         } catch (error) {
           console.error('Error fetching user:', error)
-          return Response.json({ error: 'Internal server error' }, { status: 500 })
+          return Response.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders })
         }
       },
 
@@ -65,7 +70,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           // Verify admin session
           const admin = await getAdminFromSession(request.headers)
           if (!admin) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
           }
 
           // Extract user ID from URL
@@ -74,7 +79,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           const userId = pathParts[pathParts.length - 2]
 
           if (!userId) {
-            return Response.json({ error: 'User ID is required' }, { status: 400 })
+            return Response.json({ error: 'User ID is required' }, { status: 400, headers: corsHeaders })
           }
 
           const body = await request.json()
@@ -86,7 +91,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           })
 
           if (!existingUser) {
-            return Response.json({ error: 'User not found' }, { status: 404 })
+            return Response.json({ error: 'User not found' }, { status: 404, headers: corsHeaders })
           }
 
           // Check if email is being changed and if new email already exists
@@ -98,7 +103,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
             if (emailExists) {
               return Response.json(
                 { error: 'Email already exists' },
-                { status: 400 }
+                { status: 400, headers: corsHeaders }
               )
             }
           }
@@ -113,7 +118,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
             if (icExists) {
               return Response.json(
                 { error: 'IC number already exists' },
-                { status: 400 }
+                { status: 400, headers: corsHeaders }
               )
             }
 
@@ -159,10 +164,10 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
             },
           })
 
-          return Response.json({ user: updatedUser })
+          return Response.json({ user: updatedUser }, { headers: corsHeaders })
         } catch (error) {
           console.error('Error updating user:', error)
-          return Response.json({ error: 'Internal server error' }, { status: 500 })
+          return Response.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders })
         }
       },
 
@@ -171,7 +176,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           // Verify admin session
           const admin = await getAdminFromSession(request.headers)
           if (!admin) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
           }
 
           // Extract user ID from URL
@@ -180,7 +185,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           const userId = pathParts[pathParts.length - 2]
 
           if (!userId) {
-            return Response.json({ error: 'User ID is required' }, { status: 400 })
+            return Response.json({ error: 'User ID is required' }, { status: 400, headers: corsHeaders })
           }
 
           // Check if user exists
@@ -197,7 +202,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           })
 
           if (!existingUser) {
-            return Response.json({ error: 'User not found' }, { status: 404 })
+            return Response.json({ error: 'User not found' }, { status: 404, headers: corsHeaders })
           }
 
           // Check if user has agreements or assets
@@ -210,7 +215,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
                   assets: existingUser._count.assets,
                 },
               },
-              { status: 400 }
+              { status: 400, headers: corsHeaders }
             )
           }
 
@@ -219,10 +224,10 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
             where: { id: userId },
           })
 
-          return Response.json({ success: true, message: 'User deleted successfully' })
+          return Response.json({ success: true, message: 'User deleted successfully' }, { headers: corsHeaders })
         } catch (error) {
           console.error('Error deleting user:', error)
-          return Response.json({ error: 'Internal server error' }, { status: 500 })
+          return Response.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders })
         }
       },
     },

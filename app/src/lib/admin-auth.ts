@@ -81,8 +81,16 @@ export async function verifyAdminSessionToken(token: string): Promise<AdminSessi
 
 /**
  * Extract session token from request headers
+ * Checks both cookie and Authorization header
  */
 export function getSessionTokenFromHeaders(headers: Headers): string | null {
+  // First try to get from Authorization header (Bearer token)
+  const authHeader = headers.get('authorization')
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7)
+  }
+
+  // Fallback to cookie
   const cookieHeader = headers.get('cookie')
   if (!cookieHeader) {
     return null

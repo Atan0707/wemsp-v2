@@ -1,16 +1,21 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { prisma } from '@/db'
 import { getAdminFromSession } from '@/lib/admin-auth'
+import { corsHeaders } from '@/lib/cors'
 
 export const Route = createFileRoute('/api/admin/users/$')({
   server: {
     handlers: {
+      OPTIONS: async () => {
+        return new Response(null, { headers: corsHeaders })
+      },
+
       GET: async ({ request }: { request: Request }) => {
         try {
           // Verify admin session
           const admin = await getAdminFromSession(request.headers)
           if (!admin) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
           }
 
           // Get query parameters for pagination and filtering
@@ -70,10 +75,10 @@ export const Route = createFileRoute('/api/admin/users/$')({
               total,
               totalPages: Math.ceil(total / limit),
             },
-          })
+          }, { headers: corsHeaders })
         } catch (error) {
           console.error('Error fetching users:', error)
-          return Response.json({ error: 'Internal server error' }, { status: 500 })
+          return Response.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders })
         }
       },
 
@@ -82,7 +87,7 @@ export const Route = createFileRoute('/api/admin/users/$')({
           // Verify admin session
           const admin = await getAdminFromSession(request.headers)
           if (!admin) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
           }
 
           const body = await request.json()
@@ -92,7 +97,7 @@ export const Route = createFileRoute('/api/admin/users/$')({
           if (!name || !email) {
             return Response.json(
               { error: 'Name and email are required' },
-              { status: 400 }
+              { status: 400, headers: corsHeaders }
             )
           }
 
@@ -104,7 +109,7 @@ export const Route = createFileRoute('/api/admin/users/$')({
           if (existingUser) {
             return Response.json(
               { error: 'Email already exists' },
-              { status: 400 }
+              { status: 400, headers: corsHeaders }
             )
           }
 
@@ -117,7 +122,7 @@ export const Route = createFileRoute('/api/admin/users/$')({
             if (existingIc) {
               return Response.json(
                 { error: 'IC number already exists' },
-                { status: 400 }
+                { status: 400, headers: corsHeaders }
               )
             }
           }
@@ -163,10 +168,10 @@ export const Route = createFileRoute('/api/admin/users/$')({
             },
           })
 
-          return Response.json({ user: newUser }, { status: 201 })
+          return Response.json({ user: newUser }, { status: 201, headers: corsHeaders })
         } catch (error) {
           console.error('Error creating user:', error)
-          return Response.json({ error: 'Internal server error' }, { status: 500 })
+          return Response.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders })
         }
       },
     },

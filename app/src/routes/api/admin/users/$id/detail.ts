@@ -1,16 +1,21 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { prisma } from '@/db'
 import { getAdminFromSession } from '@/lib/admin-auth'
+import { corsHeaders } from '@/lib/cors'
 
 export const Route = createFileRoute('/api/admin/users/$id/detail')({
   server: {
     handlers: {
+      OPTIONS: async () => {
+        return new Response(null, { headers: corsHeaders })
+      },
+
       GET: async ({ request }: { request: Request }) => {
         try {
           // Verify admin session
           const admin = await getAdminFromSession(request.headers)
           if (!admin) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
           }
 
           // Extract user ID from URL
@@ -19,7 +24,7 @@ export const Route = createFileRoute('/api/admin/users/$id/detail')({
           const userId = pathParts[pathParts.length - 2]
 
           if (!userId) {
-            return Response.json({ error: 'User ID is required' }, { status: 400 })
+            return Response.json({ error: 'User ID is required' }, { status: 400, headers: corsHeaders })
           }
 
           // Get user by ID with all related data
@@ -151,13 +156,13 @@ export const Route = createFileRoute('/api/admin/users/$id/detail')({
           })
 
           if (!user) {
-            return Response.json({ error: 'User not found' }, { status: 404 })
+            return Response.json({ error: 'User not found' }, { status: 404, headers: corsHeaders })
           }
 
-          return Response.json({ user })
+          return Response.json({ user }, { headers: corsHeaders })
         } catch (error) {
           console.error('Error fetching user details:', error)
-          return Response.json({ error: 'Internal server error' }, { status: 500 })
+          return Response.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders })
         }
       },
     },
