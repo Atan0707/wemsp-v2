@@ -1,17 +1,17 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { verifyAdminSession } from '@/lib/admin-auth'
+import { getAdminSession } from '@/middleware'
 
 export const Route = createFileRoute('/app/')({
+  component: RouteComponent,
   beforeLoad: async () => {
-    const admin = await verifyAdminSession()
+    // Server-side authentication check using server function
+    const admin = await getAdminSession()
     if (!admin) {
-      throw redirect({
-        to: '/login',
-      })
+      throw redirect({ to: '/login' })
     }
+
     return { admin }
   },
-  component: RouteComponent,
 })
 
 function RouteComponent() {

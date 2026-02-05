@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, redirect } from '@tanstack/react-router'
 import { useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -16,9 +16,17 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { loginAdmin } from "@/lib/admin-auth"
+import { redirectIfAuthenticated } from "@/middleware"
 
 export const Route = createFileRoute('/login')({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const result = await redirectIfAuthenticated()
+    if (result?.admin) {
+      throw redirect({ to: '/app/dashboard' })
+    }
+    return { admin: null }
+  },
 })
 
 function RouteComponent() {

@@ -1,16 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { verifyAdminSession } from '@/lib/admin-auth'
+import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/app/dashboard')({
-  beforeLoad: async () => {
-    const admin = await verifyAdminSession()
-    if (!admin) {
-      throw redirect({
-        to: '/login',
-      })
-    }
-    return { admin }
-  },
   component: RouteComponent,
 })
 
