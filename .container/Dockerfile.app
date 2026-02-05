@@ -1,0 +1,39 @@
+# Stage 1: Builder
+FROM node:24-alpine AS builder
+
+# Enable corepack
+RUN corepack enable
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY app/package.json app/pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY app/ ./
+
+# Build app
+RUN pnpm build
+
+# Stage 2: Production
+FROM node:24-alpine AS production
+
+WORKDIR /app
+
+RUN corepack enable
+
+# Copy package files
+COPY app/package.json app/pnpm-lock.yaml ./
+
+# Install production dependencies only
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy built output
+COPY --from=builder /app/.output ./.output
+
+# Start the app
+CMD ["node", ".output/server/index.mjs"]

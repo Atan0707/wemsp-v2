@@ -1,0 +1,29 @@
+services:
+
+  app:
+    build:
+      context: ..
+      dockerfile: .container/Dockerfile.app
+    container_name: wemsp-app
+    restart: unless-stopped
+    ports:
+    - "5050:3000"
+    networks:
+    - wemsp-network
+
+  admin:
+    build:
+      context: ..
+      dockerfile: .container/Dockerfile.admin
+    container_name: wemsp-admin
+    restart: unless-stopped
+    ports:
+    - "5051:3000"
+    networks:
+    - wemsp-network
+    depends_on:
+    - app
+
+networks:
+  wemsp-network:
+    driver: bridge
