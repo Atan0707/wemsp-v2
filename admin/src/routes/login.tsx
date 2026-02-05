@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { endpoint } from "@/lib/config"
+import { loginAdmin } from "@/lib/admin-auth"
 
 export const Route = createFileRoute('/login')({
   component: RouteComponent,
@@ -25,35 +25,24 @@ function RouteComponent() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
-    try {
-      const response = await fetch(`${endpoint}/api/admin/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      })
+    const result = await loginAdmin(email, password)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        toast.error(data.error || "Login failed. Please try again.")
-        return
-      }
-
-      toast.success(`Welcome back, ${data.admin.name}!`)
-
-      // TODO: Redirect to admin dashboard once route is created
-    } catch (err) {
-      toast.error("An unexpected error occurred. Please try again.")
-    } finally {
+    if (!result.success) {
+      toast.error(result.error || "Login failed. Please try again.")
       setIsLoading(false)
+      return
     }
+
+    toast.success(`Welcome back, ${result.admin?.name}!`)
+
+    // Redirect to admin dashboard
+    navigate({ to: '/app/dashboard' })
   }
 
   return (
