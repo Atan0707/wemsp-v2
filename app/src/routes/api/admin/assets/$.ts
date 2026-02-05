@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { prisma } from '@/db'
 import { getAdminFromSession } from '@/lib/admin-auth'
+import { corsHeaders } from '@/lib/cors'
 import { AssetType } from '@/generated/prisma/enums'
 import {
   deleteFileFromS3,
@@ -13,12 +14,16 @@ import {
 export const Route = createFileRoute('/api/admin/assets/$')({
   server: {
     handlers: {
+      OPTIONS: async () => {
+        return new Response(null, { headers: corsHeaders })
+      },
+
       GET: async ({ request }: { request: Request }) => {
         try {
           // Verify admin session
           const admin = await getAdminFromSession(request.headers)
           if (!admin) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
           }
 
           // Get query parameters for pagination and filtering
@@ -76,12 +81,12 @@ export const Route = createFileRoute('/api/admin/assets/$')({
               total,
               totalPages: Math.ceil(total / limit),
             },
-          })
+          }, { headers: corsHeaders })
         } catch (error) {
           console.error('Error fetching assets:', error)
           return Response.json(
             { error: 'Internal server error' },
-            { status: 500 },
+            { status: 500, headers: corsHeaders },
           )
         }
       },
@@ -91,7 +96,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           // Verify admin session
           const admin = await getAdminFromSession(request.headers)
           if (!admin) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
           }
 
           // Parse FormData instead of JSON
@@ -107,7 +112,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           if (!name || !type || !value || !userId) {
             return Response.json(
               { error: 'Missing required fields' },
-              { status: 400 },
+              { status: 400, headers: corsHeaders },
             )
           }
 
@@ -115,7 +120,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           if (!Object.values(AssetType).includes(type as AssetType)) {
             return Response.json(
               { error: 'Invalid asset type' },
-              { status: 400 },
+              { status: 400, headers: corsHeaders },
             )
           }
 
@@ -124,7 +129,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           if (isNaN(numValue) || numValue < 0) {
             return Response.json(
               { error: 'Value must be a positive number' },
-              { status: 400 },
+              { status: 400, headers: corsHeaders },
             )
           }
 
@@ -134,7 +139,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           })
 
           if (!user) {
-            return Response.json({ error: 'User not found' }, { status: 404 })
+            return Response.json({ error: 'User not found' }, { status: 404, headers: corsHeaders })
           }
 
           // Upload document to S3 if provided
@@ -146,7 +151,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
             if (!allowedTypes.includes(document.type)) {
               return Response.json(
                 { error: 'Invalid file type. Allowed types: PDF' },
-                { status: 400 },
+                { status: 400, headers: corsHeaders },
               )
             }
 
@@ -155,7 +160,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
             if (document.size > maxSize) {
               return Response.json(
                 { error: 'File size exceeds 10MB limit' },
-                { status: 400 },
+                { status: 400, headers: corsHeaders },
               )
             }
 
@@ -195,13 +200,13 @@ export const Route = createFileRoute('/api/admin/assets/$')({
               success: true,
               asset,
             },
-            { status: 201 },
+            { status: 201, headers: corsHeaders },
           )
         } catch (error) {
           console.error('Error creating asset:', error)
           return Response.json(
             { error: 'Internal server error' },
-            { status: 500 },
+            { status: 500, headers: corsHeaders },
           )
         }
       },
@@ -211,14 +216,14 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           // Verify admin session
           const admin = await getAdminFromSession(request.headers)
           if (!admin) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
           }
 
           const url = new URL(request.url)
           const id = url.pathname.split('/').pop()
 
           if (!id) {
-            return Response.json({ error: 'Missing asset id' }, { status: 400 })
+            return Response.json({ error: 'Missing asset id' }, { status: 400, headers: corsHeaders })
           }
 
           // Check if asset exists
@@ -227,7 +232,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           })
 
           if (!existingAsset) {
-            return Response.json({ error: 'Asset not found' }, { status: 404 })
+            return Response.json({ error: 'Asset not found' }, { status: 404, headers: corsHeaders })
           }
 
           // Parse FormData
@@ -243,7 +248,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           if (!name || !type || !value || !userId) {
             return Response.json(
               { error: 'Missing required fields' },
-              { status: 400 },
+              { status: 400, headers: corsHeaders },
             )
           }
 
@@ -251,7 +256,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           if (!Object.values(AssetType).includes(type as AssetType)) {
             return Response.json(
               { error: 'Invalid asset type' },
-              { status: 400 },
+              { status: 400, headers: corsHeaders },
             )
           }
 
@@ -260,7 +265,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           if (isNaN(numValue) || numValue < 0) {
             return Response.json(
               { error: 'Value must be a positive number' },
-              { status: 400 },
+              { status: 400, headers: corsHeaders },
             )
           }
 
@@ -270,7 +275,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           })
 
           if (!user) {
-            return Response.json({ error: 'User not found' }, { status: 404 })
+            return Response.json({ error: 'User not found' }, { status: 404, headers: corsHeaders })
           }
 
           let documentUrl = existingAsset.documentUrl
@@ -283,7 +288,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
             if (!allowedTypes.includes(document.type)) {
               return Response.json(
                 { error: 'Invalid file type. Allowed types: PDF' },
-                { status: 400 },
+                { status: 400, headers: corsHeaders },
               )
             }
 
@@ -292,7 +297,7 @@ export const Route = createFileRoute('/api/admin/assets/$')({
             if (document.size > maxSize) {
               return Response.json(
                 { error: 'File size exceeds 10MB limit' },
-                { status: 400 },
+                { status: 400, headers: corsHeaders },
               )
             }
 
@@ -342,12 +347,12 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           return Response.json({
             success: true,
             asset,
-          })
+          }, { headers: corsHeaders })
         } catch (error) {
           console.error('Error updating asset:', error)
           return Response.json(
             { error: 'Internal server error' },
-            { status: 500 },
+            { status: 500, headers: corsHeaders },
           )
         }
       },
@@ -357,14 +362,14 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           // Verify admin session
           const admin = await getAdminFromSession(request.headers)
           if (!admin) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 })
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
           }
 
           const url = new URL(request.url)
           const id = url.pathname.split('/').pop()
 
           if (!id) {
-            return Response.json({ error: 'Missing asset id' }, { status: 400 })
+            return Response.json({ error: 'Missing asset id' }, { status: 400, headers: corsHeaders })
           }
 
           // Check if asset exists
@@ -380,14 +385,14 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           })
 
           if (!asset) {
-            return Response.json({ error: 'Asset not found' }, { status: 404 })
+            return Response.json({ error: 'Asset not found' }, { status: 404, headers: corsHeaders })
           }
 
           // Check if asset is used in agreements
           if (asset._count.agreementAssets > 0) {
             return Response.json(
               { error: 'Cannot delete asset that is used in agreements' },
-              { status: 400 },
+              { status: 400, headers: corsHeaders },
             )
           }
 
@@ -410,12 +415,12 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           return Response.json({
             success: true,
             message: 'Asset deleted successfully',
-          })
+          }, { headers: corsHeaders })
         } catch (error) {
           console.error('Error deleting asset:', error)
           return Response.json(
             { error: 'Internal server error' },
-            { status: 500 },
+            { status: 500, headers: corsHeaders },
           )
         }
       },
