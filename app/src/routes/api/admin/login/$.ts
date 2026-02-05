@@ -2,9 +2,19 @@ import { createFileRoute } from '@tanstack/react-router'
 import { prisma } from '@/db'
 import { verifyPassword, createAdminSessionToken } from '@/lib/admin-auth'
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': 'http://localhost:5051',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Credentials': 'true',
+}
+
 export const Route = createFileRoute('/api/admin/login/$')({
   server: {
     handlers: {
+      OPTIONS: async () => {
+        return new Response(null, { headers: CORS_HEADERS })
+      },
       POST: async ({ request }: { request: Request }) => {
         try {
           const body = await request.json()
@@ -13,7 +23,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
           if (!email || !password) {
             return Response.json(
               { error: 'Email and password are required' },
-              { status: 400 }
+              { status: 400, headers: CORS_HEADERS }
             )
           }
 
@@ -32,7 +42,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
           if (!admin) {
             return Response.json(
               { error: 'Invalid credentials' },
-              { status: 401 }
+              { status: 401, headers: CORS_HEADERS }
             )
           }
 
@@ -40,7 +50,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
           if (!admin.isActive) {
             return Response.json(
               { error: 'Account is inactive' },
-              { status: 401 }
+              { status: 401, headers: CORS_HEADERS }
             )
           }
 
@@ -49,7 +59,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
           if (!isValidPassword) {
             return Response.json(
               { error: 'Invalid credentials' },
-              { status: 401 }
+              { status: 401, headers: CORS_HEADERS }
             )
           }
 
@@ -60,7 +70,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
             name: admin.name,
           })
 
-          // Create response with session cookie
+          // Create response with session cookie and CORS headers
           const response = Response.json({
             success: true,
             admin: {
@@ -68,7 +78,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
               email: admin.email,
               name: admin.name,
             },
-          })
+          }, { headers: CORS_HEADERS })
 
           // Set HTTP-only cookie
           response.headers.set(
@@ -81,7 +91,7 @@ export const Route = createFileRoute('/api/admin/login/$')({
           console.error('Admin login error:', error)
           return Response.json(
             { error: 'Internal server error' },
-            { status: 500 }
+            { status: 500, headers: CORS_HEADERS }
           )
         }
       },

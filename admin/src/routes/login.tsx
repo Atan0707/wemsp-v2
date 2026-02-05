@@ -15,8 +15,9 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { endpoint } from "@/lib/config"
 
-export const Route = createFileRoute('/admin/login')({
+export const Route = createFileRoute('/login')({
   component: RouteComponent,
 })
 
@@ -30,7 +31,7 @@ function RouteComponent() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/admin/login", {
+      const response = await fetch(`${endpoint}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
