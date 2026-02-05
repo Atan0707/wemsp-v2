@@ -3,7 +3,7 @@ import { prisma } from '@/db'
 import { getAdminFromSession } from '@/lib/admin-auth'
 import { corsHeaders } from '@/lib/cors'
 
-export const Route = createFileRoute('/api/admin/users/$id/$')({
+export const Route = createFileRoute('/api/admin/users/$id')({
   server: {
     handlers: {
       OPTIONS: async () => {
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           // Extract user ID from URL
           const url = new URL(request.url)
           const pathParts = url.pathname.split('/')
-          const userId = pathParts[pathParts.length - 2]
+          const userId = pathParts[pathParts.length - 1]
 
           if (!userId) {
             return Response.json({ error: 'User ID is required' }, { status: 400, headers: corsHeaders })
@@ -76,7 +76,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           // Extract user ID from URL
           const url = new URL(request.url)
           const pathParts = url.pathname.split('/')
-          const userId = pathParts[pathParts.length - 2]
+          const userId = pathParts[pathParts.length - 1]
 
           if (!userId) {
             return Response.json({ error: 'User ID is required' }, { status: 400, headers: corsHeaders })
@@ -182,7 +182,7 @@ export const Route = createFileRoute('/api/admin/users/$id/$')({
           // Extract user ID from URL
           const url = new URL(request.url)
           const pathParts = url.pathname.split('/')
-          const userId = pathParts[pathParts.length - 2]
+          const userId = pathParts[pathParts.length - 1]
 
           if (!userId) {
             return Response.json({ error: 'User ID is required' }, { status: 400, headers: corsHeaders })
