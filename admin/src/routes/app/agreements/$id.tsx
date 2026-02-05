@@ -4,10 +4,10 @@ import { getAdminToken, verifyAdminSession, getAuthHeaders } from '@/lib/admin-a
 import { AdminSidebar } from '@/components/admin-sidebar'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, ArrowLeft, FileText, Package, Users } from 'lucide-react'
+import { Loader2, FileText, Package, Users } from 'lucide-react'
 import { toast } from 'sonner'
+import { AdminBreadcrumb } from '@/components/admin-breadcrumb'
 import { endpoint } from '@/lib/config'
 
 interface User {
@@ -144,15 +144,7 @@ function RouteComponent() {
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate({ to: '/app/agreements' })}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Agreements
-          </Button>
+          <AdminBreadcrumb entityLabel={agreement?.title} />
         </header>
         <div className="flex flex-1 flex-col gap-6 p-6">
           {isLoading ? (

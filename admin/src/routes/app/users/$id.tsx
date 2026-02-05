@@ -4,11 +4,11 @@ import { getAdminToken, verifyAdminSession, getAuthHeaders } from '@/lib/admin-a
 import { AdminSidebar } from '@/components/admin-sidebar'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, ArrowLeft, Calendar, Mail, Phone, MapPin, FileText, Package, Users as UsersIcon } from 'lucide-react'
+import { Loader2, Calendar, Mail, Phone, MapPin, FileText, Package, Users as UsersIcon } from 'lucide-react'
 import { toast } from 'sonner'
+import { AdminBreadcrumb } from '@/components/admin-breadcrumb'
 import { endpoint } from '@/lib/config'
 
 interface UserDetail {
@@ -118,12 +118,7 @@ function RouteComponent() {
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
-          <Button variant="ghost" size="sm" onClick={() => navigate({ to: '/app/users' })}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Users
-          </Button>
-          <Separator orientation="vertical" className="ml-2 h-4" />
-          <h1 className="text-lg font-semibold">User Details</h1>
+          <AdminBreadcrumb entityLabel={user?.name} />
         </header>
         <div className="flex flex-1 flex-col gap-6 p-6">
           {/* User Info Card */}
