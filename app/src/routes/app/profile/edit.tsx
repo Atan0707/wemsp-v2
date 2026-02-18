@@ -1,241 +1,196 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useState, useEffect } from "react"
-import { toast } from "sonner"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Phone, MapPin, IdCard, Loader2, AlertTriangle, Mail, User, UserCheck, Users, CheckCircle2 } from "lucide-react"
-import { authClient } from "@/lib/auth-client"
+import { AlertTriangle, CheckCircle2, IdCard, Loader2, Mail, MapPin, Phone, User, UserCheck, Users } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+
+import { authClient } from '@/lib/auth-client'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
+} from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
 
-// Type for non-registered family member data returned from API
 interface NonRegisteredData {
-  id: number
-  name: string
-  icNumber: string
-  address: string | null
-  phoneNumber: string | null
-  relation: string
   addedBy: {
+    email: string
     id: string
     name: string
-    email: string
   }
+  address: string | null
+  icNumber: string
+  id: number
+  name: string
+  phoneNumber: string | null
+  relation: string
 }
 
 export const Route = createFileRoute('/app/profile/edit')({
   component: RouteComponent,
   validateSearch: (search: Record<string, unknown>) => ({
-    onboarding: typeof search.onboarding === 'boolean'
-      ? search.onboarding
-      : search.onboarding === 'true',
-    redirect: typeof search.redirect === 'string' ? search.redirect : undefined,
+    onboarding:
+      typeof search.onboarding === 'boolean'
+        ? search.onboarding
+        : search.onboarding === 'true',
+    redirect:
+      typeof search.redirect === 'string'
+        ? search.redirect
+        : undefined,
   }),
 })
+
+const formatRelation = (relation: string) =>
+  relation
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (character) => character.toUpperCase())
 
 function RouteComponent() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const searchParams = Route.useSearch()
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    icNumber: "",
-    address: "",
-    phoneNumber: "",
-  })
-  const [redirectPath, setRedirectPath] = useState<string | undefined>(undefined)
-  const [isOnboarding, setIsOnboarding] = useState(false)
-  
-  // State for claim flow
-  const [showClaimConfirmation, setShowClaimConfirmation] = useState(false)
-  const [nonRegisteredData, setNonRegisteredData] = useState<NonRegisteredData[] | null>(null)
   const [confirmClaim, setConfirmClaim] = useState(false)
+  const [formData, setFormData] = useState({
+    address: '',
+    email: '',
+    icNumber: '',
+    name: '',
+    phoneNumber: '',
+  })
+  const [isOnboarding, setIsOnboarding] = useState(false)
+  const [nonRegisteredData, setNonRegisteredData] = useState<Array<NonRegisteredData> | null>(null)
+  const [redirectPath, setRedirectPath] = useState<string | undefined>(undefined)
+  const [showClaimConfirmation, setShowClaimConfirmation] = useState(false)
 
-  // Fetch session data
   const { data: session, isPending, refetch: refetchSession } = authClient.useSession()
-
   const user = session?.user
 
-  // Read and clean up URL params on mount
   useEffect(() => {
-    if (searchParams.onboarding) {
-      setIsOnboarding(true)
-      setRedirectPath(searchParams.redirect)
-      // Clean up URL by removing search params
-      router.navigate({
-        to: '.',
-        search: {},
-        replace: true,
-      })
-    }
-  }, [searchParams, router])
+    if (!searchParams.onboarding) return
 
+    setIsOnboarding(true)
+    setRedirectPath(searchParams.redirect)
+    router.navigate({
+      replace: true,
+      search: {},
+      to: '.',
+    })
+  }, [router, searchParams])
 
-  // Initialize form data when user data loads
   useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || "",
-        email: user.email || "",
-        icNumber: (user as any).icNumber || "",
-        address: (user as any).address || "",
-        phoneNumber: (user as any).phoneNumber || "",
-      })
-    }
+    if (!user) return
+
+    setFormData({
+      address: (user as any).address || '',
+      email: user.email || '',
+      icNumber: (user as any).icNumber || '',
+      name: user.name || '',
+      phoneNumber: (user as any).phoneNumber || '',
+    })
   }, [user])
 
-  // Update user profile mutation
   const updateProfileMutation = useMutation({
-    mutationFn: async (claimNonRegistered: boolean = false) => {
+    mutationFn: async (claimNonRegistered = false) => {
       const response = await fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
-          name: formData.name,
-          icNumber: formData.icNumber,
-          phoneNumber: formData.phoneNumber,
           address: formData.address,
           claimNonRegistered,
+          icNumber: formData.icNumber,
+          name: formData.name,
+          phoneNumber: formData.phoneNumber,
         }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'PUT',
       })
 
       const data = await response.json()
-
       if (!response.ok) {
         throw new Error(data.error || 'Failed to update profile')
       }
-
       return data
     },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to update profile')
+    },
     onSuccess: async (data) => {
-      // Check if API is asking for claim confirmation
       if (data.requiresClaim) {
         setNonRegisteredData(data.nonRegisteredData)
         setShowClaimConfirmation(true)
         return
       }
 
-      toast.success("Profile updated successfully")
-
-      // Reset claim state
-      setShowClaimConfirmation(false)
-      setNonRegisteredData(null)
+      toast.success('Profile updated successfully')
       setConfirmClaim(false)
+      setNonRegisteredData(null)
+      setShowClaimConfirmation(false)
 
-      // Invalidate all better-auth related queries to force refetch
       queryClient.invalidateQueries({
         predicate: (query) => {
-          // Match queries that start with better-auth prefix or contain session/user data
           const queryKey = query.queryKey[0] as string
-          return (
-            queryKey?.startsWith('better-auth') ||
-            typeof queryKey === 'string' && queryKey.includes('session')
-          )
+          return queryKey.startsWith('better-auth') || (typeof queryKey === 'string' && queryKey.includes('session'))
         },
       })
 
-      // Also refetch the session directly
       await refetchSession()
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
-      // Small delay to ensure data is refreshed before redirect
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Redirect to original path if in onboarding mode
       if (isOnboarding) {
         if (redirectPath) {
           router.navigate({ to: redirectPath })
         } else {
-          router.navigate({ to: "/app/profile", search: { onboarding: false, redirect: undefined } })
+          router.navigate({ search: { onboarding: false, redirect: undefined }, to: '/app/profile' })
         }
       } else {
-        router.navigate({ to: "/app/profile", search: { onboarding: false, redirect: undefined } })
+        router.navigate({ search: { onboarding: false, redirect: undefined }, to: '/app/profile' })
       }
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to update profile")
     },
   })
 
-  // Handle confirming the claim
-  const handleConfirmClaim = () => {
-    if (!confirmClaim) {
-      toast.error("Please confirm that this is your information")
-      return
-    }
-    updateProfileMutation.mutate(true)
-  }
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
 
-  // Handle canceling the claim
-  const handleCancelClaim = () => {
-    setShowClaimConfirmation(false)
-    setNonRegisteredData(null)
-    setConfirmClaim(false)
-  }
-
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // Validate required fields
     if (!formData.name.trim()) {
-      toast.error("Name is required")
+      toast.error('Name is required')
       return
     }
-
     if (!formData.icNumber.trim()) {
-      toast.error("IC number is required")
+      toast.error('IC number is required')
       return
     }
-
-    // Validate IC number is exactly 12 digits
     if (formData.icNumber.length !== 12) {
-      toast.error("IC number must be exactly 12 digits")
+      toast.error('IC number must be exactly 12 digits')
       return
     }
-
     if (!formData.phoneNumber.trim()) {
-      toast.error("Phone number is required")
+      toast.error('Phone number is required')
       return
     }
-
     if (!formData.address.trim()) {
-      toast.error("Address is required")
+      toast.error('Address is required')
       return
     }
 
     updateProfileMutation.mutate(false)
   }
 
-  const handleCancel = () => {
-    if (isOnboarding) {
-      // Don't allow cancel during onboarding
+  const handleConfirmClaim = () => {
+    if (!confirmClaim) {
+      toast.error('Please confirm this is your information')
       return
     }
-    router.navigate({ to: "/app/profile", search: { onboarding: false, redirect: undefined } })
+    updateProfileMutation.mutate(true)
   }
 
   if (isPending) {
     return (
-      <div className="flex items-center justify-center h-[60vh]">
+      <div className="flex h-[60vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     )
@@ -243,177 +198,110 @@ function RouteComponent() {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen px-4 text-center">
-        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-          <IdCard className="h-8 w-8 text-muted-foreground" />
-        </div>
-        <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
-        <p className="text-muted-foreground max-w-md">
-          Please log in to edit your profile.
-        </p>
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+            <IdCard className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h2 className="mb-2 text-xl font-semibold">Access Denied</h2>
+          <p className="text-muted-foreground">Please log in to edit your profile.</p>
+        </CardContent>
+      </Card>
     )
   }
 
-  // Helper function to format relation for display
-  const formatRelation = (relation: string) => {
-    return relation.charAt(0) + relation.slice(1).toLowerCase().replace(/_/g, ' ')
-  }
-
-  // Show claim confirmation UI
   if (showClaimConfirmation && nonRegisteredData) {
     return (
-      <div className="flex flex-col gap-4">
-        {/* Claim Confirmation Banner */}
-        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3">
-          <UserCheck className="h-5 w-5 text-blue-600 dark:text-blue-500 shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100">We Found Your Information</h3>
-            <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-              A family member has already registered your IC number. Please verify the information below is correct before proceeding.
+      <div className="space-y-4">
+        <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
+          <UserCheck className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+          <div>
+            <h3 className="font-semibold text-blue-900">We Found Your Information</h3>
+            <p className="mt-1 text-sm text-blue-700">
+              A family member has already added your IC number. Please verify the records below.
             </p>
           </div>
         </div>
 
-        <Card>
+        <Card className="border-border/70">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Verify Your Identity
+              Verify Identity
             </CardTitle>
-            <CardDescription>
-              The following information was added by your family member(s). Please confirm this is you.
-            </CardDescription>
+            <CardDescription>Confirm these records belong to you before linking accounts.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Display non-registered data */}
-            {nonRegisteredData.map((data, index) => (
-              <div key={data.id} className="border rounded-lg p-4 space-y-4">
-                {nonRegisteredData.length > 1 && (
-                  <div className="text-sm text-muted-foreground mb-2">
-                    Record {index + 1} of {nonRegisteredData.length}
-                  </div>
-                )}
-                
-                {/* Information from family member */}
-                <div className="space-y-3">
+          <CardContent className="space-y-4">
+            {nonRegisteredData.map((item) => (
+              <div key={item.id} className="space-y-3 rounded-xl border border-border/70 p-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-muted-foreground">Added by:</span>
+                  <span className="font-medium">{item.addedBy.name}</span>
+                  <Badge variant="secondary">{formatRelation(item.relation)}</Badge>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground w-28">Added by:</span>
-                    <span className="font-medium">{data.addedBy.name}</span>
-                    <Badge variant="secondary" className="ml-2">
-                      {formatRelation(data.relation)}
-                    </Badge>
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">{item.name}</span>
                   </div>
-                  
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">Name:</span>
-                      <span className="font-medium">{data.name}</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 text-sm">
-                      <IdCard className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">IC:</span>
-                      <span className="font-medium font-mono">{data.icNumber}</span>
-                    </div>
-                    
-                    {data.phoneNumber && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">Phone:</span>
-                        <span className="font-medium">{data.phoneNumber}</span>
-                      </div>
-                    )}
-                    
-                    {data.address && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">Address:</span>
-                        <span className="font-medium">{data.address}</span>
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2 text-sm">
+                    <IdCard className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-mono font-medium">{item.icNumber}</span>
                   </div>
+                  {item.phoneNumber ? (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{item.phoneNumber}</span>
+                    </div>
+                  ) : null}
+                  {item.address ? (
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span>{item.address}</span>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ))}
 
-            {/* Your submitted information */}
-            <div className="border-t pt-4">
-              <h4 className="font-medium mb-3">Your Submitted Information</h4>
-              <div className="grid gap-3 sm:grid-cols-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Name:</span>
-                  <span className="font-medium">{formData.name}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IdCard className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">IC:</span>
-                  <span className="font-medium font-mono">{formData.icNumber}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Phone:</span>
-                  <span className="font-medium">{formData.phoneNumber}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Address:</span>
-                  <span className="font-medium">{formData.address}</span>
-                </div>
+            <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
+              <p className="mb-2 text-sm font-medium">Your Submitted Information</p>
+              <div className="grid gap-2 text-sm sm:grid-cols-2">
+                <p><span className="text-muted-foreground">Name:</span> {formData.name}</p>
+                <p><span className="text-muted-foreground">IC:</span> {formData.icNumber}</p>
+                <p><span className="text-muted-foreground">Phone:</span> {formData.phoneNumber}</p>
+                <p><span className="text-muted-foreground">Address:</span> {formData.address}</p>
               </div>
             </div>
 
-            {/* Confirmation checkbox */}
-            <div className="flex items-start space-x-3 pt-4 border-t">
+            <div className="flex items-start gap-3 rounded-xl border border-border/70 p-3">
               <Checkbox
-                id="confirmClaim"
                 checked={confirmClaim}
-                onCheckedChange={(checked: boolean | "indeterminate") => setConfirmClaim(checked === true)}
+                id="confirm-claim"
+                onCheckedChange={(checked: boolean | 'indeterminate') => setConfirmClaim(checked === true)}
               />
-              <label
-                htmlFor="confirmClaim"
-                className="text-sm leading-relaxed cursor-pointer"
-              >
-                <span className="font-medium">Yes, this is me.</span>{" "}
-                I confirm that the IC number <span className="font-mono font-medium">{formData.icNumber}</span> belongs to me, 
-                and I want to link my account with the family member(s) who added me.
+              <label htmlFor="confirm-claim" className="cursor-pointer text-sm leading-relaxed">
+                I confirm this IC number belongs to me, and I want to link my account with these family records.
               </label>
             </div>
 
-            {/* Action buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Button
-                onClick={handleConfirmClaim}
-                disabled={!confirmClaim || updateProfileMutation.isPending}
-                className="flex-1 sm:flex-none"
-              >
-                {updateProfileMutation.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Confirming...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Confirm & Link Account
-                  </>
-                )}
-              </Button>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button
                 variant="outline"
-                onClick={handleCancelClaim}
+                onClick={() => {
+                  setConfirmClaim(false)
+                  setNonRegisteredData(null)
+                  setShowClaimConfirmation(false)
+                }}
                 disabled={updateProfileMutation.isPending}
               >
                 Cancel
               </Button>
+              <Button onClick={handleConfirmClaim} disabled={!confirmClaim || updateProfileMutation.isPending}>
+                {updateProfileMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                Confirm & Link Account
+              </Button>
             </div>
-
-            <p className="text-xs text-muted-foreground">
-              By confirming, your profile will be updated and you will be linked as a family member 
-              with the person(s) who added you. This action cannot be undone.
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -421,155 +309,134 @@ function RouteComponent() {
   }
 
   return (
-    <>
-
-      <div className="flex flex-col gap-4">
-        {/* Onboarding Alert Banner */}
-        {isOnboarding && (
-          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-amber-900 dark:text-amber-100">Complete Your Profile to Continue</h3>
-              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                Please fill in your name, IC number (12 digits), phone number, and address below to access the feature you were trying to reach.
-              </p>
-            </div>
+    <div className="space-y-4">
+      {isOnboarding ? (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+          <div>
+            <h3 className="font-semibold text-amber-900">Complete Your Profile to Continue</h3>
+            <p className="mt-1 text-sm text-amber-700">
+              Fill your details below to continue to the requested page.
+            </p>
           </div>
-        )}
+        </div>
+      ) : null}
 
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <CardTitle>
-                  {isOnboarding ? "Complete Your Profile" : "Edit Profile"}
-                </CardTitle>
-                <CardDescription>
-                  {isOnboarding
-                    ? "Please fill in your information to continue"
-                    : "Update your additional information"}
-                </CardDescription>
-              </div>
-              {!isOnboarding && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  disabled={updateProfileMutation.isPending}
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-        <CardContent>
+      <Card className="border-border/70 bg-gradient-to-r from-slate-100/70 via-background to-sky-50/50">
+        <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle className="text-xl">
+              {isOnboarding ? 'Complete Profile' : 'Edit Profile'}
+            </CardTitle>
+            <CardDescription className="mt-1">
+              Update your identity and contact information.
+            </CardDescription>
+          </div>
+          {!isOnboarding ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.navigate({ search: { onboarding: false, redirect: undefined }, to: '/app/profile' })}
+              disabled={updateProfileMutation.isPending}
+            >
+              Cancel
+            </Button>
+          ) : null}
+        </CardHeader>
+      </Card>
+
+      <Card className="border-border/70">
+        <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <FieldGroup className="gap-6">
-              {/* Name Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="name" className="text-sm font-medium">Full Name <span className="text-destructive">*</span></FieldLabel>
+            <FieldGroup className="gap-4 md:grid md:grid-cols-2">
+              <Field className="space-y-2 md:col-span-2">
+                <FieldLabel htmlFor="name">Full Name *</FieldLabel>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="name"
-                    type="text"
                     value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))}
                     placeholder="Enter your full name"
-                    className="h-10 pl-10"
+                    className="pl-10"
                   />
                 </div>
               </Field>
 
-              {/* Email Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="email" className="text-sm font-medium">Email</FieldLabel>
+              <Field className="space-y-2 md:col-span-2">
+                <FieldLabel htmlFor="email">Email</FieldLabel>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    disabled
-                    placeholder="your.email@example.com"
-                    className="h-10 pl-10 bg-muted/50 cursor-not-allowed"
-                  />
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input id="email" value={formData.email} disabled className="cursor-not-allowed bg-muted/50 pl-10" />
                 </div>
               </Field>
 
-              {/* IC Number Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="icNumber" className="text-sm font-medium">IC Number <span className="text-destructive">*</span></FieldLabel>
+              <Field className="space-y-2">
+                <FieldLabel htmlFor="icNumber">IC Number *</FieldLabel>
                 <div className="relative">
-                  <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <IdCard className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="icNumber"
-                    type="text"
                     value={formData.icNumber}
-                    onChange={(e) => {
-                      // Only allow numbers and limit to 12 digits
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 12)
-                      handleInputChange("icNumber", value)
+                    onChange={(event) => {
+                      const value = event.target.value.replace(/\D/g, '').slice(0, 12)
+                      setFormData((prev) => ({ ...prev, icNumber: value }))
                     }}
-                    placeholder="Enter your IC number"
-                    className="h-10 pl-10"
                     maxLength={12}
+                    placeholder="12-digit IC number"
+                    className="pl-10"
                   />
                 </div>
               </Field>
 
-              {/* Phone Number Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="phoneNumber" className="text-sm font-medium">Phone Number <span className="text-destructive">*</span></FieldLabel>
+              <Field className="space-y-2">
+                <FieldLabel htmlFor="phoneNumber">Phone Number *</FieldLabel>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="phoneNumber"
-                    type="tel"
                     value={formData.phoneNumber}
-                    onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, phoneNumber: event.target.value }))}
                     placeholder="+60123456789"
-                    className="h-10 pl-10"
+                    className="pl-10"
                   />
                 </div>
               </Field>
 
-              {/* Address Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="address" className="text-sm font-medium">Address <span className="text-destructive">*</span></FieldLabel>
+              <Field className="space-y-2 md:col-span-2">
+                <FieldLabel htmlFor="address">Address *</FieldLabel>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="address"
-                    type="text"
                     value={formData.address}
-                    onChange={(e) => handleInputChange("address", e.target.value)}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, address: event.target.value }))}
                     placeholder="Enter your residential address"
-                    className="h-10 pl-10"
+                    className="pl-10"
                   />
                 </div>
               </Field>
             </FieldGroup>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full sm:w-auto"
-              disabled={updateProfileMutation.isPending}
-            >
-              {updateProfileMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </Button>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              {!isOnboarding ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.navigate({ search: { onboarding: false, redirect: undefined }, to: '/app/profile' })}
+                  disabled={updateProfileMutation.isPending}
+                >
+                  Cancel
+                </Button>
+              ) : null}
+              <Button type="submit" disabled={updateProfileMutation.isPending}>
+                {updateProfileMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Save Changes
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
-      </div>
-    </>
+    </div>
   )
 }
