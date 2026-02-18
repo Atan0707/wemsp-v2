@@ -158,13 +158,13 @@ function RouteComponent() {
                 Track your assets and review family-owned assets in one place.
               </CardDescription>
             </div>
-            <Button onClick={() => router.navigate({ to: '/app/assets/add' })}>
+            <Button className="w-full sm:w-auto" onClick={() => router.navigate({ to: '/app/assets/add' })}>
               <Plus className="h-4 w-4" />
               Add Asset
             </Button>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Wallet className="h-4 w-4" />

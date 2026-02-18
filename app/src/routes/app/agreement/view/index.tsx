@@ -240,14 +240,14 @@ function RouteComponent() {
                 Create and track Islamic asset distribution agreements.
               </CardDescription>
             </div>
-            <Button onClick={() => router.navigate({ to: '/app/agreement/create' })}>
+            <Button className="w-full sm:w-auto" onClick={() => router.navigate({ to: '/app/agreement/create' })}>
               <Plus className="h-4 w-4" />
               New Agreement
             </Button>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+            <div className="col-span-2 rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm lg:col-span-1">
               <p className="text-2xl font-semibold">{stats.total}</p>
               <p className="text-xs text-muted-foreground">Total agreements</p>
             </div>
@@ -403,10 +403,11 @@ function RouteComponent() {
                         <span>Created: {formatDate(agreement.createdAt)}</span>
                       </div>
 
-                      <div className="mt-3 flex gap-2">
+                      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                         <Button
                           variant="outline"
                           size="sm"
+                          className="w-full sm:w-auto"
                           onClick={() => router.navigate({ to: `/app/agreement/view/$id`, params: { id: agreement.id } })}
                         >
                           View
@@ -415,8 +416,8 @@ function RouteComponent() {
                           <Button
                             variant="outline"
                             size="sm"
+                            className="w-full text-destructive sm:w-auto"
                             onClick={() => handleDelete(agreement.id)}
-                            className="text-destructive"
                           >
                             Delete
                           </Button>
@@ -425,8 +426,8 @@ function RouteComponent() {
                           <Button
                             variant="outline"
                             size="sm"
+                            className="w-full text-destructive sm:w-auto"
                             onClick={() => handleCancel(agreement.id)}
-                            className="text-destructive"
                           >
                             Cancel
                           </Button>

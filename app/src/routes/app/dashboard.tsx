@@ -54,6 +54,13 @@ const formatCurrency = (value: number) =>
     style: 'currency',
   }).format(value)
 
+const formatAssetType = (value: string) =>
+  value
+    .toLowerCase()
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+
 const formatDate = (value: string) =>
   new Date(value).toLocaleDateString('en-MY', {
     day: 'numeric',
@@ -181,19 +188,19 @@ function RouteComponent() {
                 Track your estate planning progress and complete pending actions.
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <Button onClick={() => router.navigate({ to: '/app/agreement/create' })}>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+              <Button className="w-full sm:w-auto" onClick={() => router.navigate({ to: '/app/agreement/create' })}>
                 <Plus className="h-4 w-4" />
                 New Agreement
               </Button>
-              <Button variant="outline" onClick={() => router.navigate({ to: '/app/assets/add' })}>
+              <Button className="w-full sm:w-auto" variant="outline" onClick={() => router.navigate({ to: '/app/assets/add' })}>
                 <Plus className="h-4 w-4" />
                 Add Asset
               </Button>
             </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="col-span-2 rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm lg:col-span-1">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Wallet className="h-4 w-4" />
               </div>
@@ -226,7 +233,7 @@ function RouteComponent() {
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="border-border/70 lg:col-span-2">
+        <Card className="order-2 border-border/70 lg:order-1 lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Bell className="h-4 w-4" />
@@ -243,7 +250,7 @@ function RouteComponent() {
               pendingActions.slice(0, 5).map((agreement) => (
                 <div
                   key={agreement.id}
-                  className="flex flex-col gap-2 rounded-xl border border-border/70 p-3 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 rounded-xl border border-border/70 p-3"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium">{agreement.title}</p>
@@ -254,6 +261,7 @@ function RouteComponent() {
                   <Button
                     size="sm"
                     variant="outline"
+                    className="w-full sm:w-auto"
                     onClick={() =>
                       router.navigate({
                         params: { id: agreement.id },
@@ -270,7 +278,7 @@ function RouteComponent() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/70">
+        <Card className="order-1 border-border/70 lg:order-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <UserCheck className="h-4 w-4" />
@@ -333,7 +341,7 @@ function RouteComponent() {
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium">{asset.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">{asset.type}</p>
+                    <p className="truncate text-xs text-muted-foreground">{formatAssetType(asset.type)}</p>
                   </div>
                   <p className="text-sm font-semibold">{formatCurrency(asset.value)}</p>
                 </div>

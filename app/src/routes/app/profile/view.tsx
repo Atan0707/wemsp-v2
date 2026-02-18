@@ -130,6 +130,7 @@ function RouteComponent() {
               </CardDescription>
             </div>
             <Button
+              className="w-full sm:w-auto"
               onClick={() =>
                 router.navigate({
                   search: isOnboarding

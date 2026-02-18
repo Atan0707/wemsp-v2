@@ -183,18 +183,18 @@ function RouteComponent() {
                 Keep your relationships organized for agreement and inheritance workflows.
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={handleRefresh}>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+              <Button className="w-full sm:w-auto" variant="outline" onClick={handleRefresh}>
                 <RefreshCcw className="h-4 w-4" />
                 Refresh
               </Button>
-              <Button onClick={() => router.navigate({ to: '/app/family/add' })}>
+              <Button className="w-full sm:w-auto" onClick={() => router.navigate({ to: '/app/family/add' })}>
                 <Plus className="h-4 w-4" />
                 Add Family Member
               </Button>
             </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Users className="h-4 w-4" />

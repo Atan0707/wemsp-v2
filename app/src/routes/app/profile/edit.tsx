@@ -287,6 +287,7 @@ function RouteComponent() {
 
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button
+                className="w-full sm:w-auto"
                 variant="outline"
                 onClick={() => {
                   setConfirmClaim(false)
@@ -297,7 +298,7 @@ function RouteComponent() {
               >
                 Cancel
               </Button>
-              <Button onClick={handleConfirmClaim} disabled={!confirmClaim || updateProfileMutation.isPending}>
+              <Button className="w-full sm:w-auto" onClick={handleConfirmClaim} disabled={!confirmClaim || updateProfileMutation.isPending}>
                 {updateProfileMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                 Confirm & Link Account
               </Button>
@@ -334,6 +335,7 @@ function RouteComponent() {
           </div>
           {!isOnboarding ? (
             <Button
+              className="w-full sm:w-auto"
               type="button"
               variant="outline"
               onClick={() => router.navigate({ search: { onboarding: false, redirect: undefined }, to: '/app/profile' })}
@@ -421,6 +423,7 @@ function RouteComponent() {
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               {!isOnboarding ? (
                 <Button
+                  className="w-full sm:w-auto"
                   type="button"
                   variant="outline"
                   onClick={() => router.navigate({ search: { onboarding: false, redirect: undefined }, to: '/app/profile' })}
@@ -429,7 +432,7 @@ function RouteComponent() {
                   Cancel
                 </Button>
               ) : null}
-              <Button type="submit" disabled={updateProfileMutation.isPending}>
+              <Button className="w-full sm:w-auto" type="submit" disabled={updateProfileMutation.isPending}>
                 {updateProfileMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 Save Changes
               </Button>
