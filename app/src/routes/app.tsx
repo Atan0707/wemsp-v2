@@ -119,8 +119,7 @@ function RouteComponent() {
           <div className="flex h-14 items-center gap-3 rounded-2xl border border-border/60 bg-background/85 px-3 shadow-sm supports-[backdrop-filter]:backdrop-blur-sm">
             <SidebarTrigger className="rounded-lg border border-border/60 bg-background shadow-sm hover:bg-muted" />
             <Separator orientation="vertical" className="h-5" />
-            <div className="flex h-2 w-2 rounded-full bg-sidebar-primary" />
-          <Breadcrumb>
+          <Breadcrumb className="pl-1">
             <BreadcrumbList>
               {breadcrumbs.map((crumb, index) => (
                 <React.Fragment key={crumb.href}>
