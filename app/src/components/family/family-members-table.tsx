@@ -1,18 +1,18 @@
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
-import { MoreVertical, Pencil, Trash2, User, UserPlus } from 'lucide-react'
 import { useRouter } from '@tanstack/react-router'
+import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { Loader2, MoreVertical, Pencil, Trash2, User, UserPlus } from 'lucide-react'
+import { useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+import type { FamilyMember } from '@/types/family'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -22,23 +22,31 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import {
-  FamilyMember,
   isNonRegisteredFamilyMember,
   isRegisteredFamilyMember,
 } from '@/types/family'
 import { cn } from '@/lib/utils'
-import { useState } from 'react'
 
 interface FamilyMembersTableProps {
-  data: FamilyMember[]
+  data: Array<FamilyMember>
   isLoading?: boolean
   onDelete?: (type: string, id: string | number) => void | Promise<void>
+  emptyTitle?: string
+  emptyDescription?: string
 }
+
+const formatRelation = (relation: string) =>
+  relation
+    .toLowerCase()
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
 
 const createColumns = (
   onEdit: (member: FamilyMember) => void,
-  onDelete: (type: string, id: string | number) => void
-): ColumnDef<FamilyMember>[] => [
+  onDelete: (type: string, id: string | number) => void,
+  isDeleting: string | number | null
+): Array<ColumnDef<FamilyMember>> => [
   {
     accessorKey: 'name',
     header: 'Name',
@@ -50,15 +58,15 @@ const createColumns = (
             <img
               src={member.image}
               alt={member.name}
-              className="h-8 w-8 rounded-full object-cover"
+              className="h-10 w-10 rounded-xl object-cover ring-1 ring-black/5"
             />
           ) : (
             <div
               className={cn(
-                'flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium',
+                'flex h-10 w-10 items-center justify-center rounded-xl text-xs font-medium',
                 isNonRegisteredFamilyMember(member)
-                  ? 'bg-muted text-muted-foreground'
-                  : 'bg-primary text-primary-foreground'
+                  ? 'bg-muted text-muted-foreground ring-1 ring-border'
+                  : 'bg-primary/12 text-primary ring-1 ring-primary/25'
               )}
             >
               {isNonRegisteredFamilyMember(member) ? (
@@ -68,7 +76,10 @@ const createColumns = (
               )}
             </div>
           )}
-          <span className="font-medium">{member.name}</span>
+          <div className="min-w-0">
+            <p className="truncate font-medium">{member.name}</p>
+            <p className="truncate text-xs text-muted-foreground">{formatRelation(member.relation)}</p>
+          </div>
         </div>
       )
     },
@@ -76,12 +87,7 @@ const createColumns = (
   {
     accessorKey: 'relation',
     header: 'Relationship',
-    cell: ({ row }) => {
-      const relation = row.original.relation
-      return (
-        <span className="capitalize">{relation.toLowerCase()}</span>
-      )
-    },
+    cell: ({ row }) => <span>{formatRelation(row.original.relation)}</span>,
   },
   {
     id: 'type',
@@ -89,16 +95,12 @@ const createColumns = (
     cell: ({ row }) => {
       const type = row.original.type
       return (
-        <span
-          className={cn(
-            'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-            type === 'registered'
-              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
-          )}
+        <Badge
+          variant={type === 'registered' ? 'default' : 'secondary'}
+          className={cn('px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase', type === 'registered' && 'bg-emerald-600 text-white')}
         >
           {type === 'registered' ? 'Registered' : 'Non-Registered'}
-        </span>
+        </Badge>
       )
     },
   },
@@ -123,15 +125,12 @@ const createColumns = (
     id: 'actions',
     cell: ({ row }) => {
       const member = row.original
-      const id =
-        member.type === 'registered'
-          ? (member as any).familyMemberUserId
-          : member.id
+      const id = isRegisteredFamilyMember(member) ? member.familyMemberUserId : member.id
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm">
+            <Button variant="ghost" size="icon-sm" className="rounded-lg">
               <MoreVertical className="h-4 w-4" />
               <span className="sr-only">Open menu</span>
             </Button>
@@ -143,10 +142,15 @@ const createColumns = (
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onDelete(member.type, id)}
+              disabled={isDeleting === id}
               className="text-destructive focus:text-destructive"
             >
-              <Trash2 className="mr-2 h-4 w-4" />
-              <span>Delete</span>
+              {isDeleting === id ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="mr-2 h-4 w-4" />
+              )}
+              <span>{isDeleting === id ? 'Deleting...' : 'Delete'}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -159,6 +163,8 @@ export function FamilyMembersTable({
   data,
   isLoading = false,
   onDelete,
+  emptyTitle = 'No family members yet',
+  emptyDescription = 'Get started by adding your first family member.',
 }: FamilyMembersTableProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState<string | number | null>(null)
@@ -182,7 +188,7 @@ export function FamilyMembersTable({
     }
   }
 
-  const columns = createColumns(handleEdit, handleDelete)
+  const columns = createColumns(handleEdit, handleDelete, isDeleting)
 
   const table = useReactTable({
     data,
@@ -192,66 +198,131 @@ export function FamilyMembersTable({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading family members...</div>
+      <div className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/20 py-12">
+        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        <div className="text-sm text-muted-foreground">Loading family members...</div>
       </div>
     )
   }
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <UserPlus className="mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">No family members yet</h3>
-        <p className="text-muted-foreground">
-          Get started by adding your first family member.
-        </p>
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/15 px-6 py-14 text-center">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+          <UserPlus className="h-7 w-7 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-semibold">{emptyTitle}</h3>
+        <p className="mt-1 max-w-md text-sm text-muted-foreground">{emptyDescription}</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
+    <div className="space-y-3">
+      <div className="space-y-3 md:hidden">
+        {data.map((member) => {
+          const memberId = isRegisteredFamilyMember(member) ? member.familyMemberUserId : member.id
+          return (
+            <div key={`${member.type}-${memberId}`} className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  {isRegisteredFamilyMember(member) && member.image ? (
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="h-10 w-10 rounded-xl object-cover ring-1 ring-black/5"
+                    />
+                  ) : (
+                    <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl ring-1', isRegisteredFamilyMember(member) ? 'bg-primary/12 text-primary ring-primary/25' : 'bg-muted text-muted-foreground ring-border')}>
+                      {isRegisteredFamilyMember(member) ? <User className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{member.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">{formatRelation(member.relation)}</p>
+                  </div>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon-sm" className="rounded-lg">
+                      <MoreVertical className="h-4 w-4" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleEdit(member)}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      <span>Edit</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleDelete(member.type, memberId)}
+                      disabled={isDeleting === memberId}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      {isDeleting === memberId ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="mr-2 h-4 w-4" />
                       )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
-                  </TableCell>
+                      <span>{isDeleting === memberId ? 'Deleting...' : 'Delete'}</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <Badge
+                  variant={member.type === 'registered' ? 'default' : 'secondary'}
+                  className={cn('px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase', member.type === 'registered' && 'bg-emerald-600 text-white')}
+                >
+                  {member.type === 'registered' ? 'Registered' : 'Non-Registered'}
+                </Badge>
+                <p className="truncate text-xs text-muted-foreground">
+                  {isRegisteredFamilyMember(member)
+                    ? member.email
+                    : member.phoneNumber || member.address || 'No contact info'}
+                </p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-2xl border border-border/70 md:block">
+        <Table>
+          <TableHeader className="bg-muted/35">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
                 ))}
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No family members found. Add your first family member.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No family members found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }

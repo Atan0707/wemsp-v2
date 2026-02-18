@@ -1,13 +1,17 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { ArrowLeft, Loader2, PencilLine, User, UserPlus } from 'lucide-react'
+import { toast } from 'sonner'
+import type { FamilyMember } from '@/types/family'
+
+import { Button } from '@/components/ui/button'
 import {
   Card,
+  CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -18,9 +22,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FamilyRelation } from '@/lib/family-types'
-import { FamilyMember, isNonRegisteredFamilyMember } from '@/types/family'
-import { Loader2, ArrowLeft } from 'lucide-react'
-import { toast } from 'sonner'
+import { isNonRegisteredFamilyMember, isRegisteredFamilyMember } from '@/types/family'
+
+const formatRelationLabel = (relation: string) =>
+  relation
+    .toLowerCase()
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
 
 export const Route = createFileRoute('/app/family/edit')({
   component: RouteComponent,
@@ -28,52 +37,52 @@ export const Route = createFileRoute('/app/family/edit')({
 
 function RouteComponent() {
   const router = useRouter()
-  // @ts-ignore - TanStack Router state access
-  const member = router.state.location.state?.member as FamilyMember | undefined
+  const routeState = router.state.location.state as { member?: FamilyMember } | undefined
+  const member = routeState ? routeState.member : undefined
 
-  // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ type, id, data }: {
-      type: string
-      id: string
+    mutationFn: async ({
+      data,
+      id,
+      type,
+    }: {
       data: any
+      id: string
+      type: string
     }) => {
-      const response = await fetch(
-        `/api/family?type=${type}&id=${id}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        }
-      )
+      const response = await fetch(`/api/family?type=${type}&id=${id}`, {
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'PUT',
+      })
       if (!response.ok) {
         const error = await response.text()
         throw new Error(error || 'Failed to update family member')
       }
       return response.json()
     },
-    onSuccess: () => {
-      toast.success('Family member updated successfully')
-      router.navigate({ to: '/app/family' })
-    },
     onError: (error: Error) => {
       console.error('Error updating family member:', error)
       toast.error(error.message || 'Failed to update family member')
     },
+    onSuccess: () => {
+      toast.success('Family member updated successfully')
+      router.navigate({ to: '/app/family' })
+    },
   })
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
 
     if (!member) return
 
     if (isNonRegisteredFamilyMember(member)) {
-      const name = formData.get('name') as string
-      const icNumber = formData.get('icNumber') as string
-      const relation = formData.get('relation') as string
       const address = formData.get('address') as string
+      const icNumber = formData.get('icNumber') as string
+      const name = formData.get('name') as string
       const phoneNumber = formData.get('phoneNumber') as string
+      const relation = formData.get('relation') as string
 
       if (!name || !icNumber || !relation) {
         toast.error('Please fill in all required fields')
@@ -81,62 +90,91 @@ function RouteComponent() {
       }
 
       await updateMutation.mutateAsync({
-        type: 'non-registered',
+        data: { address, icNumber, name, phoneNumber, relation },
         id: member.id.toString(),
-        data: { name, icNumber, relation, address, phoneNumber },
+        type: 'non-registered',
       })
-    } else {
-      const relation = formData.get('relation') as string
-
-      if (!relation) {
-        toast.error('Please select a relationship')
-        return
-      }
-
-      await updateMutation.mutateAsync({
-        type: 'registered',
-        id: member.familyMemberUserId,
-        data: { relation },
-      })
+      return
     }
+
+    const relation = formData.get('relation') as string
+    if (!relation) {
+      toast.error('Please select a relationship')
+      return
+    }
+
+    await updateMutation.mutateAsync({
+      data: { relation },
+      id: member.familyMemberUserId,
+      type: 'registered',
+    })
   }
 
   if (!member) {
     return (
-      <div className="flex flex-col gap-4">
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <p className="text-muted-foreground">No family member selected.</p>
-              <Button
-                variant="outline"
-                onClick={() => router.navigate({ to: '/app/family' })}
-                className="mt-4"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Family Members
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center">
+          <p className="text-muted-foreground">No family member selected.</p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => router.navigate({ to: '/app/family' })}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Family Members
+          </Button>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
+    <div className="space-y-4">
+      <Card className="border-border/70 bg-gradient-to-r from-slate-100/70 via-background to-sky-50/50">
+        <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <PencilLine className="h-5 w-5" />
+              Edit Family Member
+            </CardTitle>
+            <CardDescription className="mt-1">
+              Update relationship details and contact information.
+            </CardDescription>
+          </div>
+          <Button variant="outline" onClick={() => router.navigate({ to: '/app/family' })}>
+            <ArrowLeft className="h-4 w-4" />
+            Back to Family
+          </Button>
+        </CardHeader>
+      </Card>
+
+      <Card className="border-border/70">
         <CardHeader>
-          <CardTitle>Edit Family Member</CardTitle>
-          <CardDescription>
-            Update family member information
-          </CardDescription>
+          <div className="flex items-center gap-3">
+            {isRegisteredFamilyMember(member) && member.image ? (
+              <img
+                src={member.image}
+                alt={member.name}
+                className="h-11 w-11 rounded-xl object-cover ring-1 ring-black/5"
+              />
+            ) : (
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground ring-1 ring-border">
+                {isRegisteredFamilyMember(member) ? <User className="h-5 w-5" /> : <UserPlus className="h-5 w-5" />}
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="truncate font-medium">{member.name}</p>
+              <p className="truncate text-sm text-muted-foreground">
+                {isRegisteredFamilyMember(member) ? member.email : `IC: ${member.icNumber}`}
+              </p>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {isNonRegisteredFamilyMember(member) ? (
-              <>
-                <div className="flex flex-col gap-2">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="name">Name *</Label>
                   <Input
                     id="name"
@@ -147,7 +185,7 @@ function RouteComponent() {
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="space-y-2">
                   <Label htmlFor="icNumber">IC Number *</Label>
                   <Input
                     id="icNumber"
@@ -158,23 +196,23 @@ function RouteComponent() {
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="space-y-2">
                   <Label htmlFor="relation-non-registered">Relationship *</Label>
                   <Select name="relation" defaultValue={member.relation} required>
                     <SelectTrigger id="relation-non-registered">
                       <SelectValue placeholder="Select relationship" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.values(FamilyRelation).map((relation) => (
-                        <SelectItem key={relation} value={relation}>
-                          {relation.toLowerCase()}
+                      {Object.values(FamilyRelation).map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {formatRelationLabel(value)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="space-y-2">
                   <Label htmlFor="phoneNumber">Phone Number</Label>
                   <Input
                     id="phoneNumber"
@@ -184,7 +222,7 @@ function RouteComponent() {
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="space-y-2">
                   <Label htmlFor="address">Address</Label>
                   <Input
                     id="address"
@@ -193,65 +231,63 @@ function RouteComponent() {
                     placeholder="Enter address"
                   />
                 </div>
-              </>
+              </div>
             ) : (
-              <>
-                <div className="flex flex-col gap-2">
-                  <Label>Name</Label>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="registered-name">Name</Label>
                   <Input
+                    id="registered-name"
                     value={member.name}
                     disabled
-                    className="bg-muted"
+                    className="bg-muted/60"
                   />
-                  <p className="text-sm text-muted-foreground">
-                    Registered users cannot have their name changed.
-                  </p>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <Label>Email</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="registered-email">Email</Label>
                   <Input
+                    id="registered-email"
                     value={member.email}
                     disabled
-                    className="bg-muted"
+                    className="bg-muted/60"
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="relation-registered">Relationship *</Label>
                   <Select name="relation" defaultValue={member.relation} required>
                     <SelectTrigger id="relation-registered">
                       <SelectValue placeholder="Select relationship" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.values(FamilyRelation).map((relation) => (
-                        <SelectItem key={relation} value={relation}>
-                          {relation.toLowerCase()}
+                      {Object.values(FamilyRelation).map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {formatRelationLabel(value)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-sm text-muted-foreground">
-                    Only the relationship can be modified for registered users.
+                  <p className="text-xs text-muted-foreground">
+                    Registered user details are read-only. You can update the relationship only.
                   </p>
                 </div>
-              </>
+              </div>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.navigate({ to: '/app/family' })}
                 disabled={updateMutation.isPending}
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
               <Button type="submit" disabled={updateMutation.isPending}>
-                {updateMutation.isPending && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
+                {updateMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : null}
                 Save Changes
               </Button>
             </div>

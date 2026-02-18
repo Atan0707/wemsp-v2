@@ -90,9 +90,11 @@ function RouteComponent() {
     <SidebarProvider>
       <AdminSidebar adminName={admin.name} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
+        <header className="sticky top-0 z-20 px-4 pt-4">
+          <div className="flex h-14 items-center gap-3 rounded-2xl border border-border/60 bg-background/85 px-3 shadow-sm supports-[backdrop-filter]:backdrop-blur-sm">
+            <SidebarTrigger className="rounded-lg border border-border/60 bg-background shadow-sm hover:bg-muted" />
+            <Separator orientation="vertical" className="h-5" />
+            <div className="flex h-2 w-2 rounded-full bg-sidebar-primary" />
           <Breadcrumb>
             <BreadcrumbList>
               {breadcrumbs.map((crumb, index) => (
@@ -112,8 +114,9 @@ function RouteComponent() {
             </BreadcrumbList>
           </Breadcrumb>
           <div className="flex-1" />
+          </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-4">
           <Outlet />
         </div>
       </SidebarInset>
