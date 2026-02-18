@@ -21,6 +21,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import {
   DropdownMenu,
@@ -48,6 +49,14 @@ export function AppSidebar() {
     { to: "/app/family/view", label: "Family", matchPath: "/app/family", icon: Contact },
     { to: "/app/assets/view", label: "Assets", matchPath: "/app/assets", icon: Wallet2 },
     { to: "/app/agreement", label: "Agreement", matchPath: "/app/agreement", icon: FileText },
+  ]
+
+  const accountItems: Array<{
+    to: string
+    label: string
+    matchPath: string
+    icon: LucideIcon
+  }> = [
     { to: "/app/profile", label: "Profile", matchPath: "/app/profile", icon: User },
     { to: "/app/settings", label: "Settings", matchPath: "/app/settings", icon: Settings },
   ]
@@ -83,6 +92,28 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
               {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.to}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActivePath(item.matchPath)}
+                    className="h-11 rounded-xl px-3 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:shadow-sm"
+                  >
+                    <Link
+                      to={item.to}
+                      {...(item.to === "/app/profile"
+                        ? { search: { onboarding: false, redirect: location.pathname } }
+                        : {})}
+                    >
+                      <div className="flex size-7 items-center justify-center rounded-lg bg-sidebar-accent/70">
+                        <item.icon className="size-4" />
+                      </div>
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+              <SidebarSeparator className="my-2" />
+              {accountItems.map((item) => (
                 <SidebarMenuItem key={item.to}>
                   <SidebarMenuButton
                     asChild

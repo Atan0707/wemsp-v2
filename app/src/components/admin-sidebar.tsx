@@ -21,6 +21,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import {
   DropdownMenu,
@@ -44,6 +45,14 @@ export function AdminSidebar({ adminName }: AdminSidebarProps) {
   }> = [
     { to: "/admin/dashboard", label: "Dashboard", matchPath: "/admin/dashboard", icon: Home },
     { to: "/admin/users", label: "Users", matchPath: "/admin/users", icon: Users },
+  ]
+
+  const managementItems: Array<{
+    to: string
+    label: string
+    matchPath: string
+    icon: LucideIcon
+  }> = [
     { to: "/admin/assets", label: "Assets", matchPath: "/admin/assets", icon: Package },
     { to: "/admin/agreements", label: "Agreements", matchPath: "/admin/agreements", icon: FileText },
   ]
@@ -89,6 +98,23 @@ export function AdminSidebar({ adminName }: AdminSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
               {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.to}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActivePath(item.matchPath)}
+                    className="h-11 rounded-xl px-3 data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:shadow-sm"
+                  >
+                    <Link to={item.to}>
+                      <div className="flex size-7 items-center justify-center rounded-lg bg-sidebar-accent/70">
+                        <item.icon className="size-4" />
+                      </div>
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+              <SidebarSeparator className="my-2" />
+              {managementItems.map((item) => (
                 <SidebarMenuItem key={item.to}>
                   <SidebarMenuButton
                     asChild
