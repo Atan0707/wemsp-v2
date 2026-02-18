@@ -1,8 +1,11 @@
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { ArrowLeft, DollarSign, FileText, Loader2, Package, Tag, Upload, X } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { useMutation } from '@tanstack/react-query'
-import { Package, DollarSign, FileText, Loader2, X } from 'lucide-react'
+import type { AssetType as AssetTypeEnum } from '@/generated/prisma/enums'
+
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -10,13 +13,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -24,7 +22,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { AssetType, type AssetType as AssetTypeEnum } from '@/generated/prisma/enums'
+import { AssetType } from '@/generated/prisma/enums'
+
+const formatAssetType = (type: string) =>
+  type
+    .toLowerCase()
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+
+const formatValueWithCommas = (value: string) => {
+  const clean = value.replace(/,/g, '')
+  if (!clean) return ''
+  if (!/^\d*\.?\d*$/.test(clean)) return value
+  const parts = clean.split('.')
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return parts.join('.')
+}
+
+const cleanValue = (value: string) => value.replace(/,/g, '')
 
 export const Route = createFileRoute('/app/assets/add')({
   component: RouteComponent,
@@ -32,18 +48,16 @@ export const Route = createFileRoute('/app/assets/add')({
 
 function RouteComponent() {
   const router = useRouter()
+  const [documentFile, setDocumentFile] = useState<File | null>(null)
   const [formData, setFormData] = useState({
+    description: '',
     name: '',
     type: '' as AssetTypeEnum | '',
-    description: '',
     value: '',
   })
-  const [documentFile, setDocumentFile] = useState<File | null>(null)
 
-  // Create asset mutation
   const createAssetMutation = useMutation({
     mutationFn: async () => {
-      // Create FormData to handle file upload
       const formDataToSend = new FormData()
       formDataToSend.append('name', formData.name)
       formDataToSend.append('type', formData.type)
@@ -56,118 +70,66 @@ function RouteComponent() {
       }
 
       const response = await fetch('/api/asset', {
-        method: 'POST',
         body: formDataToSend,
+        method: 'POST',
       })
-
       const data = await response.json()
-
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create asset')
       }
-
       return data
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to create asset')
     },
     onSuccess: () => {
       toast.success('Asset created successfully')
       router.navigate({ to: '/app/assets' })
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to create asset')
-    },
   })
 
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const formatValueWithCommas = (value: string) => {
-    // Remove existing commas and non-numeric chars except decimal point
-    const cleanValue = value.replace(/,/g, '')
-    if (!cleanValue) return ''
-
-    // Check if it's a valid number format
-    if (/^\d*\.?\d*$/.test(cleanValue)) {
-      const parts = cleanValue.split('.')
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      return parts.join('.')
-    }
-    return value
-  }
-
-  const cleanValue = (value: string) => {
-    return value.replace(/,/g, '')
-  }
-
   const handleValueChange = (value: string) => {
-    // Only allow numbers, decimal point, and commas
     const numericValue = value.replace(/[^\d.,]/g, '')
+    if (numericValue.split('.').length > 2) return
+    setFormData((prev) => ({ ...prev, value: formatValueWithCommas(numericValue) }))
+  }
 
-    // Handle multiple decimal points
-    const parts = numericValue.split('.')
-    if (parts.length > 2) {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    if (file.type !== 'application/pdf') {
+      toast.error('Invalid file type. Please upload PDF files only.')
       return
     }
 
-    // Format with commas for display
-    const formatted = formatValueWithCommas(numericValue)
-    setFormData((prev) => ({ ...prev, value: formatted }))
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      // Validate file type (accept PDF and images)
-      const allowedTypes = [
-        'application/pdf',
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/gif',
-        'image/webp'
-      ]
-
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Invalid file type. Please upload PDF or image files.')
-        return
-      }
-
-      // Validate file size (max 10MB)
-      const maxSize = 10 * 1024 * 1024 // 10MB
-      if (file.size > maxSize) {
-        toast.error('File size exceeds 10MB limit')
-        return
-      }
-
-      setDocumentFile(file)
+    const maxSize = 10 * 1024 * 1024
+    if (file.size > maxSize) {
+      toast.error('File size exceeds 10MB limit')
+      return
     }
+
+    setDocumentFile(file)
   }
 
-  const handleRemoveFile = () => {
-    setDocumentFile(null)
-  }
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // Validate required fields
     if (!formData.name.trim()) {
       toast.error('Name is required')
       return
     }
-
     if (!formData.type) {
       toast.error('Asset type is required')
       return
     }
-
     if (!formData.value.trim()) {
       toast.error('Value is required')
       return
     }
 
-    const numValue = parseFloat(cleanValue(formData.value))
-    if (isNaN(numValue) || numValue < 0) {
+    const numericValue = parseFloat(cleanValue(formData.value))
+    if (Number.isNaN(numericValue) || numericValue < 0) {
       toast.error('Value must be a positive number')
       return
     }
@@ -175,172 +137,137 @@ function RouteComponent() {
     createAssetMutation.mutate()
   }
 
-  const handleCancel = () => {
-    router.navigate({ to: '/app/assets' })
-  }
-
-  // Helper function to format asset type for display
-  const formatAssetType = (type: string) => {
-    return type.charAt(0) + type.slice(1).toLowerCase()
-  }
-
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <CardTitle>Add Asset</CardTitle>
-              <CardDescription>Add a new asset to your portfolio</CardDescription>
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={createAssetMutation.isPending}
-            >
-              Cancel
-            </Button>
+    <div className="space-y-4">
+      <Card className="border-border/70 bg-gradient-to-r from-sky-50/60 via-background to-emerald-50/30">
+        <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle className="text-xl">Add Asset</CardTitle>
+            <CardDescription className="mt-1">
+              Add a new asset with value and optional supporting document.
+            </CardDescription>
           </div>
+          <Button variant="outline" onClick={() => router.navigate({ to: '/app/assets' })}>
+            <ArrowLeft className="h-4 w-4" />
+            Back to Assets
+          </Button>
         </CardHeader>
-        <CardContent>
+      </Card>
+
+      <Card className="border-border/70">
+        <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <FieldGroup className="gap-6">
-              {/* Name Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="name" className="text-sm font-medium">
-                  Asset Name <span className="text-destructive">*</span>
-                </FieldLabel>
+            <FieldGroup className="gap-4 md:grid md:grid-cols-2">
+              <Field className="space-y-2 md:col-span-2">
+                <FieldLabel htmlFor="name">Asset Name *</FieldLabel>
                 <div className="relative">
-                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Package className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="name"
-                    type="text"
                     value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))}
                     placeholder="Enter asset name"
-                    className="h-10 pl-10"
+                    className="pl-10"
                   />
                 </div>
               </Field>
 
-              {/* Asset Type Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="type" className="text-sm font-medium">
-                  Asset Type <span className="text-destructive">*</span>
-                </FieldLabel>
-                <Select
-                  value={formData.type}
-                  onValueChange={(value) => handleInputChange('type', value as AssetTypeEnum)}
-                >
-                  <SelectTrigger id="type" className="h-10">
-                    <SelectValue placeholder="Select asset type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(AssetType).map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {formatAssetType(type)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <Field className="space-y-2">
+                <FieldLabel htmlFor="type">Asset Type *</FieldLabel>
+                <div className="relative">
+                  <Tag className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Select
+                    value={formData.type}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, type: value as AssetTypeEnum }))}
+                  >
+                    <SelectTrigger id="type" className="pl-10">
+                      <SelectValue placeholder="Select asset type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(AssetType).map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {formatAssetType(type)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </Field>
 
-              {/* Value Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="value" className="text-sm font-medium">
-                  Value <span className="text-destructive">*</span>
-                </FieldLabel>
+              <Field className="space-y-2">
+                <FieldLabel htmlFor="value">Value (MYR) *</FieldLabel>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <DollarSign className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="value"
-                    type="text"
-                    inputMode="decimal"
-                    step="0.01"
-                    min="0"
                     value={formData.value}
-                    onChange={(e) => handleValueChange(e.target.value)}
+                    onChange={(event) => handleValueChange(event.target.value)}
+                    inputMode="decimal"
                     placeholder="0.00"
-                    className="h-10 pl-10"
+                    className="pl-10"
                   />
                 </div>
               </Field>
 
-              {/* Description Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="description" className="text-sm font-medium">
-                  Description
-                </FieldLabel>
+              <Field className="space-y-2 md:col-span-2">
+                <FieldLabel htmlFor="description">Description</FieldLabel>
                 <div className="relative">
-                  <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <FileText className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="description"
-                    type="text"
                     value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Enter asset description (optional)"
-                    className="h-10 pl-10"
+                    onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))}
+                    placeholder="Optional description"
+                    className="pl-10"
                   />
                 </div>
               </Field>
 
-              {/* Document Upload Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="document" className="text-sm font-medium">
-                  Document
-                </FieldLabel>
+              <Field className="space-y-2 md:col-span-2">
+                <FieldLabel htmlFor="document">Supporting Document (PDF)</FieldLabel>
                 {documentFile ? (
-                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-                    <FileText className="h-8 w-8 text-muted-foreground shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{documentFile.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {(documentFile.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
+                  <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-muted/30 p-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-background ring-1 ring-border">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRemoveFile}
-                      className="shrink-0"
-                    >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{documentFile.name}</p>
+                      <p className="text-xs text-muted-foreground">{(documentFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon-sm" onClick={() => setDocumentFile(null)}>
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
                   <div className="relative">
+                    <Upload className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="document"
                       type="file"
                       onChange={handleFileChange}
                       accept=".pdf"
-                      className="h-10 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-muted file:text-muted-foreground hover:file:bg-muted/80"
+                      className="pl-10 file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Upload PDF or image files (max 10MB)
-                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">PDF only, maximum 10MB.</p>
                   </div>
                 )}
               </Field>
             </FieldGroup>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full sm:w-auto"
-              disabled={createAssetMutation.isPending}
-            >
-              {createAssetMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                'Create Asset'
-              )}
-            </Button>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.navigate({ to: '/app/assets' })}
+                disabled={createAssetMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createAssetMutation.isPending}>
+                {createAssetMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Create Asset
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

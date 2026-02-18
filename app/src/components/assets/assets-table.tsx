@@ -1,20 +1,17 @@
-import { useState } from 'react'
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
-import { MoreVertical, Package, FileText, ExternalLink, Trash2, User } from 'lucide-react'
 import { useRouter } from '@tanstack/react-router'
+import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { ExternalLink, FileText, Loader2, MoreVertical, Package, Pencil, Trash2, User } from 'lucide-react'
+import { useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -23,87 +20,95 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 
 export interface Asset {
+  createdAt: string
+  description: string | null
+  documentUrl: string | null
   id: number
   name: string
-  type: string
-  description: string | null
-  value: number
-  documentUrl: string | null
-  createdAt: string
   owner?: {
     id: string
     name: string
   }
   relationship?: string
+  type: string
+  value: number
 }
 
 interface AssetsTableProps {
-  data: Asset[]
+  currentUserId?: string
+  data: Array<Asset>
+  emptyDescription?: string
+  emptyTitle?: string
   isLoading?: boolean
   onDelete?: (id: number) => void | Promise<void>
-  currentUserId?: string
   showOwner?: boolean
 }
 
-// Helper function to format currency
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('en-MY', {
-    style: 'currency',
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat('en-MY', {
     currency: 'MYR',
     minimumFractionDigits: 2,
+    style: 'currency',
   }).format(value)
-}
 
-// Helper function to format asset type for display
-const formatAssetType = (type: string) => {
-  return type.charAt(0) + type.slice(1).toLowerCase()
-}
+const formatTitleCase = (value: string) =>
+  value
+    .toLowerCase()
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
 
-// Get color for asset type badge
-const getAssetTypeColor = (type: string) => {
+const getAssetTypeBadgeClass = (type: string) => {
   switch (type) {
     case 'PROPERTY':
-      return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+      return 'bg-sky-600 text-white'
     case 'VEHICLE':
-      return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+      return 'bg-emerald-600 text-white'
     case 'INVESTMENT':
-      return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+      return 'bg-amber-600 text-white'
     default:
-      return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
+      return 'bg-slate-600 text-white'
   }
 }
 
-// Helper function to format relationship for display
-const formatRelationship = (relation: string): string => {
-  return relation.charAt(0) + relation.slice(1).toLowerCase()
-}
-
-const createColumns = (
-  onEdit: (asset: Asset) => void,
-  onDelete: (id: number) => void,
-  router: ReturnType<typeof useRouter>,
-  currentUserId: string,
+const createColumns = ({
+  currentUserId,
+  isDeleting,
+  onDelete,
+  onEdit,
+  router,
+  showOwner,
+}: {
+  currentUserId: string
+  isDeleting: number | null
+  onDelete: (id: number) => void
+  onEdit: (asset: Asset) => void
+  router: ReturnType<typeof useRouter>
   showOwner: boolean
-): ColumnDef<Asset>[] => {
-  const columns: ColumnDef<Asset>[] = [
+}): Array<ColumnDef<Asset>> => {
+  const columns: Array<ColumnDef<Asset>> = [
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: 'Asset',
       cell: ({ row }) => {
         const asset = row.original
         return (
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
               <Package className="h-4 w-4" />
             </div>
-            <button
-              onClick={() => router.navigate({ to: `/app/assets/view/${asset.id}` as any })}
-              className="font-medium hover:underline hover:text-primary transition-colors text-left"
-            >
-              {asset.name}
-            </button>
+            <div className="min-w-0">
+              <button
+                onClick={() => router.navigate({ to: `/app/assets/view/${asset.id}` as any })}
+                className="truncate text-left font-medium hover:text-primary hover:underline"
+              >
+                {asset.name}
+              </button>
+              <p className="truncate text-xs text-muted-foreground">{asset.description || 'No description'}</p>
+            </div>
           </div>
         )
       },
@@ -111,140 +116,118 @@ const createColumns = (
     {
       accessorKey: 'type',
       header: 'Type',
-      cell: ({ row }) => {
-        const type = row.original.type
-        return (
-          <Badge className={getAssetTypeColor(type)}>
-            {formatAssetType(type)}
-          </Badge>
-        )
-      },
+      cell: ({ row }) => (
+        <Badge className={cn('px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase', getAssetTypeBadgeClass(row.original.type))}>
+          {formatTitleCase(row.original.type)}
+        </Badge>
+      ),
     },
     {
       accessorKey: 'value',
       header: 'Value',
-      cell: ({ row }) => {
-        const value = row.original.value
-        return <span className="font-medium">{formatCurrency(value)}</span>
-      },
-    },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-      cell: ({ row }) => {
-        const description = row.original.description
-        return (
-          <span className="text-sm text-muted-foreground">
-            {description || '-'}
-          </span>
-        )
-      },
+      cell: ({ row }) => <span className="font-semibold">{formatCurrency(row.original.value)}</span>,
     },
   ]
 
-  // Conditionally add owner column
   if (showOwner) {
     columns.push({
       id: 'owner',
       header: 'Owner',
       cell: ({ row }) => {
         const asset = row.original
-        if (!asset.owner) {
-          return <span className="text-sm text-muted-foreground">You</span>
-        }
+        const ownerName = asset.owner ? asset.owner.name : 'You'
+        const relationship = asset.relationship ? formatTitleCase(asset.relationship) : null
+
         return (
-          <div className="flex flex-col">
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">{asset.owner.name}</span>
+              <User className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="truncate text-sm font-medium">{ownerName}</span>
             </div>
-            {asset.relationship && (
-              <span className="text-xs text-muted-foreground ml-6">
-                {formatRelationship(asset.relationship)}
-              </span>
-            )}
+            {relationship ? (
+              <p className="truncate pl-5 text-xs text-muted-foreground">{relationship}</p>
+            ) : null}
           </div>
         )
       },
     })
   }
 
-  columns.push(
-    {
-      id: 'document',
-      header: 'Document',
-      cell: ({ row }) => {
-        const asset = row.original
-        if (!asset.documentUrl) {
-          return <span className="text-sm text-muted-foreground">-</span>
-        }
-        return (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.open(asset.documentUrl!, '_blank')}
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            View
-            <ExternalLink className="ml-1 h-3 w-3" />
-          </Button>
-        )
-      },
+  columns.push({
+    id: 'document',
+    header: 'Document',
+    cell: ({ row }) => {
+      const asset = row.original
+      if (!asset.documentUrl) {
+        return <span className="text-sm text-muted-foreground">No document</span>
+      }
+      return (
+        <Button variant="ghost" size="sm" onClick={() => window.open(asset.documentUrl as string, '_blank')}>
+          <FileText className="h-4 w-4" />
+          View
+          <ExternalLink className="h-3 w-3" />
+        </Button>
+      )
     },
-    {
-      id: 'actions',
-      cell: ({ row }) => {
-        const asset = row.original
-        const isOwner = !asset.owner || asset.owner.id === currentUserId
+  })
 
-        if (!isOwner) {
-          return null
-        }
+  columns.push({
+    id: 'actions',
+    cell: ({ row }) => {
+      const asset = row.original
+      const isOwner = !asset.owner || asset.owner.id === currentUserId
+      if (!isOwner) {
+        return null
+      }
 
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-sm">
-                <MoreVertical className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(asset)}>
-                <Package className="mr-2 h-4 w-4" />
-                <span>Edit</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete(asset.id)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                <span>Delete</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
-      },
-    }
-  )
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon-sm" className="rounded-lg">
+              <MoreVertical className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onEdit(asset)}>
+              <Pencil className="h-4 w-4" />
+              <span>Edit</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onDelete(asset.id)}
+              disabled={isDeleting === asset.id}
+              className="text-destructive focus:text-destructive"
+            >
+              {isDeleting === asset.id ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              <span>{isDeleting === asset.id ? 'Deleting...' : 'Delete'}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
+  })
 
   return columns
 }
 
 export function AssetsTable({
+  currentUserId = '',
   data,
+  emptyDescription = 'Get started by adding your first asset.',
+  emptyTitle = 'No assets yet',
   isLoading = false,
   onDelete,
-  currentUserId = '',
   showOwner = false,
 }: AssetsTableProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState<number | null>(null)
 
   const handleEdit = (asset: Asset) => {
-    router.navigate({
-      to: `/app/assets/edit/${asset.id}`,
-    })
+    router.navigate({ to: `/app/assets/edit/${asset.id}` as any })
   }
 
   const handleDelete = async (id: number) => {
@@ -258,76 +241,149 @@ export function AssetsTable({
     }
   }
 
-  const columns = createColumns(handleEdit, handleDelete, router, currentUserId, showOwner)
+  const columns = createColumns({
+    currentUserId,
+    isDeleting,
+    onDelete: handleDelete,
+    onEdit: handleEdit,
+    router,
+    showOwner,
+  })
 
   const table = useReactTable({
-    data,
     columns,
+    data,
     getCoreRowModel: getCoreRowModel(),
   })
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading assets...</div>
+      <div className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/20 py-12">
+        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        <div className="text-sm text-muted-foreground">Loading assets...</div>
       </div>
     )
   }
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <Package className="mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">No assets yet</h3>
-        <p className="text-muted-foreground">
-          Get started by adding your first asset.
-        </p>
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/15 px-6 py-14 text-center">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+          <Package className="h-7 w-7 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-semibold">{emptyTitle}</h3>
+        <p className="mt-1 max-w-md text-sm text-muted-foreground">{emptyDescription}</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
-                  </TableCell>
+    <div className="space-y-3">
+      <div className="space-y-3 md:hidden">
+        {data.map((asset) => {
+          const ownerName = asset.owner ? asset.owner.name : 'You'
+          const relationship = asset.relationship ? formatTitleCase(asset.relationship) : null
+          const isOwner = !asset.owner || asset.owner.id === currentUserId
+
+          return (
+            <div key={asset.id} className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <button
+                  onClick={() => router.navigate({ to: `/app/assets/view/${asset.id}` as any })}
+                  className="min-w-0 text-left"
+                >
+                  <p className="truncate font-medium hover:text-primary">{asset.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">{asset.description || 'No description'}</p>
+                </button>
+                {isOwner ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon-sm" className="rounded-lg">
+                        <MoreVertical className="h-4 w-4" />
+                        <span className="sr-only">Open menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEdit(asset)}>
+                        <Pencil className="h-4 w-4" />
+                        <span>Edit</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDelete(asset.id)}
+                        disabled={isDeleting === asset.id}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        {isDeleting === asset.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                        <span>{isDeleting === asset.id ? 'Deleting...' : 'Delete'}</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : null}
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Badge className={cn('px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase', getAssetTypeBadgeClass(asset.type))}>
+                  {formatTitleCase(asset.type)}
+                </Badge>
+                <span className="text-sm font-semibold">{formatCurrency(asset.value)}</span>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <p className="truncate text-xs text-muted-foreground">
+                  {showOwner ? `${ownerName}${relationship ? ` (${relationship})` : ''}` : ownerName}
+                </p>
+                {asset.documentUrl ? (
+                  <Button variant="ghost" size="sm" onClick={() => window.open(asset.documentUrl as string, '_blank')}>
+                    <FileText className="h-4 w-4" />
+                    View
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-2xl border border-border/70 md:block">
+        <Table>
+          <TableHeader className="bg-muted/35">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
                 ))}
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No assets found. Add your first asset.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No assets found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }

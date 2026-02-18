@@ -1,8 +1,12 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
-import { toast } from 'sonner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Package, DollarSign, FileText, Loader2, X, ExternalLink, RefreshCw } from 'lucide-react'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { ArrowLeft, DollarSign, ExternalLink, FileText, Loader2, Package, PencilLine, RefreshCw, Tag, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import type { AssetType as AssetTypeEnum } from '@/generated/prisma/enums'
+import type { Asset } from '@/components/assets/assets-table'
+
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -10,13 +14,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-} from '@/components/ui/field'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -24,8 +23,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { AssetType, type AssetType as AssetTypeEnum } from '@/generated/prisma/enums'
-import type { Asset } from '@/components/assets/assets-table'
+import { AssetType } from '@/generated/prisma/enums'
+
+const formatAssetType = (type: string) =>
+  type
+    .toLowerCase()
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+
+const formatValueWithCommas = (value: string) => {
+  const clean = value.replace(/,/g, '')
+  if (!clean) return ''
+  if (!/^\d*\.?\d*$/.test(clean)) return value
+  const parts = clean.split('.')
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return parts.join('.')
+}
+
+const cleanValue = (value: string) => value.replace(/,/g, '')
 
 export const Route = createFileRoute('/app/assets/edit/$id')({
   component: RouteComponent,
@@ -36,84 +52,44 @@ function RouteComponent() {
   const queryClient = useQueryClient()
   const { id } = Route.useParams()
 
+  const [documentFile, setDocumentFile] = useState<File | null>(null)
   const [formData, setFormData] = useState<{
+    description: string
     name: string
     type: AssetTypeEnum | undefined
-    description: string
     value: string
   }>({
+    description: '',
     name: '',
     type: undefined,
-    description: '',
     value: '',
   })
-  const [documentFile, setDocumentFile] = useState<File | null>(null)
   const [showReplaceDocument, setShowReplaceDocument] = useState(false)
 
-  // Fetch existing asset
   const { data: assetData, isLoading: assetLoading } = useQuery<{ asset: Asset }>({
+    enabled: !!id,
     queryKey: ['asset', id],
     queryFn: async () => {
       const response = await fetch(`/api/asset/${id}`)
       if (!response.ok) {
         throw new Error('Failed to fetch asset')
       }
-      const data = await response.json()
-      // console.log(data)
-      return data
+      return response.json()
     },
-    enabled: !!id,
   })
 
   const asset = assetData?.asset
 
-  const formatValueWithCommas = (value: string) => {
-    // Remove existing commas and non-numeric chars except decimal point
-    const clean = value.replace(/,/g, '')
-    if (!clean) return ''
-
-    // Check if it's a valid number format
-    if (/^\d*\.?\d*$/.test(clean)) {
-      const parts = clean.split('.')
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      return parts.join('.')
-    }
-    return value
-  }
-
-  const cleanValue = (value: string) => {
-    return value.replace(/,/g, '')
-  }
-
-  const handleValueChange = (value: string) => {
-    // Only allow numbers, decimal point, and commas
-    const numericValue = value.replace(/[^\d.,]/g, '')
-
-    // Handle multiple decimal points
-    const parts = numericValue.split('.')
-    if (parts.length > 2) {
-      return
-    }
-
-    // Format with commas for display
-    const formatted = formatValueWithCommas(numericValue)
-    setFormData((prev) => ({ ...prev, value: formatted }))
-  }
-
-  // Initialize form data when asset loads
   useEffect(() => {
-    if (asset) {
-      // console.log(asset)
-      setFormData({
-        name: asset.name,
-        type: asset.type as AssetTypeEnum,
-        description: asset.description || '',
-        value: formatValueWithCommas(asset.value.toString()),
-      })
-    }
+    if (!asset) return
+    setFormData({
+      description: asset.description || '',
+      name: asset.name,
+      type: asset.type as AssetTypeEnum,
+      value: formatValueWithCommas(asset.value.toString()),
+    })
   }, [asset])
 
-  // Update asset mutation
   const updateAssetMutation = useMutation({
     mutationFn: async () => {
       const formDataToSend = new FormData()
@@ -130,17 +106,17 @@ function RouteComponent() {
       }
 
       const response = await fetch(`/api/asset/${id}`, {
-        method: 'PUT',
         body: formDataToSend,
+        method: 'PUT',
       })
-
       const data = await response.json()
-
       if (!response.ok) {
         throw new Error(data.error || 'Failed to update asset')
       }
-
       return data
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to update asset')
     },
     onSuccess: () => {
       toast.success('Asset updated successfully')
@@ -148,61 +124,51 @@ function RouteComponent() {
       queryClient.invalidateQueries({ queryKey: ['assets'] })
       router.navigate({ to: '/app/assets' })
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update asset')
-    },
   })
 
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+  const handleValueChange = (value: string) => {
+    const numericValue = value.replace(/[^\d.,]/g, '')
+    if (numericValue.split('.').length > 2) return
+    setFormData((prev) => ({ ...prev, value: formatValueWithCommas(numericValue) }))
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const allowedTypes = ['application/pdf']
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
 
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Invalid file type. Please upload PDF files.')
-        return
-      }
-
-      const maxSize = 10 * 1024 * 1024
-      if (file.size > maxSize) {
-        toast.error('File size exceeds 10MB limit')
-        return
-      }
-
-      setDocumentFile(file)
-      setShowReplaceDocument(false)
+    if (file.type !== 'application/pdf') {
+      toast.error('Invalid file type. Please upload PDF files.')
+      return
     }
-  }
 
-  const handleCancelReplace = () => {
+    const maxSize = 10 * 1024 * 1024
+    if (file.size > maxSize) {
+      toast.error('File size exceeds 10MB limit')
+      return
+    }
+
+    setDocumentFile(file)
     setShowReplaceDocument(false)
-    setDocumentFile(null)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
 
     if (!formData.name.trim()) {
       toast.error('Name is required')
       return
     }
-
     if (!formData.type) {
       toast.error('Asset type is required')
       return
     }
-
     if (!formData.value.trim()) {
       toast.error('Value is required')
       return
     }
 
-    const numValue = parseFloat(cleanValue(formData.value))
-    if (isNaN(numValue) || numValue < 0) {
+    const numericValue = parseFloat(cleanValue(formData.value))
+    if (Number.isNaN(numericValue) || numericValue < 0) {
       toast.error('Value must be a positive number')
       return
     }
@@ -210,225 +176,185 @@ function RouteComponent() {
     updateAssetMutation.mutate()
   }
 
-  const handleCancel = () => {
-    router.navigate({ to: '/app/assets' })
-  }
-
-  const formatAssetType = (type: string) => {
-    return type.charAt(0) + type.slice(1).toLowerCase()
-  }
-
-  // Loading state
   if (assetLoading) {
     return (
-      <div className="flex items-center justify-center h-[60vh]">
+      <div className="flex h-[60vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     )
   }
 
-  // Asset not found
   if (!asset) {
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh] px-4 text-center">
-        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-          <Package className="h-8 w-8 text-muted-foreground" />
-        </div>
-        <h2 className="text-xl font-semibold mb-2">Asset Not Found</h2>
-        <p className="text-muted-foreground max-w-md">
-          The asset you're looking for doesn't exist or you don't have permission to edit it.
-        </p>
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center">
+          <p className="text-muted-foreground">Asset not found.</p>
+          <Button variant="outline" className="mt-4" onClick={() => router.navigate({ to: '/app/assets' })}>
+            <ArrowLeft className="h-4 w-4" />
+            Back to Assets
+          </Button>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <CardTitle>Edit Asset</CardTitle>
-              <CardDescription>Update your asset information</CardDescription>
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={updateAssetMutation.isPending}
-            >
-              Cancel
-            </Button>
+    <div className="space-y-4">
+      <Card className="border-border/70 bg-gradient-to-r from-slate-100/70 via-background to-sky-50/50">
+        <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <PencilLine className="h-5 w-5" />
+              Edit Asset
+            </CardTitle>
+            <CardDescription className="mt-1">Update details and replace the document if needed.</CardDescription>
           </div>
+          <Button variant="outline" onClick={() => router.navigate({ to: '/app/assets' })}>
+            <ArrowLeft className="h-4 w-4" />
+            Back to Assets
+          </Button>
         </CardHeader>
-        <CardContent>
+      </Card>
+
+      <Card className="border-border/70">
+        <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <FieldGroup className="gap-6">
-              {/* Name Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="name" className="text-sm font-medium">
-                  Asset Name <span className="text-destructive">*</span>
-                </FieldLabel>
+            <FieldGroup className="gap-4 md:grid md:grid-cols-2">
+              <Field className="space-y-2 md:col-span-2">
+                <FieldLabel htmlFor="name">Asset Name *</FieldLabel>
                 <div className="relative">
-                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Package className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="name"
-                    type="text"
                     value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))}
                     placeholder="Enter asset name"
-                    className="h-10 pl-10"
+                    className="pl-10"
                   />
                 </div>
               </Field>
 
-              {/* Asset Type Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="type" className="text-sm font-medium">
-                  Asset Type <span className="text-destructive">*</span>
-                </FieldLabel>
-                <Select
-                  key={formData.type || 'type-select'}
-                  value={formData.type}
-                  onValueChange={(value) => handleInputChange('type', value as AssetTypeEnum)}
-                >
-                  <SelectTrigger id="type" className="h-10">
-                    <SelectValue placeholder="Select asset type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(AssetType).map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {formatAssetType(type)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <Field className="space-y-2">
+                <FieldLabel htmlFor="type">Asset Type *</FieldLabel>
+                <div className="relative">
+                  <Tag className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Select
+                    value={formData.type}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, type: value as AssetTypeEnum }))}
+                  >
+                    <SelectTrigger id="type" className="pl-10">
+                      <SelectValue placeholder="Select asset type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(AssetType).map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {formatAssetType(type)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </Field>
 
-              {/* Value Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="value" className="text-sm font-medium">
-                  Value <span className="text-destructive">*</span>
-                </FieldLabel>
+              <Field className="space-y-2">
+                <FieldLabel htmlFor="value">Value (MYR) *</FieldLabel>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <DollarSign className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="value"
-                    type="text"
-                    inputMode="decimal"
-                    step="0.01"
-                    min="0"
                     value={formData.value}
-                    onChange={(e) => handleValueChange(e.target.value)}
+                    onChange={(event) => handleValueChange(event.target.value)}
+                    inputMode="decimal"
                     placeholder="0.00"
-                    className="h-10 pl-10"
+                    className="pl-10"
                   />
                 </div>
               </Field>
 
-              {/* Description Field */}
-              <Field className="group">
-                <FieldLabel htmlFor="description" className="text-sm font-medium">
-                  Description
-                </FieldLabel>
+              <Field className="space-y-2 md:col-span-2">
+                <FieldLabel htmlFor="description">Description</FieldLabel>
                 <div className="relative">
-                  <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <FileText className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="description"
-                    type="text"
                     value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Enter asset description (optional)"
-                    className="h-10 pl-10"
+                    onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))}
+                    placeholder="Optional description"
+                    className="pl-10"
                   />
                 </div>
               </Field>
 
-              {/* Document Field */}
-              <Field className="group">
-                <FieldLabel className="text-sm font-medium">Document</FieldLabel>
-
-                {/* Show current document if exists and not replacing */}
+              <Field className="space-y-2 md:col-span-2">
+                <FieldLabel>Document (PDF)</FieldLabel>
                 {asset.documentUrl && !showReplaceDocument && !documentFile ? (
-                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-                    <FileText className="h-8 w-8 text-muted-foreground shrink-0" />
-                    <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-muted/30 p-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-background ring-1 ring-border">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium">Current document</p>
                       <Button
                         type="button"
                         variant="link"
                         size="sm"
                         className="h-auto p-0 text-xs"
-                        onClick={() => window.open(asset.documentUrl!, '_blank')}
+                        onClick={() => window.open(asset.documentUrl as string, '_blank')}
                       >
                         View document
-                        <ExternalLink className="ml-1 h-3 w-3" />
+                        <ExternalLink className="h-3 w-3" />
                       </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowReplaceDocument(true)}
-                      className="shrink-0"
-                    >
-                      <RefreshCw className="h-4 w-4 mr-1" />
+                    <Button type="button" size="sm" variant="outline" onClick={() => setShowReplaceDocument(true)}>
+                      <RefreshCw className="h-4 w-4" />
                       Replace
                     </Button>
                   </div>
                 ) : documentFile ? (
-                  /* Show new selected file */
-                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-                    <FileText className="h-8 w-8 text-muted-foreground shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{documentFile.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {(documentFile.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
+                  <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-muted/30 p-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-background ring-1 ring-border">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCancelReplace}
-                      className="shrink-0"
-                    >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{documentFile.name}</p>
+                      <p className="text-xs text-muted-foreground">{(documentFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon-sm" onClick={() => {
+                      setDocumentFile(null)
+                      setShowReplaceDocument(false)
+                    }}>
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
-                  /* Show file input */
-                  <div className="relative">
+                  <div>
                     <Input
                       id="document"
                       type="file"
                       onChange={handleFileChange}
                       accept=".pdf"
-                      className="h-10 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-muted file:text-muted-foreground hover:file:bg-muted/80"
+                      className="file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Upload PDF files (max 10MB). This will replace the current document.
-                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">PDF only, maximum 10MB.</p>
                   </div>
                 )}
               </Field>
             </FieldGroup>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full sm:w-auto"
-              disabled={updateAssetMutation.isPending}
-            >
-              {updateAssetMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                'Save Changes'
-              )}
-            </Button>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.navigate({ to: '/app/assets' })}
+                disabled={updateAssetMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateAssetMutation.isPending}>
+                {updateAssetMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Save Changes
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
