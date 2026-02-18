@@ -33,6 +33,48 @@
     },
     "languageSwitcher": {
       "label": "Language"
+    },
+    "appDashboard": {
+      "welcome": "Welcome",
+      "subtitle": "Track your estate planning progress and complete pending actions.",
+      "newAgreement": "New Agreement",
+      "addAsset": "Add Asset",
+      "totalAssets": "total assets",
+      "asOwner": "as owner",
+      "pendingActions": "Pending actions",
+      "familyMembersLinked": "Family members linked",
+      "actionRequired": "Action Required",
+      "actionRequiredDescription": "Agreements that need your attention now.",
+      "noUrgentActions": "No urgent actions. You are up to date.",
+      "open": "Open",
+      "quickLinks": "Quick Links",
+      "quickLinksDescription": "Jump to core workflows.",
+      "manageAssets": "Manage Assets",
+      "updateFamily": "Update Family",
+      "viewAgreements": "View Agreements",
+      "profile": "Profile",
+      "topAssets": "Top Assets",
+      "topAssetsDescription": "Your highest value assets.",
+      "noAssets": "No assets yet.",
+      "recentAgreements": "Recent Agreements",
+      "recentAgreementsDescription": "Most recently created agreements.",
+      "noAgreements": "No agreements yet.",
+      "assetsLabel": "assets",
+      "task": {
+        "ownerDraft": "Draft: review details and submit for signatures",
+        "ownerPendingSignatures": "Waiting for beneficiary signatures",
+        "ownerPendingWitness": "Ready for witness verification",
+        "beneficiaryPendingSignatures": "Your signature is required",
+        "default": "Open agreement details"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "languageTitle": "Language",
+      "languageDescription": "Choose your preferred app language.",
+      "english": "English",
+      "malay": "Malay",
+      "current": "Current"
     }
   }
 }

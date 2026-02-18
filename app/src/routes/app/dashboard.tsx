@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/card'
 import { AgreementStatus } from '@/generated/prisma/enums'
 import { authClient } from '@/lib/auth-client'
+import { useLanguage } from '@/lib/i18n/context'
 
 interface AssetSummary {
   id: number
@@ -47,8 +48,10 @@ interface AgreementsResponse {
   agreements?: Array<AgreementSummary>
 }
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('en-MY', {
+const getLocale = (language: 'en' | 'ms') => (language === 'ms' ? 'ms-MY' : 'en-MY')
+
+const formatCurrency = (value: number, language: 'en' | 'ms') =>
+  new Intl.NumberFormat(getLocale(language), {
     currency: 'MYR',
     maximumFractionDigits: 0,
     style: 'currency',
@@ -61,27 +64,30 @@ const formatAssetType = (value: string) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
 
-const formatDate = (value: string) =>
-  new Date(value).toLocaleDateString('en-MY', {
+const formatDate = (value: string, language: 'en' | 'ms') =>
+  new Date(value).toLocaleDateString(getLocale(language), {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   })
 
-const getAgreementTaskText = (agreement: AgreementSummary) => {
+const getAgreementTaskText = (
+  agreement: AgreementSummary,
+  t: (key: string) => string,
+) => {
   if (agreement.isOwner && agreement.status === AgreementStatus.DRAFT) {
-    return 'Draft: review details and submit for signatures'
+    return t('appDashboard.task.ownerDraft')
   }
   if (agreement.isOwner && agreement.status === AgreementStatus.PENDING_SIGNATURES) {
-    return 'Waiting for beneficiary signatures'
+    return t('appDashboard.task.ownerPendingSignatures')
   }
   if (agreement.isOwner && agreement.status === AgreementStatus.PENDING_WITNESS) {
-    return 'Ready for witness verification'
+    return t('appDashboard.task.ownerPendingWitness')
   }
   if (agreement.isBeneficiary && agreement.status === AgreementStatus.PENDING_SIGNATURES) {
-    return 'Your signature is required'
+    return t('appDashboard.task.beneficiaryPendingSignatures')
   }
-  return 'Open agreement details'
+  return t('appDashboard.task.default')
 }
 
 export const Route = createFileRoute('/app/dashboard')({
@@ -90,6 +96,7 @@ export const Route = createFileRoute('/app/dashboard')({
 
 function RouteComponent() {
   const router = useRouter()
+  const { language, t } = useLanguage()
 
   const { data: sessionData, isLoading: isSessionLoading } = useQuery({
     queryKey: ['session'],
@@ -150,13 +157,14 @@ function RouteComponent() {
 
   const totalAssetValue = assets.reduce((sum, asset) => sum + asset.value, 0)
   const ownerAgreements = agreements.filter((agreement) => agreement.isOwner)
+  const actionableOwnerStatuses: AgreementStatus[] = [
+    AgreementStatus.DRAFT,
+    AgreementStatus.PENDING_SIGNATURES,
+    AgreementStatus.PENDING_WITNESS,
+  ]
   const pendingActions = agreements.filter((agreement) =>
     (agreement.isOwner &&
-      [
-        AgreementStatus.DRAFT,
-        AgreementStatus.PENDING_SIGNATURES,
-        AgreementStatus.PENDING_WITNESS,
-      ].includes(agreement.status)) ||
+      actionableOwnerStatuses.includes(agreement.status)) ||
     (agreement.isBeneficiary &&
       agreement.status === AgreementStatus.PENDING_SIGNATURES)
   )
@@ -182,20 +190,21 @@ function RouteComponent() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle className="text-xl">
-                Welcome{sessionData?.user.name ? `, ${sessionData.user.name}` : ''}
+                {t('appDashboard.welcome')}
+                {sessionData?.user.name ? `, ${sessionData.user.name}` : ''}
               </CardTitle>
               <CardDescription className="mt-1">
-                Track your estate planning progress and complete pending actions.
+                {t('appDashboard.subtitle')}
               </CardDescription>
             </div>
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
               <Button className="w-full sm:w-auto" onClick={() => router.navigate({ to: '/app/agreement/create' })}>
                 <Plus className="h-4 w-4" />
-                New Agreement
+                {t('appDashboard.newAgreement')}
               </Button>
               <Button className="w-full sm:w-auto" variant="outline" onClick={() => router.navigate({ to: '/app/assets/add' })}>
                 <Plus className="h-4 w-4" />
-                Add Asset
+                {t('appDashboard.addAsset')}
               </Button>
             </div>
           </div>
@@ -204,29 +213,29 @@ function RouteComponent() {
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Wallet className="h-4 w-4" />
               </div>
-              <p className="text-lg font-semibold">{formatCurrency(totalAssetValue)}</p>
-              <p className="text-xs text-muted-foreground">{assets.length} total assets</p>
+              <p className="text-lg font-semibold">{formatCurrency(totalAssetValue, language)}</p>
+              <p className="text-xs text-muted-foreground">{assets.length} {t('appDashboard.totalAssets')}</p>
             </div>
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-700">
                 <FileText className="h-4 w-4" />
               </div>
               <p className="text-2xl font-semibold">{agreements.length}</p>
-              <p className="text-xs text-muted-foreground">{ownerAgreements.length} as owner</p>
+              <p className="text-xs text-muted-foreground">{ownerAgreements.length} {t('appDashboard.asOwner')}</p>
             </div>
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/15 text-amber-700">
                 <Bell className="h-4 w-4" />
               </div>
               <p className="text-2xl font-semibold">{pendingActions.length}</p>
-              <p className="text-xs text-muted-foreground">Pending actions</p>
+              <p className="text-xs text-muted-foreground">{t('appDashboard.pendingActions')}</p>
             </div>
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-500/15 text-slate-700">
                 <Users className="h-4 w-4" />
               </div>
               <p className="text-2xl font-semibold">{familyMembers.length}</p>
-              <p className="text-xs text-muted-foreground">Family members linked</p>
+              <p className="text-xs text-muted-foreground">{t('appDashboard.familyMembersLinked')}</p>
             </div>
           </div>
         </CardHeader>
@@ -237,14 +246,14 @@ function RouteComponent() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Bell className="h-4 w-4" />
-              Action Required
+              {t('appDashboard.actionRequired')}
             </CardTitle>
-            <CardDescription>Agreements that need your attention now.</CardDescription>
+            <CardDescription>{t('appDashboard.actionRequiredDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {pendingActions.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center text-sm text-muted-foreground">
-                No urgent actions. You are up to date.
+                {t('appDashboard.noUrgentActions')}
               </div>
             ) : (
               pendingActions.slice(0, 5).map((agreement) => (
@@ -255,7 +264,7 @@ function RouteComponent() {
                   <div className="min-w-0">
                     <p className="truncate font-medium">{agreement.title}</p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {getAgreementTaskText(agreement)}
+                      {getAgreementTaskText(agreement, t)}
                     </p>
                   </div>
                   <Button
@@ -269,7 +278,7 @@ function RouteComponent() {
                       })
                     }
                   >
-                    Open
+                    {t('appDashboard.open')}
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -282,39 +291,45 @@ function RouteComponent() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <UserCheck className="h-4 w-4" />
-              Quick Links
+              {t('appDashboard.quickLinks')}
             </CardTitle>
-            <CardDescription>Jump to core workflows.</CardDescription>
+            <CardDescription>{t('appDashboard.quickLinksDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             <Link
               to="/app/assets/view"
               className="flex items-center justify-between rounded-lg border border-border/70 p-2.5 text-sm hover:bg-muted/40"
             >
-              <span>Manage Assets</span>
+              <span>{t('appDashboard.manageAssets')}</span>
               <ArrowRight className="h-4 w-4 text-muted-foreground" />
             </Link>
             <Link
               to="/app/family/view"
               className="flex items-center justify-between rounded-lg border border-border/70 p-2.5 text-sm hover:bg-muted/40"
             >
-              <span>Update Family</span>
+              <span>{t('appDashboard.updateFamily')}</span>
               <ArrowRight className="h-4 w-4 text-muted-foreground" />
             </Link>
             <Link
               to="/app/agreement/view"
               className="flex items-center justify-between rounded-lg border border-border/70 p-2.5 text-sm hover:bg-muted/40"
             >
-              <span>View Agreements</span>
+              <span>{t('appDashboard.viewAgreements')}</span>
               <ArrowRight className="h-4 w-4 text-muted-foreground" />
             </Link>
-            <Link
-              to="/app/profile/view"
-              className="flex items-center justify-between rounded-lg border border-border/70 p-2.5 text-sm hover:bg-muted/40"
+            <button
+              type="button"
+              onClick={() =>
+                router.navigate({
+                  search: { onboarding: false, redirect: undefined },
+                  to: '/app/profile/view',
+                })
+              }
+              className="flex w-full items-center justify-between rounded-lg border border-border/70 p-2.5 text-left text-sm hover:bg-muted/40"
             >
-              <span>Profile</span>
+              <span>{t('appDashboard.profile')}</span>
               <ArrowRight className="h-4 w-4 text-muted-foreground" />
-            </Link>
+            </button>
           </CardContent>
         </Card>
       </div>
@@ -324,14 +339,14 @@ function RouteComponent() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <TrendingUp className="h-4 w-4" />
-              Top Assets
+              {t('appDashboard.topAssets')}
             </CardTitle>
-            <CardDescription>Your highest value assets.</CardDescription>
+            <CardDescription>{t('appDashboard.topAssetsDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {recentAssets.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center text-sm text-muted-foreground">
-                No assets yet.
+                {t('appDashboard.noAssets')}
               </div>
             ) : (
               recentAssets.map((asset) => (
@@ -343,7 +358,7 @@ function RouteComponent() {
                     <p className="truncate font-medium">{asset.name}</p>
                     <p className="truncate text-xs text-muted-foreground">{formatAssetType(asset.type)}</p>
                   </div>
-                  <p className="text-sm font-semibold">{formatCurrency(asset.value)}</p>
+                  <p className="text-sm font-semibold">{formatCurrency(asset.value, language)}</p>
                 </div>
               ))
             )}
@@ -354,14 +369,14 @@ function RouteComponent() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <FileText className="h-4 w-4" />
-              Recent Agreements
+              {t('appDashboard.recentAgreements')}
             </CardTitle>
-            <CardDescription>Most recently created agreements.</CardDescription>
+            <CardDescription>{t('appDashboard.recentAgreementsDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {recentAgreements.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center text-sm text-muted-foreground">
-                No agreements yet.
+                {t('appDashboard.noAgreements')}
               </div>
             ) : (
               recentAgreements.map((agreement) => (
@@ -378,7 +393,7 @@ function RouteComponent() {
                   <div className="min-w-0">
                     <p className="truncate font-medium">{agreement.title}</p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {agreement.assetCount} assets • {formatDate(agreement.createdAt)}
+                      {agreement.assetCount} {t('appDashboard.assetsLabel')} • {formatDate(agreement.createdAt, language)}
                     </p>
                   </div>
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />

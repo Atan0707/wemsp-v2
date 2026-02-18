@@ -33,6 +33,48 @@
     },
     "languageSwitcher": {
       "label": "Bahasa"
+    },
+    "appDashboard": {
+      "welcome": "Selamat datang",
+      "subtitle": "Jejak kemajuan perancangan harta anda dan lengkapkan tindakan tertunda.",
+      "newAgreement": "Perjanjian Baharu",
+      "addAsset": "Tambah Aset",
+      "totalAssets": "jumlah aset",
+      "asOwner": "sebagai pemilik",
+      "pendingActions": "Tindakan tertunda",
+      "familyMembersLinked": "Ahli keluarga dipautkan",
+      "actionRequired": "Tindakan Diperlukan",
+      "actionRequiredDescription": "Perjanjian yang memerlukan perhatian anda sekarang.",
+      "noUrgentActions": "Tiada tindakan segera. Anda sudah terkini.",
+      "open": "Buka",
+      "quickLinks": "Pautan Pantas",
+      "quickLinksDescription": "Lompat ke aliran kerja utama.",
+      "manageAssets": "Urus Aset",
+      "updateFamily": "Kemas Kini Keluarga",
+      "viewAgreements": "Lihat Perjanjian",
+      "profile": "Profil",
+      "topAssets": "Aset Tertinggi",
+      "topAssetsDescription": "Aset bernilai tertinggi anda.",
+      "noAssets": "Belum ada aset.",
+      "recentAgreements": "Perjanjian Terkini",
+      "recentAgreementsDescription": "Perjanjian yang paling baru dicipta.",
+      "noAgreements": "Belum ada perjanjian.",
+      "assetsLabel": "aset",
+      "task": {
+        "ownerDraft": "Draf: semak butiran dan hantar untuk tandatangan",
+        "ownerPendingSignatures": "Menunggu tandatangan benefisiari",
+        "ownerPendingWitness": "Sedia untuk pengesahan saksi",
+        "beneficiaryPendingSignatures": "Tandatangan anda diperlukan",
+        "default": "Buka butiran perjanjian"
+      }
+    },
+    "settings": {
+      "title": "Tetapan",
+      "languageTitle": "Bahasa",
+      "languageDescription": "Pilih bahasa aplikasi pilihan anda.",
+      "english": "Inggeris",
+      "malay": "Melayu",
+      "current": "Semasa"
     }
   }
 }
