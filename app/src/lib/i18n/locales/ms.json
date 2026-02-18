@@ -75,6 +75,30 @@
       "english": "Inggeris",
       "malay": "Melayu",
       "current": "Semasa"
+    },
+    "navigation": {
+      "application": "Aplikasi",
+      "dashboard": "Papan Pemuka",
+      "family": "Keluarga",
+      "assets": "Aset",
+      "agreement": "Perjanjian",
+      "profile": "Profil",
+      "settings": "Tetapan",
+      "estateManagement": "Pengurusan Harta",
+      "account": "Akaun",
+      "signOut": "Log keluar"
+    },
+    "breadcrumbs": {
+      "dashboard": "Papan Pemuka",
+      "family": "Keluarga",
+      "assets": "Aset",
+      "agreement": "Perjanjian",
+      "profile": "Profil",
+      "settings": "Tetapan",
+      "add": "Tambah",
+      "edit": "Sunting",
+      "view": "Lihat",
+      "create": "Cipta"
     }
   }
 }

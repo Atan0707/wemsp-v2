@@ -75,6 +75,30 @@
       "english": "English",
       "malay": "Malay",
       "current": "Current"
+    },
+    "navigation": {
+      "application": "Application",
+      "dashboard": "Dashboard",
+      "family": "Family",
+      "assets": "Assets",
+      "agreement": "Agreement",
+      "profile": "Profile",
+      "settings": "Settings",
+      "estateManagement": "Estate Management",
+      "account": "Account",
+      "signOut": "Sign out"
+    },
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "family": "Family",
+      "assets": "Assets",
+      "agreement": "Agreement",
+      "profile": "Profile",
+      "settings": "Settings",
+      "add": "Add",
+      "edit": "Edit",
+      "view": "View",
+      "create": "Create"
     }
   }
 }

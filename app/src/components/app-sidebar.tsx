@@ -30,10 +30,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { authClient } from "@/lib/auth-client"
+import { useLanguage } from "@/lib/i18n/context"
 
 export function AppSidebar() {
   const router = useRouter()
   const location = useLocation()
+  const { t } = useLanguage()
 
   const { data: session } = authClient.useSession()
 
@@ -41,24 +43,24 @@ export function AppSidebar() {
 
   const navigationItems: Array<{
     to: string
-    label: string
+    labelKey: string
     matchPath: string
     icon: LucideIcon
   }> = [
-    { to: "/app/dashboard", label: "Dashboard", matchPath: "/app/dashboard", icon: Home },
-    { to: "/app/family/view", label: "Family", matchPath: "/app/family", icon: Contact },
-    { to: "/app/assets/view", label: "Assets", matchPath: "/app/assets", icon: Wallet2 },
-    { to: "/app/agreement", label: "Agreement", matchPath: "/app/agreement", icon: FileText },
+    { to: "/app/dashboard", labelKey: "navigation.dashboard", matchPath: "/app/dashboard", icon: Home },
+    { to: "/app/family/view", labelKey: "navigation.family", matchPath: "/app/family", icon: Contact },
+    { to: "/app/assets/view", labelKey: "navigation.assets", matchPath: "/app/assets", icon: Wallet2 },
+    { to: "/app/agreement", labelKey: "navigation.agreement", matchPath: "/app/agreement", icon: FileText },
   ]
 
   const accountItems: Array<{
     to: string
-    label: string
+    labelKey: string
     matchPath: string
     icon: LucideIcon
   }> = [
-    { to: "/app/profile", label: "Profile", matchPath: "/app/profile", icon: User },
-    { to: "/app/settings", label: "Settings", matchPath: "/app/settings", icon: Settings },
+    { to: "/app/profile", labelKey: "navigation.profile", matchPath: "/app/profile", icon: User },
+    { to: "/app/settings", labelKey: "navigation.settings", matchPath: "/app/settings", icon: Settings },
   ]
 
   const isActivePath = (matchPath: string) =>
@@ -79,7 +81,7 @@ export function AppSidebar() {
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold tracking-tight">WEMSP</p>
-              <p className="truncate text-xs text-sidebar-foreground/70">Estate Management</p>
+              <p className="truncate text-xs text-sidebar-foreground/70">{t('navigation.estateManagement')}</p>
             </div>
           </Link>
         </div>
@@ -87,7 +89,7 @@ export function AppSidebar() {
       <SidebarContent className="px-2 pb-3">
         <SidebarGroup className="pt-1">
           <SidebarGroupLabel className="px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/60">
-            Application
+            {t('navigation.application')}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
@@ -107,7 +109,7 @@ export function AppSidebar() {
                       <div className="flex size-7 items-center justify-center rounded-lg bg-sidebar-accent/70">
                         <item.icon className="size-4" />
                       </div>
-                      <span className="font-medium">{item.label}</span>
+                      <span className="font-medium">{t(item.labelKey)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -129,7 +131,7 @@ export function AppSidebar() {
                       <div className="flex size-7 items-center justify-center rounded-lg bg-sidebar-accent/70">
                         <item.icon className="size-4" />
                       </div>
-                      <span className="font-medium">{item.label}</span>
+                      <span className="font-medium">{t(item.labelKey)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -148,7 +150,7 @@ export function AppSidebar() {
                     <User className="size-4" />
                   </div>
                   <span className="truncate">
-                    {user?.name || user?.email || "Account"}
+                    {user?.name || user?.email || t('navigation.account')}
                   </span>
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
@@ -158,10 +160,10 @@ export function AppSidebar() {
                 className="w-[--radix-popper-anchor-width]"
               >
                 <DropdownMenuItem onClick={() => router.navigate({ to: "/app/profile", search: { onboarding: false, redirect: undefined } })}>
-                  <span>Profile</span>
+                  <span>{t('navigation.profile')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
-                  <span>Sign out</span>
+                  <span>{t('navigation.signOut')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

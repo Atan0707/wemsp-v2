@@ -19,6 +19,7 @@ import {
 import { authClient } from '@/lib/auth-client'
 import { getServerSession, requireCompletedProfile } from '@/middleware'
 import { ProfileCompletionDialog } from '@/components/profile-completion-dialog'
+import { useLanguage } from '@/lib/i18n/context'
 
 export const Route = createFileRoute('/app')({
   component: RouteComponent,
@@ -60,6 +61,7 @@ const formatSegment = (segment: string) => {
 function RouteComponent() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useLanguage()
   const { data: session, isPending } = authClient.useSession()
   const routeContext = Route.useRouteContext()
 
@@ -75,7 +77,19 @@ function RouteComponent() {
 
     // Map segments to breadcrumb items
     return segments.map((segment, index) => {
-      const label = formatSegment(segment)
+      const labelMap: Record<string, string> = {
+        dashboard: t('breadcrumbs.dashboard'),
+        family: t('breadcrumbs.family'),
+        assets: t('breadcrumbs.assets'),
+        agreement: t('breadcrumbs.agreement'),
+        profile: t('breadcrumbs.profile'),
+        settings: t('breadcrumbs.settings'),
+        add: t('breadcrumbs.add'),
+        edit: t('breadcrumbs.edit'),
+        view: t('breadcrumbs.view'),
+        create: t('breadcrumbs.create'),
+      }
+      const label = labelMap[segment] || formatSegment(segment)
       const isLast = index === segments.length - 1
 
       // Build href by reconstructing the path up to this segment
@@ -87,7 +101,7 @@ function RouteComponent() {
         isLast,
       }
     })
-  }, [location.pathname])
+  }, [location.pathname, t])
 
   useEffect(() => {
     // Redirect /app to /app/dashboard when session is available
