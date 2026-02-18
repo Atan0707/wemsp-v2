@@ -23,14 +23,15 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { authClient } from '@/lib/auth-client'
+import { useLanguage } from '@/lib/i18n/context'
 
 interface AssetsResponse {
   assets?: Array<Asset>
   familyAssets?: Array<Asset>
 }
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('en-MY', {
+const formatCurrency = (value: number, language: 'en' | 'ms') =>
+  new Intl.NumberFormat(language === 'ms' ? 'ms-MY' : 'en-MY', {
     currency: 'MYR',
     minimumFractionDigits: 2,
     style: 'currency',
@@ -50,6 +51,7 @@ export const Route = createFileRoute('/app/assets/view/')({
 function RouteComponent() {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { language, t } = useLanguage()
   const [query, setQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<'all' | string>('all')
 
@@ -68,7 +70,7 @@ function RouteComponent() {
     queryFn: async () => {
       const response = await fetch('/api/asset')
       if (!response.ok) {
-        throw new Error('Failed to fetch assets')
+        throw new Error(t('assetsPage.errors.fetchFailed'))
       }
       return response.json() as Promise<AssetsResponse>
     },
@@ -81,17 +83,17 @@ function RouteComponent() {
     mutationFn: async (id: number) => {
       const response = await fetch(`/api/asset/${id}`, { method: 'DELETE' })
       if (!response.ok) {
-        throw new Error('Failed to delete asset')
+        throw new Error(t('assetsPage.errors.deleteFailed'))
       }
       return response.json()
     },
     onError: (error) => {
       console.error('Error deleting asset:', error)
-      toast.error('Failed to delete asset')
+      toast.error(t('assetsPage.errors.deleteFailed'))
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assets'] })
-      toast.success('Asset deleted successfully')
+      toast.success(t('assetsPage.messages.deleteSuccess'))
     },
   })
 
@@ -137,7 +139,7 @@ function RouteComponent() {
   )
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this asset?')) {
+    if (!confirm(t('assetsPage.confirmDelete'))) {
       return
     }
     await deleteMutation.mutateAsync(id)
@@ -151,16 +153,16 @@ function RouteComponent() {
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5" />
-                Asset Portfolio
+                {t('assetsPage.overview')}
               </div>
-              <CardTitle className="text-xl">Assets</CardTitle>
+              <CardTitle className="text-xl">{t('assetsPage.title')}</CardTitle>
               <CardDescription className="mt-1">
-                Track your assets and review family-owned assets in one place.
+                {t('assetsPage.subtitle')}
               </CardDescription>
             </div>
             <Button className="w-full sm:w-auto" onClick={() => router.navigate({ to: '/app/assets/add' })}>
               <Plus className="h-4 w-4" />
-              Add Asset
+              {t('assetsPage.addAsset')}
             </Button>
           </div>
 
@@ -170,28 +172,28 @@ function RouteComponent() {
                 <Wallet className="h-4 w-4" />
               </div>
               <p className="text-2xl font-semibold">{assets.length}</p>
-              <p className="text-xs text-muted-foreground">My assets</p>
+              <p className="text-xs text-muted-foreground">{t('assetsPage.stats.myAssets')}</p>
             </div>
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-700">
                 <WalletCards className="h-4 w-4" />
               </div>
               <p className="text-2xl font-semibold">{familyAssets.length}</p>
-              <p className="text-xs text-muted-foreground">Family assets</p>
+              <p className="text-xs text-muted-foreground">{t('assetsPage.stats.familyAssets')}</p>
             </div>
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/15 text-amber-700">
                 <Users className="h-4 w-4" />
               </div>
-              <p className="text-lg font-semibold">{formatCurrency(totalValue)}</p>
-              <p className="text-xs text-muted-foreground">My total value</p>
+              <p className="text-lg font-semibold">{formatCurrency(totalValue, language)}</p>
+              <p className="text-xs text-muted-foreground">{t('assetsPage.stats.myTotalValue')}</p>
             </div>
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-500/15 text-slate-700">
                 <Filter className="h-4 w-4" />
               </div>
-              <p className="text-lg font-semibold">{formatCurrency(familyValue)}</p>
-              <p className="text-xs text-muted-foreground">Family total value</p>
+              <p className="text-lg font-semibold">{formatCurrency(familyValue, language)}</p>
+              <p className="text-xs text-muted-foreground">{t('assetsPage.stats.familyTotalValue')}</p>
             </div>
           </div>
         </CardHeader>
@@ -201,8 +203,8 @@ function RouteComponent() {
         <CardHeader className="space-y-4">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="text-base">Filter Assets</CardTitle>
-              <CardDescription>Search by name/description and narrow by asset type.</CardDescription>
+              <CardTitle className="text-base">{t('assetsPage.filterTitle')}</CardTitle>
+              <CardDescription>{t('assetsPage.filterDescription')}</CardDescription>
             </div>
             {hasActiveFilters ? (
               <Button
@@ -213,7 +215,7 @@ function RouteComponent() {
                   setTypeFilter('all')
                 }}
               >
-                Clear filters
+                {t('assetsPage.clearFilters')}
               </Button>
             ) : null}
           </div>
@@ -223,16 +225,16 @@ function RouteComponent() {
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search assets..."
+                placeholder={t('assetsPage.searchPlaceholder')}
                 className="pl-9"
               />
             </div>
             <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Asset type" />
+                <SelectValue placeholder={t('assetsPage.assetType')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All types</SelectItem>
+                <SelectItem value="all">{t('assetsPage.allTypes')}</SelectItem>
                 {typeOptions.map((type) => (
                   <SelectItem key={type} value={type}>
                     {formatType(type)}
@@ -246,8 +248,8 @@ function RouteComponent() {
 
       <Card className="border-border/70">
         <CardHeader>
-          <CardTitle>My Assets</CardTitle>
-          <CardDescription>Assets you own and can manage.</CardDescription>
+          <CardTitle>{t('assetsPage.myAssetsTitle')}</CardTitle>
+          <CardDescription>{t('assetsPage.myAssetsDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -261,8 +263,8 @@ function RouteComponent() {
               onDelete={handleDelete}
               currentUserId={currentUserId}
               showOwner={false}
-              emptyTitle={hasActiveFilters ? 'No matching assets' : 'No assets yet'}
-              emptyDescription={hasActiveFilters ? 'Try changing filters or search terms.' : 'Start by adding your first asset.'}
+              emptyTitle={hasActiveFilters ? t('assetsPage.emptyFilteredTitle') : t('assetsPage.emptyTitle')}
+              emptyDescription={hasActiveFilters ? t('assetsPage.emptyFilteredDescription') : t('assetsPage.emptyDescription')}
             />
           )}
         </CardContent>
@@ -272,9 +274,9 @@ function RouteComponent() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Family Assets
+            {t('assetsPage.familyAssetsTitle')}
           </CardTitle>
-          <CardDescription>Assets shared by your linked family members.</CardDescription>
+          <CardDescription>{t('assetsPage.familyAssetsDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <AssetsTable
@@ -282,11 +284,11 @@ function RouteComponent() {
             isLoading={isLoading}
             currentUserId={currentUserId}
             showOwner={true}
-            emptyTitle={hasActiveFilters ? 'No matching family assets' : 'No family assets yet'}
+            emptyTitle={hasActiveFilters ? t('assetsPage.emptyFamilyFilteredTitle') : t('assetsPage.emptyFamilyTitle')}
             emptyDescription={
               hasActiveFilters
-                ? 'Try changing filters or search terms.'
-                : 'Family assets will appear here when available.'
+                ? t('assetsPage.emptyFilteredDescription')
+                : t('assetsPage.emptyFamilyDescription')
             }
           />
         </CardContent>

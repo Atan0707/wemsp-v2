@@ -62,7 +62,7 @@
       "assetsLabel": "aset",
       "task": {
         "ownerDraft": "Draf: semak butiran dan hantar untuk tandatangan",
-        "ownerPendingSignatures": "Menunggu tandatangan benefisiari",
+        "ownerPendingSignatures": "Menunggu tandatangan penerima manfaat",
         "ownerPendingWitness": "Sedia untuk pengesahan saksi",
         "beneficiaryPendingSignatures": "Tandatangan anda diperlukan",
         "default": "Buka butiran perjanjian"
@@ -99,6 +99,219 @@
       "edit": "Sunting",
       "view": "Lihat",
       "create": "Cipta"
+    },
+    "familyPage": {
+      "overview": "Gambaran Keluarga",
+      "title": "Ahli Keluarga",
+      "subtitle": "Susun hubungan keluarga anda untuk aliran kerja perjanjian dan pewarisan.",
+      "refresh": "Muat semula",
+      "addMember": "Tambah Ahli Keluarga",
+      "clearFilters": "Kosongkan penapis",
+      "searchPlaceholder": "Cari ikut nama, hubungan, emel, telefon, IC...",
+      "memberType": "Jenis ahli",
+      "allTypes": "Semua jenis",
+      "registered": "Berdaftar",
+      "nonRegistered": "Tidak berdaftar",
+      "relation": "Hubungan",
+      "allRelations": "Semua hubungan",
+      "directoryTitle": "Direktori",
+      "directoryDescription": "Cari, tapis, dan urus rekod ahli.",
+      "confirmDelete": "Adakah anda pasti mahu memadam ahli keluarga ini?",
+      "emptyTitle": "Belum ada ahli keluarga",
+      "emptyDescription": "Mulakan dengan menambah ahli keluarga pertama anda.",
+      "emptyFilteredTitle": "Tiada ahli sepadan dengan penapis semasa",
+      "emptyFilteredDescription": "Cuba laras penapis atau carian anda.",
+      "stats": {
+        "totalMembers": "Jumlah ahli",
+        "registeredUsers": "Pengguna berdaftar",
+        "nonRegisteredUsers": "Pengguna tidak berdaftar",
+        "relationTypes": "Jenis hubungan"
+      },
+      "errors": {
+        "fetchFailed": "Gagal mendapatkan ahli keluarga",
+        "deleteFailed": "Gagal memadam ahli keluarga"
+      },
+      "messages": {
+        "deleteSuccess": "Ahli keluarga berjaya dipadam"
+      }
+    },
+    "assetsPage": {
+      "overview": "Portfolio Aset",
+      "title": "Aset",
+      "subtitle": "Jejak aset anda dan semak aset milik keluarga di satu tempat.",
+      "addAsset": "Tambah Aset",
+      "filterTitle": "Tapis Aset",
+      "filterDescription": "Cari mengikut nama/penerangan dan tapis ikut jenis aset.",
+      "clearFilters": "Kosongkan penapis",
+      "searchPlaceholder": "Cari aset...",
+      "assetType": "Jenis aset",
+      "allTypes": "Semua jenis",
+      "myAssetsTitle": "Aset Saya",
+      "myAssetsDescription": "Aset yang anda miliki dan boleh urus.",
+      "familyAssetsTitle": "Aset Keluarga",
+      "familyAssetsDescription": "Aset yang dikongsi oleh ahli keluarga dipautkan.",
+      "confirmDelete": "Adakah anda pasti mahu memadam aset ini?",
+      "emptyTitle": "Belum ada aset",
+      "emptyDescription": "Mulakan dengan menambah aset pertama anda.",
+      "emptyFilteredTitle": "Tiada aset sepadan",
+      "emptyFilteredDescription": "Cuba ubah penapis atau carian.",
+      "emptyFamilyTitle": "Belum ada aset keluarga",
+      "emptyFamilyDescription": "Aset keluarga akan muncul di sini apabila tersedia.",
+      "emptyFamilyFilteredTitle": "Tiada aset keluarga sepadan",
+      "stats": {
+        "myAssets": "Aset saya",
+        "familyAssets": "Aset keluarga",
+        "myTotalValue": "Jumlah nilai saya",
+        "familyTotalValue": "Jumlah nilai keluarga"
+      },
+      "errors": {
+        "fetchFailed": "Gagal mendapatkan aset",
+        "deleteFailed": "Gagal memadam aset"
+      },
+      "messages": {
+        "deleteSuccess": "Aset berjaya dipadam"
+      }
+    },
+    "agreementPage": {
+      "title": "Perjanjian",
+      "subtitle": "Cipta dan jejak perjanjian agihan aset Islam.",
+      "newAgreement": "Perjanjian Baharu",
+      "createAgreement": "Cipta Perjanjian",
+      "filterTitle": "Tapis Perjanjian",
+      "filterDescription": "Cari dan tapis mengikut peranan, status, dan jenis agihan.",
+      "clearFilters": "Kosongkan penapis",
+      "searchPlaceholder": "Cari ikut tajuk atau penerangan...",
+      "role": "Peranan",
+      "allRoles": "Semua peranan",
+      "statusLabel": "Status",
+      "allStatus": "Semua status",
+      "distributionLabel": "Agihan",
+      "allTypes": "Semua jenis",
+      "owner": "Pemilik",
+      "beneficiary": "Penerima manfaat",
+      "viewer": "Pemerhati",
+      "view": "Lihat",
+      "delete": "Padam",
+      "cancel": "Batal",
+      "assets": "Aset",
+      "created": "Dicipta",
+      "showing": "Memaparkan",
+      "of": "daripada",
+      "agreements": "perjanjian",
+      "noDescription": "Tiada penerangan",
+      "confirmDelete": "Adakah anda pasti mahu memadam perjanjian ini? Tindakan ini tidak boleh dibatalkan.",
+      "confirmCancel": "Adakah anda pasti mahu membatalkan perjanjian ini?",
+      "emptyTitle": "Belum ada perjanjian",
+      "emptyDescription": "Cipta perjanjian agihan aset pertama anda untuk bermula.",
+      "emptyFilteredTitle": "Tiada perjanjian sepadan penapis",
+      "emptyFilteredDescription": "Cuba ubah penapis atau carian.",
+      "status": {
+        "active": "Aktif",
+        "cancelled": "Dibatalkan",
+        "completed": "Selesai",
+        "draft": "Draf",
+        "expired": "Tamat",
+        "pendingSignatures": "Menunggu Tandatangan",
+        "pendingWitness": "Menunggu Saksi"
+      },
+      "distribution": {
+        "faraid": "Faraid",
+        "hibah": "Hibah",
+        "wakaf": "Wakaf",
+        "wasiyyah": "Wasiyyah"
+      },
+      "progress": {
+        "ownerSigned": "Pemilik telah tandatangan",
+        "beneficiaries": "Penerima manfaat",
+        "witnessed": "Disaksikan"
+      },
+      "stats": {
+        "totalAgreements": "Jumlah perjanjian",
+        "asOwner": "Sebagai pemilik",
+        "draft": "Draf",
+        "pendingActions": "Tindakan tertunda",
+        "active": "Aktif"
+      },
+      "table": {
+        "title": "Tajuk",
+        "role": "Peranan",
+        "type": "Jenis",
+        "status": "Status",
+        "progress": "Kemajuan",
+        "assets": "Aset",
+        "actions": "Tindakan"
+      },
+      "errors": {
+        "fetchFailed": "Gagal mendapatkan perjanjian",
+        "deleteFailed": "Gagal memadam perjanjian",
+        "cancelFailed": "Gagal membatalkan perjanjian"
+      },
+      "messages": {
+        "deleteSuccess": "Perjanjian berjaya dipadam",
+        "cancelSuccess": "Perjanjian berjaya dibatalkan"
+      }
+    },
+    "profilePage": {
+      "accessDenied": "Akses Ditolak",
+      "accessDeniedDescription": "Sila log masuk untuk melihat profil anda.",
+      "completeProfileTitle": "Lengkapkan Profil Anda Untuk Teruskan",
+      "completeProfileDescription": "Sila isi nombor IC, nombor telefon, dan alamat anda dari halaman sunting.",
+      "title": "Profil Saya",
+      "subtitle": "Semak butiran identiti peribadi dan status akaun anda.",
+      "editProfile": "Sunting Profil",
+      "user": "Pengguna",
+      "verified": "Disahkan",
+      "unverified": "Belum disahkan",
+      "joined": "Menyertai",
+      "profileCompletion": "Kelengkapan profil",
+      "personalInfoTitle": "Maklumat Peribadi",
+      "personalInfoDescription": "Butiran identiti dan hubungan yang digunakan merentasi perjanjian.",
+      "fullName": "Nama Penuh",
+      "emailAddress": "Alamat Emel",
+      "icNumber": "Nombor IC",
+      "phoneNumber": "Nombor Telefon",
+      "address": "Alamat",
+      "notProvided": "Tidak disediakan",
+      "accountDetails": "Butiran Akaun",
+      "userId": "ID Pengguna",
+      "created": "Dicipta",
+      "lastUpdated": "Kemas Kini Terakhir"
+    },
+    "assetsTable": {
+      "asset": "Aset",
+      "type": "Jenis",
+      "value": "Nilai",
+      "owner": "Pemilik",
+      "document": "Dokumen",
+      "view": "Lihat",
+      "edit": "Sunting",
+      "delete": "Padam",
+      "deleting": "Memadam...",
+      "openMenu": "Buka menu",
+      "noDescription": "Tiada penerangan",
+      "noDocument": "Tiada dokumen",
+      "you": "Anda",
+      "loading": "Memuatkan aset...",
+      "emptyTitle": "Belum ada aset",
+      "emptyDescription": "Mulakan dengan menambah aset pertama anda.",
+      "noAssetsFound": "Tiada aset dijumpai."
+    },
+    "familyTable": {
+      "name": "Nama",
+      "relationship": "Hubungan",
+      "type": "Jenis",
+      "contact": "Hubungan",
+      "registered": "Berdaftar",
+      "nonRegistered": "Tidak Berdaftar",
+      "edit": "Sunting",
+      "delete": "Padam",
+      "deleting": "Memadam...",
+      "openMenu": "Buka menu",
+      "loading": "Memuatkan ahli keluarga...",
+      "emptyTitle": "Belum ada ahli keluarga",
+      "emptyDescription": "Mulakan dengan menambah ahli keluarga pertama anda.",
+      "noContactInfo": "Tiada maklumat hubungan",
+      "noMembersFound": "Tiada ahli keluarga dijumpai."
     }
   }
 }

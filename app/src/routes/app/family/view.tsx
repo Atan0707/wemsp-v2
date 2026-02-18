@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { authClient } from '@/lib/auth-client'
+import { useLanguage } from '@/lib/i18n/context'
 import { isRegisteredFamilyMember } from '@/types/family'
 
 interface FamilyResponse {
@@ -46,6 +47,7 @@ function formatRelationLabel(relation: string) {
 function RouteComponent() {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { t } = useLanguage()
   const [memberTypeFilter, setMemberTypeFilter] = useState<'all' | 'non-registered' | 'registered'>('all')
   const [query, setQuery] = useState('')
   const [relationFilter, setRelationFilter] = useState<'all' | FamilyRelationType>('all')
@@ -67,7 +69,7 @@ function RouteComponent() {
       if (!userId) return null
       const response = await fetch(`/api/family?userId=${userId}`)
       if (!response.ok) {
-        throw new Error('Failed to fetch family members')
+        throw new Error(t('familyPage.errors.fetchFailed'))
       }
       return response.json() as Promise<FamilyResponse>
     },
@@ -77,17 +79,17 @@ function RouteComponent() {
     mutationFn: async ({ id, type }: { id: string | number; type: string }) => {
       const response = await fetch(`/api/family?type=${type}&id=${id}`, { method: 'DELETE' })
       if (!response.ok) {
-        throw new Error('Failed to delete family member')
+        throw new Error(t('familyPage.errors.deleteFailed'))
       }
       return response.json()
     },
     onError: (error) => {
       console.error('Error deleting family member:', error)
-      toast.error('Failed to delete family member')
+      toast.error(t('familyPage.errors.deleteFailed'))
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['familyMembers', userId] })
-      toast.success('Family member deleted successfully')
+      toast.success(t('familyPage.messages.deleteSuccess'))
     },
   })
 
@@ -150,7 +152,7 @@ function RouteComponent() {
   const hasActiveFilters = query.trim().length > 0 || memberTypeFilter !== 'all' || relationFilter !== 'all'
 
   const handleDelete = async (type: string, id: string | number) => {
-    if (!confirm('Are you sure you want to delete this family member?')) {
+    if (!confirm(t('familyPage.confirmDelete'))) {
       return
     }
     await deleteMutation.mutateAsync({ id, type })
@@ -176,21 +178,21 @@ function RouteComponent() {
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5" />
-                Family Overview
+                {t('familyPage.overview')}
               </div>
-              <CardTitle className="text-xl">Family Members</CardTitle>
+              <CardTitle className="text-xl">{t('familyPage.title')}</CardTitle>
               <CardDescription className="mt-1">
-                Keep your relationships organized for agreement and inheritance workflows.
+                {t('familyPage.subtitle')}
               </CardDescription>
             </div>
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
               <Button className="w-full sm:w-auto" variant="outline" onClick={handleRefresh}>
                 <RefreshCcw className="h-4 w-4" />
-                Refresh
+                {t('familyPage.refresh')}
               </Button>
               <Button className="w-full sm:w-auto" onClick={() => router.navigate({ to: '/app/family/add' })}>
                 <Plus className="h-4 w-4" />
-                Add Family Member
+                {t('familyPage.addMember')}
               </Button>
             </div>
           </div>
@@ -200,28 +202,28 @@ function RouteComponent() {
                 <Users className="h-4 w-4" />
               </div>
               <p className="text-2xl font-semibold">{stats.total}</p>
-              <p className="text-xs text-muted-foreground">Total members</p>
+              <p className="text-xs text-muted-foreground">{t('familyPage.stats.totalMembers')}</p>
             </div>
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-700">
                 <UserCheck className="h-4 w-4" />
               </div>
               <p className="text-2xl font-semibold">{stats.registeredCount}</p>
-              <p className="text-xs text-muted-foreground">Registered users</p>
+              <p className="text-xs text-muted-foreground">{t('familyPage.stats.registeredUsers')}</p>
             </div>
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-500/15 text-slate-700">
                 <UserX className="h-4 w-4" />
               </div>
               <p className="text-2xl font-semibold">{stats.nonRegisteredCount}</p>
-              <p className="text-xs text-muted-foreground">Non-registered users</p>
+              <p className="text-xs text-muted-foreground">{t('familyPage.stats.nonRegisteredUsers')}</p>
             </div>
             <div className="rounded-xl border border-border/70 bg-card/70 p-3 shadow-sm">
               <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/15 text-amber-700">
                 <Filter className="h-4 w-4" />
               </div>
               <p className="text-2xl font-semibold">{stats.uniqueRelations}</p>
-              <p className="text-xs text-muted-foreground">Relation types</p>
+              <p className="text-xs text-muted-foreground">{t('familyPage.stats.relationTypes')}</p>
             </div>
           </div>
         </CardHeader>
@@ -231,8 +233,8 @@ function RouteComponent() {
         <CardHeader className="space-y-4">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="text-base">Directory</CardTitle>
-              <CardDescription>Search, filter, and manage member records.</CardDescription>
+              <CardTitle className="text-base">{t('familyPage.directoryTitle')}</CardTitle>
+              <CardDescription>{t('familyPage.directoryDescription')}</CardDescription>
             </div>
             {hasActiveFilters ? (
               <Button
@@ -244,7 +246,7 @@ function RouteComponent() {
                   setRelationFilter('all')
                 }}
               >
-                Clear filters
+                {t('familyPage.clearFilters')}
               </Button>
             ) : null}
           </div>
@@ -255,7 +257,7 @@ function RouteComponent() {
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search by name, relation, email, phone, IC..."
+                placeholder={t('familyPage.searchPlaceholder')}
                 className="pl-9"
               />
             </div>
@@ -264,12 +266,12 @@ function RouteComponent() {
               onValueChange={(value: 'all' | 'non-registered' | 'registered') => setMemberTypeFilter(value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Member type" />
+                <SelectValue placeholder={t('familyPage.memberType')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All types</SelectItem>
-                <SelectItem value="registered">Registered</SelectItem>
-                <SelectItem value="non-registered">Non-registered</SelectItem>
+                <SelectItem value="all">{t('familyPage.allTypes')}</SelectItem>
+                <SelectItem value="registered">{t('familyPage.registered')}</SelectItem>
+                <SelectItem value="non-registered">{t('familyPage.nonRegistered')}</SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -277,10 +279,10 @@ function RouteComponent() {
               onValueChange={(value: 'all' | FamilyRelationType) => setRelationFilter(value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Relation" />
+                <SelectValue placeholder={t('familyPage.relation')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All relations</SelectItem>
+                <SelectItem value="all">{t('familyPage.allRelations')}</SelectItem>
                 {relationOptions.map((relation) => (
                   <SelectItem key={relation} value={relation}>
                     {formatRelationLabel(relation)}
@@ -297,11 +299,11 @@ function RouteComponent() {
             onDelete={handleDelete}
             emptyDescription={
               hasActiveFilters
-                ? 'Try adjusting your filters or search query.'
-                : 'Start by adding your first family member.'
+                ? t('familyPage.emptyFilteredDescription')
+                : t('familyPage.emptyDescription')
             }
             emptyTitle={
-              hasActiveFilters ? 'No members match your current filters' : 'No family members yet'
+              hasActiveFilters ? t('familyPage.emptyFilteredTitle') : t('familyPage.emptyTitle')
             }
           />
         </CardContent>

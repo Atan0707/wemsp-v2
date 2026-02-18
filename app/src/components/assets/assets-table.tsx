@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useLanguage } from '@/lib/i18n/context'
 import { cn } from '@/lib/utils'
 
 export interface Asset {
@@ -81,6 +82,7 @@ const createColumns = ({
   onEdit,
   router,
   showOwner,
+  t,
 }: {
   currentUserId: string
   isDeleting: number | null
@@ -88,11 +90,12 @@ const createColumns = ({
   onEdit: (asset: Asset) => void
   router: ReturnType<typeof useRouter>
   showOwner: boolean
+  t: (key: string) => string
 }): Array<ColumnDef<Asset>> => {
   const columns: Array<ColumnDef<Asset>> = [
     {
       accessorKey: 'name',
-      header: 'Asset',
+      header: t('assetsTable.asset'),
       cell: ({ row }) => {
         const asset = row.original
         return (
@@ -107,7 +110,7 @@ const createColumns = ({
               >
                 {asset.name}
               </button>
-              <p className="truncate text-xs text-muted-foreground">{asset.description || 'No description'}</p>
+              <p className="truncate text-xs text-muted-foreground">{asset.description || t('assetsTable.noDescription')}</p>
             </div>
           </div>
         )
@@ -115,7 +118,7 @@ const createColumns = ({
     },
     {
       accessorKey: 'type',
-      header: 'Type',
+      header: t('assetsTable.type'),
       cell: ({ row }) => (
         <Badge className={cn('px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase', getAssetTypeBadgeClass(row.original.type))}>
           {formatTitleCase(row.original.type)}
@@ -124,7 +127,7 @@ const createColumns = ({
     },
     {
       accessorKey: 'value',
-      header: 'Value',
+      header: t('assetsTable.value'),
       cell: ({ row }) => <span className="font-semibold">{formatCurrency(row.original.value)}</span>,
     },
   ]
@@ -132,10 +135,10 @@ const createColumns = ({
   if (showOwner) {
     columns.push({
       id: 'owner',
-      header: 'Owner',
+      header: t('assetsTable.owner'),
       cell: ({ row }) => {
         const asset = row.original
-        const ownerName = asset.owner ? asset.owner.name : 'You'
+        const ownerName = asset.owner ? asset.owner.name : t('assetsTable.you')
         const relationship = asset.relationship ? formatTitleCase(asset.relationship) : null
 
         return (
@@ -155,16 +158,16 @@ const createColumns = ({
 
   columns.push({
     id: 'document',
-    header: 'Document',
+    header: t('assetsTable.document'),
     cell: ({ row }) => {
       const asset = row.original
       if (!asset.documentUrl) {
-        return <span className="text-sm text-muted-foreground">No document</span>
+        return <span className="text-sm text-muted-foreground">{t('assetsTable.noDocument')}</span>
       }
       return (
         <Button variant="ghost" size="sm" onClick={() => window.open(asset.documentUrl as string, '_blank')}>
           <FileText className="h-4 w-4" />
-          View
+          {t('assetsTable.view')}
           <ExternalLink className="h-3 w-3" />
         </Button>
       )
@@ -185,13 +188,13 @@ const createColumns = ({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon-sm" className="rounded-lg">
               <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">Open menu</span>
+              <span className="sr-only">{t('assetsTable.openMenu')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onEdit(asset)}>
               <Pencil className="h-4 w-4" />
-              <span>Edit</span>
+              <span>{t('assetsTable.edit')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onDelete(asset.id)}
@@ -203,7 +206,7 @@ const createColumns = ({
               ) : (
                 <Trash2 className="h-4 w-4" />
               )}
-              <span>{isDeleting === asset.id ? 'Deleting...' : 'Delete'}</span>
+              <span>{isDeleting === asset.id ? t('assetsTable.deleting') : t('assetsTable.delete')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -217,13 +220,14 @@ const createColumns = ({
 export function AssetsTable({
   currentUserId = '',
   data,
-  emptyDescription = 'Get started by adding your first asset.',
-  emptyTitle = 'No assets yet',
+  emptyDescription,
+  emptyTitle,
   isLoading = false,
   onDelete,
   showOwner = false,
 }: AssetsTableProps) {
   const router = useRouter()
+  const { t } = useLanguage()
   const [isDeleting, setIsDeleting] = useState<number | null>(null)
 
   const handleEdit = (asset: Asset) => {
@@ -248,7 +252,11 @@ export function AssetsTable({
     onEdit: handleEdit,
     router,
     showOwner,
+    t,
   })
+
+  const resolvedEmptyTitle = emptyTitle || t('assetsTable.emptyTitle')
+  const resolvedEmptyDescription = emptyDescription || t('assetsTable.emptyDescription')
 
   const table = useReactTable({
     columns,
@@ -260,7 +268,7 @@ export function AssetsTable({
     return (
       <div className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/20 py-12">
         <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-        <div className="text-sm text-muted-foreground">Loading assets...</div>
+        <div className="text-sm text-muted-foreground">{t('assetsTable.loading')}</div>
       </div>
     )
   }
@@ -271,8 +279,8 @@ export function AssetsTable({
         <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
           <Package className="h-7 w-7 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-semibold">{emptyTitle}</h3>
-        <p className="mt-1 max-w-md text-sm text-muted-foreground">{emptyDescription}</p>
+        <h3 className="text-lg font-semibold">{resolvedEmptyTitle}</h3>
+        <p className="mt-1 max-w-md text-sm text-muted-foreground">{resolvedEmptyDescription}</p>
       </div>
     )
   }
@@ -281,7 +289,7 @@ export function AssetsTable({
     <div className="space-y-3">
       <div className="space-y-3 md:hidden">
         {data.map((asset) => {
-          const ownerName = asset.owner ? asset.owner.name : 'You'
+          const ownerName = asset.owner ? asset.owner.name : t('assetsTable.you')
           const relationship = asset.relationship ? formatTitleCase(asset.relationship) : null
           const isOwner = !asset.owner || asset.owner.id === currentUserId
 
@@ -293,20 +301,20 @@ export function AssetsTable({
                   className="min-w-0 text-left"
                 >
                   <p className="truncate font-medium hover:text-primary">{asset.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">{asset.description || 'No description'}</p>
+                  <p className="truncate text-xs text-muted-foreground">{asset.description || t('assetsTable.noDescription')}</p>
                 </button>
                 {isOwner ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon-sm" className="rounded-lg">
                         <MoreVertical className="h-4 w-4" />
-                        <span className="sr-only">Open menu</span>
+                        <span className="sr-only">{t('assetsTable.openMenu')}</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEdit(asset)}>
                         <Pencil className="h-4 w-4" />
-                        <span>Edit</span>
+                        <span>{t('assetsTable.edit')}</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleDelete(asset.id)}
@@ -318,7 +326,7 @@ export function AssetsTable({
                         ) : (
                           <Trash2 className="h-4 w-4" />
                         )}
-                        <span>{isDeleting === asset.id ? 'Deleting...' : 'Delete'}</span>
+                        <span>{isDeleting === asset.id ? t('assetsTable.deleting') : t('assetsTable.delete')}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -339,7 +347,7 @@ export function AssetsTable({
                 {asset.documentUrl ? (
                   <Button variant="ghost" size="sm" onClick={() => window.open(asset.documentUrl as string, '_blank')}>
                     <FileText className="h-4 w-4" />
-                    View
+                    {t('assetsTable.view')}
                   </Button>
                 ) : null}
               </div>
@@ -377,7 +385,7 @@ export function AssetsTable({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No assets found.
+                  {t('assetsTable.noAssetsFound')}
                 </TableCell>
               </TableRow>
             )}

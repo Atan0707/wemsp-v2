@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useLanguage } from '@/lib/i18n/context'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/app/profile/view')({
@@ -44,6 +45,7 @@ function getInitials(name: string, email: string) {
 
 function RouteComponent() {
   const router = useRouter()
+  const { language, t } = useLanguage()
   const searchParams = Route.useSearch()
   const [isOnboarding, setIsOnboarding] = useState(false)
   const [redirectPath, setRedirectPath] = useState<string | undefined>(undefined)
@@ -95,8 +97,8 @@ function RouteComponent() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
             <XCircle className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h2 className="mb-2 text-xl font-semibold">Access Denied</h2>
-          <p className="text-muted-foreground">Please log in to view your profile information.</p>
+          <h2 className="mb-2 text-xl font-semibold">{t('profilePage.accessDenied')}</h2>
+          <p className="text-muted-foreground">{t('profilePage.accessDeniedDescription')}</p>
         </CardContent>
       </Card>
     )
@@ -112,9 +114,9 @@ function RouteComponent() {
         <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
           <div>
-            <h3 className="font-semibold text-amber-900">Complete Your Profile to Continue</h3>
+            <h3 className="font-semibold text-amber-900">{t('profilePage.completeProfileTitle')}</h3>
             <p className="mt-1 text-sm text-amber-700">
-              Please fill in your IC number, phone number, and address from the edit page.
+              {t('profilePage.completeProfileDescription')}
             </p>
           </div>
         </div>
@@ -124,9 +126,9 @@ function RouteComponent() {
         <CardHeader className="gap-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="text-xl">My Profile</CardTitle>
+              <CardTitle className="text-xl">{t('profilePage.title')}</CardTitle>
               <CardDescription className="mt-1">
-                Review your personal identity details and account status.
+                {t('profilePage.subtitle')}
               </CardDescription>
             </div>
             <Button
@@ -140,21 +142,21 @@ function RouteComponent() {
                 })
               }
             >
-              Edit Profile
+              {t('profilePage.editProfile')}
             </Button>
           </div>
 
           <div className="rounded-2xl border border-border/70 bg-card/70 p-4 shadow-sm">
             <div className="flex flex-col items-center gap-4 sm:flex-row">
               <Avatar className="h-20 w-20">
-                <AvatarImage src={user.image || undefined} alt={user.name || 'User'} />
+                <AvatarImage src={user.image || undefined} alt={user.name || t('profilePage.user')} />
                 <AvatarFallback className="text-xl font-semibold">
                   {getInitials(user.name, user.email)}
                 </AvatarFallback>
               </Avatar>
 
               <div className="min-w-0 flex-1 text-center sm:text-left">
-                <h2 className="truncate text-2xl font-semibold">{user.name || 'User'}</h2>
+                <h2 className="truncate text-2xl font-semibold">{user.name || t('profilePage.user')}</h2>
                 <p className="mt-1 flex items-center justify-center gap-1.5 text-sm text-muted-foreground sm:justify-start">
                   <Mail className="h-4 w-4" />
                   <span className="truncate">{user.email}</span>
@@ -169,11 +171,11 @@ function RouteComponent() {
                     )}
                   >
                     {isEmailVerified ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
-                    {isEmailVerified ? 'Verified' : 'Unverified'}
+                    {isEmailVerified ? t('profilePage.verified') : t('profilePage.unverified')}
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background px-2 py-1 text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3" />
-                    Joined {createdAt.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                    {t('profilePage.joined')} {createdAt.toLocaleDateString(language === 'ms' ? 'ms-MY' : 'en-US', { month: 'short', year: 'numeric' })}
                   </span>
                 </div>
               </div>
@@ -181,7 +183,7 @@ function RouteComponent() {
               <div className="text-center">
                 <div className="mb-1 flex items-center justify-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-xs font-medium">Profile completion</span>
+                  <span className="text-xs font-medium">{t('profilePage.profileCompletion')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
@@ -200,44 +202,44 @@ function RouteComponent() {
 
       <Card className="border-border/70">
         <CardHeader>
-          <CardTitle className="text-base">Personal Information</CardTitle>
-          <CardDescription>Identity and contact details used across agreements.</CardDescription>
+          <CardTitle className="text-base">{t('profilePage.personalInfoTitle')}</CardTitle>
+          <CardDescription>{t('profilePage.personalInfoDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <p className="mb-1 text-xs font-medium text-muted-foreground">Full Name</p>
+              <p className="mb-1 text-xs font-medium text-muted-foreground">{t('profilePage.fullName')}</p>
               <div className="relative">
                 <UserCircle2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input value={user.name || ''} disabled className="bg-muted/50 pl-10" />
               </div>
             </div>
             <div>
-              <p className="mb-1 text-xs font-medium text-muted-foreground">Email Address</p>
+              <p className="mb-1 text-xs font-medium text-muted-foreground">{t('profilePage.emailAddress')}</p>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input value={user.email} disabled className="bg-muted/50 pl-10" />
               </div>
             </div>
             <div>
-              <p className="mb-1 text-xs font-medium text-muted-foreground">IC Number</p>
+              <p className="mb-1 text-xs font-medium text-muted-foreground">{t('profilePage.icNumber')}</p>
               <div className="relative">
                 <IdCard className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input value={(user as any).icNumber || ''} placeholder="Not provided" disabled className="bg-muted/50 pl-10" />
+                <Input value={(user as any).icNumber || ''} placeholder={t('profilePage.notProvided')} disabled className="bg-muted/50 pl-10" />
               </div>
             </div>
             <div>
-              <p className="mb-1 text-xs font-medium text-muted-foreground">Phone Number</p>
+              <p className="mb-1 text-xs font-medium text-muted-foreground">{t('profilePage.phoneNumber')}</p>
               <div className="relative">
                 <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input value={(user as any).phoneNumber || ''} placeholder="Not provided" disabled className="bg-muted/50 pl-10" />
+                <Input value={(user as any).phoneNumber || ''} placeholder={t('profilePage.notProvided')} disabled className="bg-muted/50 pl-10" />
               </div>
             </div>
             <div className="md:col-span-2">
-              <p className="mb-1 text-xs font-medium text-muted-foreground">Address</p>
+              <p className="mb-1 text-xs font-medium text-muted-foreground">{t('profilePage.address')}</p>
               <div className="relative">
                 <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input value={(user as any).address || ''} placeholder="Not provided" disabled className="bg-muted/50 pl-10" />
+                <Input value={(user as any).address || ''} placeholder={t('profilePage.notProvided')} disabled className="bg-muted/50 pl-10" />
               </div>
             </div>
           </div>
@@ -248,21 +250,21 @@ function RouteComponent() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Shield className="h-4 w-4 text-primary" />
-            Account Details
+            {t('profilePage.accountDetails')}
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3">
           <div>
-            <p className="mb-1 text-xs font-medium text-muted-foreground">User ID</p>
+            <p className="mb-1 text-xs font-medium text-muted-foreground">{t('profilePage.userId')}</p>
             <p className="truncate rounded-md bg-muted px-2 py-1.5 font-mono text-xs">{user.id}</p>
           </div>
           <div>
             <p className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
               <Calendar className="h-3 w-3" />
-              Created
+              {t('profilePage.created')}
             </p>
             <p className="text-sm">
-              {createdAt.toLocaleDateString('en-US', {
+              {createdAt.toLocaleDateString(language === 'ms' ? 'ms-MY' : 'en-US', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',
@@ -272,10 +274,10 @@ function RouteComponent() {
           <div>
             <p className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
               <Clock className="h-3 w-3" />
-              Last Updated
+              {t('profilePage.lastUpdated')}
             </p>
             <p className="text-sm">
-              {updatedAt.toLocaleDateString('en-US', {
+              {updatedAt.toLocaleDateString(language === 'ms' ? 'ms-MY' : 'en-US', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',

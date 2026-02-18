@@ -25,6 +25,7 @@ import {
   isNonRegisteredFamilyMember,
   isRegisteredFamilyMember,
 } from '@/types/family'
+import { useLanguage } from '@/lib/i18n/context'
 import { cn } from '@/lib/utils'
 
 interface FamilyMembersTableProps {
@@ -45,11 +46,12 @@ const formatRelation = (relation: string) =>
 const createColumns = (
   onEdit: (member: FamilyMember) => void,
   onDelete: (type: string, id: string | number) => void,
-  isDeleting: string | number | null
+  isDeleting: string | number | null,
+  t: (key: string) => string,
 ): Array<ColumnDef<FamilyMember>> => [
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: t('familyTable.name'),
     cell: ({ row }) => {
       const member = row.original
       return (
@@ -86,12 +88,12 @@ const createColumns = (
   },
   {
     accessorKey: 'relation',
-    header: 'Relationship',
+    header: t('familyTable.relationship'),
     cell: ({ row }) => <span>{formatRelation(row.original.relation)}</span>,
   },
   {
     id: 'type',
-    header: 'Type',
+    header: t('familyTable.type'),
     cell: ({ row }) => {
       const type = row.original.type
       return (
@@ -99,14 +101,14 @@ const createColumns = (
           variant={type === 'registered' ? 'default' : 'secondary'}
           className={cn('px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase', type === 'registered' && 'bg-emerald-600 text-white')}
         >
-          {type === 'registered' ? 'Registered' : 'Non-Registered'}
+          {type === 'registered' ? t('familyTable.registered') : t('familyTable.nonRegistered')}
         </Badge>
       )
     },
   },
   {
     id: 'contact',
-    header: 'Contact',
+    header: t('familyTable.contact'),
     cell: ({ row }) => {
       const member = row.original
       if (isNonRegisteredFamilyMember(member)) {
@@ -132,13 +134,13 @@ const createColumns = (
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon-sm" className="rounded-lg">
               <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">Open menu</span>
+              <span className="sr-only">{t('familyTable.openMenu')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onEdit(member)}>
               <Pencil className="mr-2 h-4 w-4" />
-              <span>Edit</span>
+              <span>{t('familyTable.edit')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onDelete(member.type, id)}
@@ -150,7 +152,7 @@ const createColumns = (
               ) : (
                 <Trash2 className="mr-2 h-4 w-4" />
               )}
-              <span>{isDeleting === id ? 'Deleting...' : 'Delete'}</span>
+              <span>{isDeleting === id ? t('familyTable.deleting') : t('familyTable.delete')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -163,10 +165,11 @@ export function FamilyMembersTable({
   data,
   isLoading = false,
   onDelete,
-  emptyTitle = 'No family members yet',
-  emptyDescription = 'Get started by adding your first family member.',
+  emptyTitle,
+  emptyDescription,
 }: FamilyMembersTableProps) {
   const router = useRouter()
+  const { t } = useLanguage()
   const [isDeleting, setIsDeleting] = useState<string | number | null>(null)
 
   const handleEdit = (member: FamilyMember) => {
@@ -188,7 +191,9 @@ export function FamilyMembersTable({
     }
   }
 
-  const columns = createColumns(handleEdit, handleDelete, isDeleting)
+  const columns = createColumns(handleEdit, handleDelete, isDeleting, t)
+  const resolvedEmptyTitle = emptyTitle || t('familyTable.emptyTitle')
+  const resolvedEmptyDescription = emptyDescription || t('familyTable.emptyDescription')
 
   const table = useReactTable({
     data,
@@ -200,7 +205,7 @@ export function FamilyMembersTable({
     return (
       <div className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-muted/20 py-12">
         <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-        <div className="text-sm text-muted-foreground">Loading family members...</div>
+        <div className="text-sm text-muted-foreground">{t('familyTable.loading')}</div>
       </div>
     )
   }
@@ -211,8 +216,8 @@ export function FamilyMembersTable({
         <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
           <UserPlus className="h-7 w-7 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-semibold">{emptyTitle}</h3>
-        <p className="mt-1 max-w-md text-sm text-muted-foreground">{emptyDescription}</p>
+        <h3 className="text-lg font-semibold">{resolvedEmptyTitle}</h3>
+        <p className="mt-1 max-w-md text-sm text-muted-foreground">{resolvedEmptyDescription}</p>
       </div>
     )
   }
@@ -246,13 +251,13 @@ export function FamilyMembersTable({
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon-sm" className="rounded-lg">
                       <MoreVertical className="h-4 w-4" />
-                      <span className="sr-only">Open menu</span>
+                      <span className="sr-only">{t('familyTable.openMenu')}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => handleEdit(member)}>
                       <Pencil className="mr-2 h-4 w-4" />
-                      <span>Edit</span>
+                      <span>{t('familyTable.edit')}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleDelete(member.type, memberId)}
@@ -264,7 +269,7 @@ export function FamilyMembersTable({
                       ) : (
                         <Trash2 className="mr-2 h-4 w-4" />
                       )}
-                      <span>{isDeleting === memberId ? 'Deleting...' : 'Delete'}</span>
+                      <span>{isDeleting === memberId ? t('familyTable.deleting') : t('familyTable.delete')}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -274,12 +279,12 @@ export function FamilyMembersTable({
                   variant={member.type === 'registered' ? 'default' : 'secondary'}
                   className={cn('px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase', member.type === 'registered' && 'bg-emerald-600 text-white')}
                 >
-                  {member.type === 'registered' ? 'Registered' : 'Non-Registered'}
+                  {member.type === 'registered' ? t('familyTable.registered') : t('familyTable.nonRegistered')}
                 </Badge>
                 <p className="truncate text-xs text-muted-foreground">
                   {isRegisteredFamilyMember(member)
                     ? member.email
-                    : member.phoneNumber || member.address || 'No contact info'}
+                    : member.phoneNumber || member.address || t('familyTable.noContactInfo')}
                 </p>
               </div>
             </div>
@@ -316,7 +321,7 @@ export function FamilyMembersTable({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No family members found.
+                  {t('familyTable.noMembersFound')}
                 </TableCell>
               </TableRow>
             )}
