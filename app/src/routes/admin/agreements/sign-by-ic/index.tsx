@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import { PenIcon, SearchIcon } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,8 +22,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
-import { toast } from 'sonner'
-import { SearchIcon, PenIcon } from 'lucide-react'
 
 interface AgreementForSigning {
   beneficiaryId: string
@@ -41,7 +41,7 @@ export const Route = createFileRoute('/admin/agreements/sign-by-ic/')({
 function SignByICPage() {
   const [icNumber, setIcNumber] = useState('')
   const [searching, setSearching] = useState(false)
-  const [agreements, setAgreements] = useState<AgreementForSigning[]>([])
+  const [agreements, setAgreements] = useState<Array<AgreementForSigning>>([])
   const [hasSearched, setHasSearched] = useState(false)
   const [selectedAgreement, setSelectedAgreement] = useState<AgreementForSigning | null>(null)
   const [notesDialogOpen, setNotesDialogOpen] = useState(false)
@@ -122,7 +122,12 @@ function SignByICPage() {
         return
       }
 
-      toast.success(data.message || 'Signed successfully')
+      const txHash = data?.onChain?.beneficiarySignatureTxHash
+      if (txHash) {
+        toast.success(`Signed on-chain (${txHash.slice(0, 10)}...${txHash.slice(-6)})`)
+      } else {
+        toast.success(data.message || 'Signed successfully')
+      }
 
       // Refresh the list
       await handleSearch()

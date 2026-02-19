@@ -61,10 +61,13 @@ import { Route as ApiAdminAgreementsSplatRouteImport } from './routes/api/admin/
 import { Route as ApiAgreementIdStatusSplatRouteImport } from './routes/api/agreement/$id/status/$'
 import { Route as ApiAgreementIdBeneficiariesSplatRouteImport } from './routes/api/agreement/$id/beneficiaries/$'
 import { Route as ApiAgreementIdAssetsSplatRouteImport } from './routes/api/agreement/$id/assets/$'
+import { Route as ApiAdminAgreementsSignOnBehalfSplatRouteImport } from './routes/api/admin/agreements/sign-on-behalf/$'
+import { Route as ApiAdminAgreementsPendingWitnessSplatRouteImport } from './routes/api/admin/agreements/pending-witness/$'
 import { Route as ApiAdminAgreementsIdSplatRouteImport } from './routes/api/admin/agreements/$id/$'
 import { Route as ApiAgreementIdSignWitnessSplatRouteImport } from './routes/api/agreement/$id/sign/witness/$'
 import { Route as ApiAgreementIdSignOwnerSplatRouteImport } from './routes/api/agreement/$id/sign/owner/$'
 import { Route as ApiAgreementIdSignBeneficiarySplatRouteImport } from './routes/api/agreement/$id/sign/beneficiary/$'
+import { Route as ApiAdminAgreementsByIcIcNumberSplatRouteImport } from './routes/api/admin/agreements/by-ic/$icNumber/$'
 
 const TestUploadRoute = TestUploadRouteImport.update({
   id: '/test-upload',
@@ -331,6 +334,18 @@ const ApiAgreementIdAssetsSplatRoute =
     path: '/api/agreement/$id/assets/$',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdminAgreementsSignOnBehalfSplatRoute =
+  ApiAdminAgreementsSignOnBehalfSplatRouteImport.update({
+    id: '/api/admin/agreements/sign-on-behalf/$',
+    path: '/api/admin/agreements/sign-on-behalf/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminAgreementsPendingWitnessSplatRoute =
+  ApiAdminAgreementsPendingWitnessSplatRouteImport.update({
+    id: '/api/admin/agreements/pending-witness/$',
+    path: '/api/admin/agreements/pending-witness/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminAgreementsIdSplatRoute =
   ApiAdminAgreementsIdSplatRouteImport.update({
     id: '/api/admin/agreements/$id/$',
@@ -353,6 +368,12 @@ const ApiAgreementIdSignBeneficiarySplatRoute =
   ApiAgreementIdSignBeneficiarySplatRouteImport.update({
     id: '/api/agreement/$id/sign/beneficiary/$',
     path: '/api/agreement/$id/sign/beneficiary/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminAgreementsByIcIcNumberSplatRoute =
+  ApiAdminAgreementsByIcIcNumberSplatRouteImport.update({
+    id: '/api/admin/agreements/by-ic/$icNumber/$',
+    path: '/api/admin/agreements/by-ic/$icNumber/$',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -407,9 +428,12 @@ export interface FileRoutesByFullPath {
   '/app/assets/edit': typeof AppAssetsEditIndexRoute
   '/app/assets/view': typeof AppAssetsViewIndexRoute
   '/api/admin/agreements/$id/$': typeof ApiAdminAgreementsIdSplatRoute
+  '/api/admin/agreements/pending-witness/$': typeof ApiAdminAgreementsPendingWitnessSplatRoute
+  '/api/admin/agreements/sign-on-behalf/$': typeof ApiAdminAgreementsSignOnBehalfSplatRoute
   '/api/agreement/$id/assets/$': typeof ApiAgreementIdAssetsSplatRoute
   '/api/agreement/$id/beneficiaries/$': typeof ApiAgreementIdBeneficiariesSplatRoute
   '/api/agreement/$id/status/$': typeof ApiAgreementIdStatusSplatRoute
+  '/api/admin/agreements/by-ic/$icNumber/$': typeof ApiAdminAgreementsByIcIcNumberSplatRoute
   '/api/agreement/$id/sign/beneficiary/$': typeof ApiAgreementIdSignBeneficiarySplatRoute
   '/api/agreement/$id/sign/owner/$': typeof ApiAgreementIdSignOwnerSplatRoute
   '/api/agreement/$id/sign/witness/$': typeof ApiAgreementIdSignWitnessSplatRoute
@@ -464,9 +488,12 @@ export interface FileRoutesByTo {
   '/app/assets/edit': typeof AppAssetsEditIndexRoute
   '/app/assets/view': typeof AppAssetsViewIndexRoute
   '/api/admin/agreements/$id/$': typeof ApiAdminAgreementsIdSplatRoute
+  '/api/admin/agreements/pending-witness/$': typeof ApiAdminAgreementsPendingWitnessSplatRoute
+  '/api/admin/agreements/sign-on-behalf/$': typeof ApiAdminAgreementsSignOnBehalfSplatRoute
   '/api/agreement/$id/assets/$': typeof ApiAgreementIdAssetsSplatRoute
   '/api/agreement/$id/beneficiaries/$': typeof ApiAgreementIdBeneficiariesSplatRoute
   '/api/agreement/$id/status/$': typeof ApiAgreementIdStatusSplatRoute
+  '/api/admin/agreements/by-ic/$icNumber/$': typeof ApiAdminAgreementsByIcIcNumberSplatRoute
   '/api/agreement/$id/sign/beneficiary/$': typeof ApiAgreementIdSignBeneficiarySplatRoute
   '/api/agreement/$id/sign/owner/$': typeof ApiAgreementIdSignOwnerSplatRoute
   '/api/agreement/$id/sign/witness/$': typeof ApiAgreementIdSignWitnessSplatRoute
@@ -523,9 +550,12 @@ export interface FileRoutesById {
   '/app/assets/edit/': typeof AppAssetsEditIndexRoute
   '/app/assets/view/': typeof AppAssetsViewIndexRoute
   '/api/admin/agreements/$id/$': typeof ApiAdminAgreementsIdSplatRoute
+  '/api/admin/agreements/pending-witness/$': typeof ApiAdminAgreementsPendingWitnessSplatRoute
+  '/api/admin/agreements/sign-on-behalf/$': typeof ApiAdminAgreementsSignOnBehalfSplatRoute
   '/api/agreement/$id/assets/$': typeof ApiAgreementIdAssetsSplatRoute
   '/api/agreement/$id/beneficiaries/$': typeof ApiAgreementIdBeneficiariesSplatRoute
   '/api/agreement/$id/status/$': typeof ApiAgreementIdStatusSplatRoute
+  '/api/admin/agreements/by-ic/$icNumber/$': typeof ApiAdminAgreementsByIcIcNumberSplatRoute
   '/api/agreement/$id/sign/beneficiary/$': typeof ApiAgreementIdSignBeneficiarySplatRoute
   '/api/agreement/$id/sign/owner/$': typeof ApiAgreementIdSignOwnerSplatRoute
   '/api/agreement/$id/sign/witness/$': typeof ApiAgreementIdSignWitnessSplatRoute
@@ -583,9 +613,12 @@ export interface FileRouteTypes {
     | '/app/assets/edit'
     | '/app/assets/view'
     | '/api/admin/agreements/$id/$'
+    | '/api/admin/agreements/pending-witness/$'
+    | '/api/admin/agreements/sign-on-behalf/$'
     | '/api/agreement/$id/assets/$'
     | '/api/agreement/$id/beneficiaries/$'
     | '/api/agreement/$id/status/$'
+    | '/api/admin/agreements/by-ic/$icNumber/$'
     | '/api/agreement/$id/sign/beneficiary/$'
     | '/api/agreement/$id/sign/owner/$'
     | '/api/agreement/$id/sign/witness/$'
@@ -640,9 +673,12 @@ export interface FileRouteTypes {
     | '/app/assets/edit'
     | '/app/assets/view'
     | '/api/admin/agreements/$id/$'
+    | '/api/admin/agreements/pending-witness/$'
+    | '/api/admin/agreements/sign-on-behalf/$'
     | '/api/agreement/$id/assets/$'
     | '/api/agreement/$id/beneficiaries/$'
     | '/api/agreement/$id/status/$'
+    | '/api/admin/agreements/by-ic/$icNumber/$'
     | '/api/agreement/$id/sign/beneficiary/$'
     | '/api/agreement/$id/sign/owner/$'
     | '/api/agreement/$id/sign/witness/$'
@@ -698,9 +734,12 @@ export interface FileRouteTypes {
     | '/app/assets/edit/'
     | '/app/assets/view/'
     | '/api/admin/agreements/$id/$'
+    | '/api/admin/agreements/pending-witness/$'
+    | '/api/admin/agreements/sign-on-behalf/$'
     | '/api/agreement/$id/assets/$'
     | '/api/agreement/$id/beneficiaries/$'
     | '/api/agreement/$id/status/$'
+    | '/api/admin/agreements/by-ic/$icNumber/$'
     | '/api/agreement/$id/sign/beneficiary/$'
     | '/api/agreement/$id/sign/owner/$'
     | '/api/agreement/$id/sign/witness/$'
@@ -729,9 +768,12 @@ export interface RootRouteChildren {
   ApiUserProfileSplatRoute: typeof ApiUserProfileSplatRoute
   ApiUploadJsonIndexRoute: typeof ApiUploadJsonIndexRoute
   ApiAdminAgreementsIdSplatRoute: typeof ApiAdminAgreementsIdSplatRoute
+  ApiAdminAgreementsPendingWitnessSplatRoute: typeof ApiAdminAgreementsPendingWitnessSplatRoute
+  ApiAdminAgreementsSignOnBehalfSplatRoute: typeof ApiAdminAgreementsSignOnBehalfSplatRoute
   ApiAgreementIdAssetsSplatRoute: typeof ApiAgreementIdAssetsSplatRoute
   ApiAgreementIdBeneficiariesSplatRoute: typeof ApiAgreementIdBeneficiariesSplatRoute
   ApiAgreementIdStatusSplatRoute: typeof ApiAgreementIdStatusSplatRoute
+  ApiAdminAgreementsByIcIcNumberSplatRoute: typeof ApiAdminAgreementsByIcIcNumberSplatRoute
   ApiAgreementIdSignBeneficiarySplatRoute: typeof ApiAgreementIdSignBeneficiarySplatRoute
   ApiAgreementIdSignOwnerSplatRoute: typeof ApiAgreementIdSignOwnerSplatRoute
   ApiAgreementIdSignWitnessSplatRoute: typeof ApiAgreementIdSignWitnessSplatRoute
@@ -1103,6 +1145,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgreementIdAssetsSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/agreements/sign-on-behalf/$': {
+      id: '/api/admin/agreements/sign-on-behalf/$'
+      path: '/api/admin/agreements/sign-on-behalf/$'
+      fullPath: '/api/admin/agreements/sign-on-behalf/$'
+      preLoaderRoute: typeof ApiAdminAgreementsSignOnBehalfSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/agreements/pending-witness/$': {
+      id: '/api/admin/agreements/pending-witness/$'
+      path: '/api/admin/agreements/pending-witness/$'
+      fullPath: '/api/admin/agreements/pending-witness/$'
+      preLoaderRoute: typeof ApiAdminAgreementsPendingWitnessSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/agreements/$id/$': {
       id: '/api/admin/agreements/$id/$'
       path: '/api/admin/agreements/$id/$'
@@ -1129,6 +1185,13 @@ declare module '@tanstack/react-router' {
       path: '/api/agreement/$id/sign/beneficiary/$'
       fullPath: '/api/agreement/$id/sign/beneficiary/$'
       preLoaderRoute: typeof ApiAgreementIdSignBeneficiarySplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/agreements/by-ic/$icNumber/$': {
+      id: '/api/admin/agreements/by-ic/$icNumber/$'
+      path: '/api/admin/agreements/by-ic/$icNumber/$'
+      fullPath: '/api/admin/agreements/by-ic/$icNumber/$'
+      preLoaderRoute: typeof ApiAdminAgreementsByIcIcNumberSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1230,9 +1293,15 @@ const rootRouteChildren: RootRouteChildren = {
   ApiUserProfileSplatRoute: ApiUserProfileSplatRoute,
   ApiUploadJsonIndexRoute: ApiUploadJsonIndexRoute,
   ApiAdminAgreementsIdSplatRoute: ApiAdminAgreementsIdSplatRoute,
+  ApiAdminAgreementsPendingWitnessSplatRoute:
+    ApiAdminAgreementsPendingWitnessSplatRoute,
+  ApiAdminAgreementsSignOnBehalfSplatRoute:
+    ApiAdminAgreementsSignOnBehalfSplatRoute,
   ApiAgreementIdAssetsSplatRoute: ApiAgreementIdAssetsSplatRoute,
   ApiAgreementIdBeneficiariesSplatRoute: ApiAgreementIdBeneficiariesSplatRoute,
   ApiAgreementIdStatusSplatRoute: ApiAgreementIdStatusSplatRoute,
+  ApiAdminAgreementsByIcIcNumberSplatRoute:
+    ApiAdminAgreementsByIcIcNumberSplatRoute,
   ApiAgreementIdSignBeneficiarySplatRoute:
     ApiAgreementIdSignBeneficiarySplatRoute,
   ApiAgreementIdSignOwnerSplatRoute: ApiAgreementIdSignOwnerSplatRoute,

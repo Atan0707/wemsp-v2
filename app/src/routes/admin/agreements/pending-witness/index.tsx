@@ -70,8 +70,8 @@ interface Agreement {
     name: string
     email: string
   }
-  beneficiaries: Beneficiary[]
-  assets: AgreementAsset[]
+  beneficiaries: Array<Beneficiary>
+  assets: Array<AgreementAsset>
 }
 
 export const Route = createFileRoute('/admin/agreements/pending-witness/')({
@@ -86,7 +86,7 @@ export const Route = createFileRoute('/admin/agreements/pending-witness/')({
 })
 
 function PendingWitnessPage() {
-  const [agreements, setAgreements] = useState<Agreement[]>([])
+  const [agreements, setAgreements] = useState<Array<Agreement>>([])
   const [loading, setLoading] = useState(true)
   const [selectedAgreement, setSelectedAgreement] = useState<Agreement | null>(null)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
@@ -136,7 +136,12 @@ function PendingWitnessPage() {
 
       if (response.ok) {
         const data = await response.json()
-        toast.success(data.message || 'Agreement witnessed successfully')
+        const txHash = data?.onChain?.witnessSignatureTxHash
+        if (txHash) {
+          toast.success(`Agreement witnessed on-chain (${txHash.slice(0, 10)}...${txHash.slice(-6)})`)
+        } else {
+          toast.success(data.message || 'Agreement witnessed successfully')
+        }
         setConfirmDialogOpen(false)
         setSelectedAgreement(null)
         fetchAgreements()
@@ -169,7 +174,7 @@ function PendingWitnessPage() {
 
   const totalAssetValue = agreements.reduce(
     (sum, agreement) =>
-      sum + agreement.assets.reduce((assetSum, asset) => assetSum + (asset.asset?.value || 0), 0),
+      sum + agreement.assets.reduce((assetSum, asset) => assetSum + asset.asset.value, 0),
     0
   )
 
@@ -254,7 +259,7 @@ function PendingWitnessPage() {
                         {agreement.beneficiaries.length} beneficiary
                         {agreement.beneficiaries.length !== 1 ? 's' : ''}
                         <div className="text-xs text-muted-foreground">
-                          {agreement.benefaries.filter((b) => b.hasSigned).length} signed
+                          {agreement.beneficiaries.filter((b) => b.hasSigned).length} signed
                         </div>
                       </div>
                     </TableCell>
