@@ -2,12 +2,12 @@ import { createFileRoute } from '@tanstack/react-router'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/db'
 import { DistributionType } from '@/generated/prisma/enums'
+import { getExplorerUrl } from '@/lib/contract'
 import {
-  validateAgreementInput,
-  validateBeneficiaries,
-  validateAssets,
   canEditAgreement,
-  canCancelAgreement,
+  validateAgreementInput,
+  validateAssets,
+  validateBeneficiaries,
 } from '@/lib/agreement-validation'
 
 export const Route = createFileRoute('/api/agreement/$')({
@@ -114,6 +114,10 @@ export const Route = createFileRoute('/api/agreement/$')({
               ownerSignature: {
                 hasSigned: agreement.ownerHasSigned,
                 signedAt: agreement.ownerSignedAt?.toISOString(),
+                txHash: agreement.ownerSignatureRef,
+                explorerUrl: agreement.ownerSignatureRef
+                  ? getExplorerUrl(agreement.ownerSignatureRef)
+                  : null,
               },
               witness: agreement.witness
                 ? {
@@ -143,6 +147,8 @@ export const Route = createFileRoute('/api/agreement/$')({
                 shareDescription: ab.shareDescription,
                 hasSigned: ab.hasSigned,
                 signedAt: ab.signedAt?.toISOString(),
+                signatureRef: ab.signatureRef,
+                explorerUrl: ab.signatureRef ? getExplorerUrl(ab.signatureRef) : null,
                 isAccepted: ab.isAccepted,
                 rejectionReason: ab.rejectionReason,
                 familyMember: ab.familyMember

@@ -1,23 +1,37 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { authClient } from '@/lib/auth-client'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  ArrowLeft,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Loader2,
+  Package,
+  Scale,
+  Signature,
+  Tag,
+  Users,
+  XCircle,
+} from 'lucide-react'
+import { toast } from 'sonner'
+import type {
+  AgreementStatus,
+  DistributionType,
+} from '@/generated/prisma/enums'
 import {
   Card,
+  CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import {
-  FieldGroup,
-} from '@/components/ui/field'
+import { Button } from '@/components/ui/button'
+import { FieldGroup } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Loader2, ArrowLeft, CheckCircle2, XCircle, Clock, FileText, Package, Users, Scale, Calendar, Tag, Eye, Signature } from 'lucide-react'
-import { toast } from 'sonner'
-import { AgreementStatus, DistributionType } from '@/generated/prisma/enums'
-import { getStatusColor, getStatusDescription, canUserSign } from '@/lib/agreement-workflow'
+import { authClient } from '@/lib/auth-client'
+import { getStatusColor, getStatusDescription } from '@/lib/agreement-workflow'
 
 export const Route = createFileRoute('/app/agreement/view/$id')({
   component: RouteComponent,
@@ -64,10 +78,17 @@ function RouteComponent() {
       }
       return response.json()
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['agreement', id] })
       queryClient.invalidateQueries({ queryKey: ['agreements'] })
-      toast.success('Agreement signed successfully')
+
+      const txHash = data?.onChain?.ownerSignatureTxHash
+      if (txHash) {
+        const shortTx = `${txHash.slice(0, 10)}...${txHash.slice(-6)}`
+        toast.success(`Agreement signed on-chain (${shortTx})`)
+      } else {
+        toast.success(data?.message || 'Agreement signed successfully')
+      }
     },
     onError: (error: Error) => {
       console.error('Error signing agreement:', error)
@@ -89,10 +110,17 @@ function RouteComponent() {
       }
       return response.json()
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['agreement', id] })
       queryClient.invalidateQueries({ queryKey: ['agreements'] })
-      toast.success('Signature recorded successfully')
+
+      const txHash = data?.onChain?.beneficiarySignatureTxHash
+      if (txHash) {
+        const shortTx = `${txHash.slice(0, 10)}...${txHash.slice(-6)}`
+        toast.success(`Signature recorded on-chain (${shortTx})`)
+      } else {
+        toast.success(data?.message || 'Signature recorded successfully')
+      }
     },
     onError: (error: Error) => {
       console.error('Error signing agreement:', error)
@@ -170,17 +198,7 @@ function RouteComponent() {
     )
   }
 
-  const isOwner = session?.user?.id === agreement.owner.id
-  const signingPermissions = canUserSign(
-    session?.user?.id || '',
-    agreement.owner.id,
-    agreement.status,
-    agreement.beneficiaries.some((b: any) =>
-      b.familyMember?.user?.id === session?.user?.id
-    ),
-    false, // isAdmin - would need admin check
-    false  // isBeneficiary - checked above
-  )
+  const isOwner = session?.user.id === agreement.owner.id
 
   const statusColors = getStatusColor(agreement.status)
 
@@ -245,7 +263,7 @@ function RouteComponent() {
   // Find current beneficiary if user is a beneficiary
   const currentBeneficiary = agreement.beneficiaries.find((b: any) => {
     const userId = b.familyMember?.user?.id
-    const sessionUserId = session?.user?.id
+    const sessionUserId = session?.user.id
     // Ensure both are strings for comparison
     return String(userId) === String(sessionUserId)
   })
@@ -412,6 +430,16 @@ function RouteComponent() {
                           ? formatDate(agreement.ownerSignature.signedAt)
                           : 'Pending'}
                       </div>
+                      {agreement.ownerSignature?.explorerUrl && (
+                        <a
+                          href={agreement.ownerSignature.explorerUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs text-primary hover:underline"
+                        >
+                          View tx
+                        </a>
+                      )}
                     </td>
                   </tr>
 
@@ -446,6 +474,16 @@ function RouteComponent() {
                             ? 'Rejected'
                             : 'Pending'}
                         </div>
+                        {beneficiary.explorerUrl && (
+                          <a
+                            href={beneficiary.explorerUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs text-primary hover:underline"
+                          >
+                            View tx
+                          </a>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -591,15 +629,23 @@ function RouteComponent() {
                     onClick={() => handleSignAsOwner(false)}
                     disabled={signOwnerMutation.isPending}
                   >
-                    <Signature className="mr-2 h-4 w-4" />
-                    Sign
+                    {signOwnerMutation.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Signature className="mr-2 h-4 w-4" />
+                    )}
+                    Sign On-Chain
                   </Button>
                   <Button
                     onClick={() => handleSignAsOwner(true)}
                     disabled={signOwnerMutation.isPending}
                   >
-                    <Signature className="mr-2 h-4 w-4" />
-                    Sign & Submit
+                    {signOwnerMutation.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Signature className="mr-2 h-4 w-4" />
+                    )}
+                    Sign On-Chain & Submit
                   </Button>
                 </>
               )}
@@ -610,7 +656,11 @@ function RouteComponent() {
                   onClick={handleSubmitAgreement}
                   disabled={submitMutation.isPending}
                 >
-                  <Signature className="mr-2 h-4 w-4" />
+                  {submitMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Signature className="mr-2 h-4 w-4" />
+                  )}
                   Submit Agreement
                 </Button>
               )}
@@ -623,8 +673,12 @@ function RouteComponent() {
                     onClick={() => handleSignAsBeneficiary(currentBeneficiary.id, true)}
                     disabled={signBeneficiaryMutation.isPending}
                   >
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Accept & Sign
+                    {signBeneficiaryMutation.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                    )}
+                    Accept & Sign On-Chain
                   </Button>
                   <Button
                     variant="destructive"

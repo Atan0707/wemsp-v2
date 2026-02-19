@@ -1,7 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/db'
-import { AgreementStatus } from '@/generated/prisma/enums'
+import {
+  ensureAgreementMinted,
+  getAgreementData,
+  getExplorerUrl,
+  getOnChainErrorMessage,
+  getOnChainTimestampDate,
+  isContractConfigured,
+  recordOwnerSignature,
+} from '@/lib/contract'
 
 export const Route = createFileRoute('/api/agreement/$id/sign/owner/$')({
   server: {
@@ -18,9 +26,23 @@ export const Route = createFileRoute('/api/agreement/$id/sign/owner/$')({
         const { id: agreementId } = params
 
         try {
+          if (!isContractConfigured()) {
+            return Response.json(
+              { error: 'On-chain signing is not configured. Please set RPC_URL, PRIVATE_KEY, and CONTRACT_ADDRESS.' },
+              { status: 503 }
+            )
+          }
+
           // Check if agreement exists
           const agreement = await prisma.agreement.findUnique({
             where: { id: agreementId },
+            include: {
+              beneficiaries: {
+                select: {
+                  id: true,
+                },
+              },
+            },
           })
 
           if (!agreement) {
@@ -58,14 +80,42 @@ export const Route = createFileRoute('/api/agreement/$id/sign/owner/$')({
           const body = await request.json()
           const { submit = false } = body
 
+          if (agreement.beneficiaries.length === 0) {
+            return Response.json(
+              { error: 'Add at least one beneficiary before signing on-chain' },
+              { status: 400 }
+            )
+          }
+
+          const ensureMintResult = await ensureAgreementMinted(
+            agreement.id,
+            agreement.beneficiaries.map((beneficiary) => beneficiary.id)
+          )
+          const onChainAgreement = await getAgreementData(ensureMintResult.tokenId)
+
+          let ownerSignatureTxHash: string | null = agreement.ownerSignatureRef
+          let ownerSignedAt = agreement.ownerSignedAt ?? new Date()
+          let ownerSignatureExplorerUrl: string | null = null
+
+          if (!onChainAgreement.ownerSigned) {
+            const signatureResult = await recordOwnerSignature(ensureMintResult.tokenId)
+            ownerSignatureTxHash = signatureResult.txHash
+            ownerSignedAt = getOnChainTimestampDate(signatureResult.timestamp)
+            ownerSignatureExplorerUrl = getExplorerUrl(signatureResult.txHash)
+          } else {
+            ownerSignedAt = getOnChainTimestampDate(onChainAgreement.ownerSignedAt)
+            if (ownerSignatureTxHash) {
+              ownerSignatureExplorerUrl = getExplorerUrl(ownerSignatureTxHash)
+            }
+          }
+
           // Sign agreement
           const updatedAgreement = await prisma.agreement.update({
             where: { id: agreementId },
             data: {
               ownerHasSigned: true,
-              ownerSignedAt: new Date(),
-              // Simple signature ref - can be enhanced later with crypto
-              ownerSignatureRef: `owner-signed-${Date.now()}`,
+              ownerSignedAt,
+              ownerSignatureRef: ownerSignatureTxHash,
               status: submit ? 'PENDING_SIGNATURES' : agreement.status,
             },
           })
@@ -81,9 +131,27 @@ export const Route = createFileRoute('/api/agreement/$id/sign/owner/$')({
               ownerHasSigned: updatedAgreement.ownerHasSigned,
               ownerSignedAt: updatedAgreement.ownerSignedAt?.toISOString(),
             },
+            onChain: {
+              tokenId: ensureMintResult.tokenId,
+              ownerSignatureTxHash,
+              ownerSignatureExplorerUrl,
+              mintTxHash: ensureMintResult.mintResult?.txHash || null,
+              mintExplorerUrl: ensureMintResult.mintResult?.txHash
+                ? getExplorerUrl(ensureMintResult.mintResult.txHash)
+                : null,
+            },
           })
         } catch (error) {
           console.error('Error signing agreement as owner:', error)
+
+          const onChainMessage = getOnChainErrorMessage(error)
+          if (onChainMessage) {
+            return Response.json(
+              { error: `On-chain signature failed: ${onChainMessage}` },
+              { status: 500 }
+            )
+          }
+
           return Response.json(
             { error: 'Internal Server Error' },
             { status: 500 }

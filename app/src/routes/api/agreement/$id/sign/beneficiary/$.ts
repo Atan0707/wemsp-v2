@@ -1,7 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/db'
-import { AgreementStatus } from '@/generated/prisma/enums'
+import {
+  ensureAgreementMinted,
+  getAgreementData,
+  getBeneficiarySignatureStatus,
+  getExplorerUrl,
+  getOnChainErrorMessage,
+  getOnChainTimestampDate,
+  isContractConfigured,
+  recordBeneficiarySignature,
+  recordOwnerSignature,
+} from '@/lib/contract'
 
 export const Route = createFileRoute('/api/agreement/$id/sign/beneficiary/$')({
   server: {
@@ -89,6 +99,13 @@ export const Route = createFileRoute('/api/agreement/$id/sign/beneficiary/$')({
             )
           }
 
+          if (accept && !isContractConfigured()) {
+            return Response.json(
+              { error: 'On-chain signing is not configured. Please set RPC_URL, PRIVATE_KEY, and CONTRACT_ADDRESS.' },
+              { status: 503 }
+            )
+          }
+
           // Check if already signed
           if (beneficiary.hasSigned) {
             return Response.json(
@@ -97,13 +114,56 @@ export const Route = createFileRoute('/api/agreement/$id/sign/beneficiary/$')({
             )
           }
 
+          let onChain: {
+            tokenId: number
+            beneficiarySignatureTxHash: string | null
+            beneficiarySignatureExplorerUrl: string | null
+            mintTxHash: string | null
+            mintExplorerUrl: string | null
+          } | null = null
+
+          let signedAt = accept ? new Date() : null
+          let signatureRef: string | null = beneficiary.signatureRef
+
+          if (accept) {
+            const ensureMintResult = await ensureAgreementMinted(
+              agreement.id,
+              agreement.beneficiaries.map((b) => b.id)
+            )
+            const tokenId = ensureMintResult.tokenId
+            const onChainAgreement = await getAgreementData(tokenId)
+
+            if (agreement.ownerHasSigned && !onChainAgreement.ownerSigned) {
+              await recordOwnerSignature(tokenId)
+            }
+
+            const beneficiarySignatureStatus = await getBeneficiarySignatureStatus(tokenId, beneficiaryId)
+            if (beneficiarySignatureStatus.hasSigned) {
+              signedAt = getOnChainTimestampDate(beneficiarySignatureStatus.signedAt)
+            } else {
+              const signatureResult = await recordBeneficiarySignature(tokenId, beneficiaryId)
+              signedAt = getOnChainTimestampDate(signatureResult.timestamp)
+              signatureRef = signatureResult.txHash
+            }
+
+            onChain = {
+              tokenId,
+              beneficiarySignatureTxHash: signatureRef,
+              beneficiarySignatureExplorerUrl: signatureRef ? getExplorerUrl(signatureRef) : null,
+              mintTxHash: ensureMintResult.mintResult?.txHash || null,
+              mintExplorerUrl: ensureMintResult.mintResult?.txHash
+                ? getExplorerUrl(ensureMintResult.mintResult.txHash)
+                : null,
+            }
+          }
+
           // Update beneficiary signature
           const updatedBeneficiary = await prisma.agreementBeneficiary.update({
             where: { id: beneficiaryId },
             data: {
               hasSigned: accept,
-              signedAt: accept ? new Date() : null,
-              signatureRef: accept ? `beneficiary-signed-${Date.now()}` : null,
+              signedAt,
+              signatureRef: accept ? signatureRef : null,
               isAccepted: accept ? true : false,
               rejectionReason: accept ? null : rejectionReason,
             },
@@ -116,13 +176,9 @@ export const Route = createFileRoute('/api/agreement/$id/sign/beneficiary/$')({
 
           const allSigned = allBeneficiaries.every((b) => b.hasSigned && b.isAccepted !== false)
 
-          let newStatus = agreement.status
-          if (allSigned) {
-            newStatus = 'PENDING_WITNESS'
-          }
+          const newStatus = allSigned ? 'PENDING_WITNESS' : agreement.status
 
-          // Update agreement status if all signed
-          if (newStatus !== agreement.status) {
+          if (allSigned) {
             await prisma.agreement.update({
               where: { id: agreementId },
               data: { status: newStatus },
@@ -141,9 +197,19 @@ export const Route = createFileRoute('/api/agreement/$id/sign/beneficiary/$')({
               isAccepted: updatedBeneficiary.isAccepted,
             },
             agreementStatus: newStatus,
+            onChain,
           })
         } catch (error) {
           console.error('Error signing agreement as beneficiary:', error)
+
+          const onChainMessage = getOnChainErrorMessage(error)
+          if (onChainMessage) {
+            return Response.json(
+              { error: `On-chain signature failed: ${onChainMessage}` },
+              { status: 500 }
+            )
+          }
+
           return Response.json(
             { error: 'Internal Server Error' },
             { status: 500 }

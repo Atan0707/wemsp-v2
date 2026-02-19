@@ -1,6 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { prisma } from '@/db'
 import { getAdminFromSession } from '@/lib/admin-auth'
+import {
+  ensureAgreementMinted,
+  finalizeAgreement,
+  getAgreementData,
+  getBeneficiarySignatureStatus,
+  getExplorerUrl,
+  getOnChainErrorMessage,
+  getOnChainTimestampDate,
+  isAgreementFullySigned,
+  isContractConfigured,
+  recordBeneficiarySignature,
+  recordOwnerSignature,
+  recordWitnessSignature,
+} from '@/lib/contract'
 
 export const Route = createFileRoute('/api/agreement/$id/sign/witness/$')({
   server: {
@@ -15,9 +29,24 @@ export const Route = createFileRoute('/api/agreement/$id/sign/witness/$')({
         const { id: agreementId } = params
 
         try {
+          if (!isContractConfigured()) {
+            return Response.json(
+              { error: 'On-chain signing is not configured. Please set RPC_URL, PRIVATE_KEY, and CONTRACT_ADDRESS.' },
+              { status: 503 }
+            )
+          }
+
           // Check if agreement exists
           const agreement = await prisma.agreement.findUnique({
             where: { id: agreementId },
+            include: {
+              beneficiaries: {
+                select: {
+                  id: true,
+                  hasSigned: true,
+                },
+              },
+            },
           })
 
           if (!agreement) {
@@ -58,12 +87,58 @@ export const Route = createFileRoute('/api/agreement/$id/sign/witness/$')({
             )
           }
 
+          const ensureMintResult = await ensureAgreementMinted(
+            agreement.id,
+            agreement.beneficiaries.map((beneficiary) => beneficiary.id)
+          )
+          const tokenId = ensureMintResult.tokenId
+          const onChainAgreement = await getAgreementData(tokenId)
+
+          if (agreement.ownerHasSigned && !onChainAgreement.ownerSigned) {
+            await recordOwnerSignature(tokenId)
+          }
+
+          for (const beneficiary of agreement.beneficiaries) {
+            if (!beneficiary.hasSigned) {
+              continue
+            }
+            const beneficiaryStatus = await getBeneficiarySignatureStatus(tokenId, beneficiary.id)
+            if (!beneficiaryStatus.hasSigned) {
+              await recordBeneficiarySignature(tokenId, beneficiary.id)
+            }
+          }
+
+          let witnessTxHash: string | null = null
+          let witnessedAt = onChainAgreement.witnessedAt
+            ? getOnChainTimestampDate(onChainAgreement.witnessedAt)
+            : new Date()
+
+          if (!onChainAgreement.witnessSigned) {
+            const witnessSignatureResult = await recordWitnessSignature(tokenId)
+            witnessTxHash = witnessSignatureResult.txHash
+            witnessedAt = getOnChainTimestampDate(witnessSignatureResult.timestamp)
+          }
+
+          let finalizeTxHash: string | null = null
+          const fullySigned = await isAgreementFullySigned(tokenId)
+          if (fullySigned) {
+            try {
+              const finalizeResult = await finalizeAgreement(tokenId)
+              finalizeTxHash = finalizeResult.txHash
+            } catch (finalizeError) {
+              const errorMessage = getOnChainErrorMessage(finalizeError)
+              if (!errorMessage.includes('AgreementAlreadyFinalized')) {
+                throw finalizeError
+              }
+            }
+          }
+
           // Witness agreement
           const updatedAgreement = await prisma.agreement.update({
             where: { id: agreementId },
             data: {
               witnessId: adminSession.adminId,
-              witnessedAt: new Date(),
+              witnessedAt,
               status: 'ACTIVE',
             },
           })
@@ -77,9 +152,29 @@ export const Route = createFileRoute('/api/agreement/$id/sign/witness/$')({
               witnessId: updatedAgreement.witnessId,
               witnessedAt: updatedAgreement.witnessedAt?.toISOString(),
             },
+            onChain: {
+              tokenId,
+              witnessSignatureTxHash: witnessTxHash,
+              witnessSignatureExplorerUrl: witnessTxHash ? getExplorerUrl(witnessTxHash) : null,
+              finalizeTxHash,
+              finalizeExplorerUrl: finalizeTxHash ? getExplorerUrl(finalizeTxHash) : null,
+              mintTxHash: ensureMintResult.mintResult?.txHash || null,
+              mintExplorerUrl: ensureMintResult.mintResult?.txHash
+                ? getExplorerUrl(ensureMintResult.mintResult.txHash)
+                : null,
+            },
           })
         } catch (error) {
           console.error('Error witnessing agreement:', error)
+
+          const onChainMessage = getOnChainErrorMessage(error)
+          if (onChainMessage) {
+            return Response.json(
+              { error: `On-chain witness signature failed: ${onChainMessage}` },
+              { status: 500 }
+            )
+          }
+
           return Response.json(
             { error: 'Internal Server Error' },
             { status: 500 }
