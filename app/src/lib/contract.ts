@@ -1,5 +1,5 @@
 import { ethers, Contract, Wallet, JsonRpcProvider } from 'ethers';
-import { AGREEMENT_NFT_ABI } from './contract-abi';
+import AgreementABI from '../contract/AgreementABI.json';
 
 // Environment variables
 const RPC_URL = process.env.RPC_URL;
@@ -45,7 +45,7 @@ function getContract(): Contract {
 		throw new Error('CONTRACT_ADDRESS environment variable is not set');
 	}
 	if (!_contract) {
-		_contract = new Contract(CONTRACT_ADDRESS, AGREEMENT_NFT_ABI, getWallet());
+		_contract = new Contract(CONTRACT_ADDRESS, AgreementABI.abi, getWallet());
 	}
 	return _contract;
 }
