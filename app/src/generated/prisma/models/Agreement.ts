@@ -20,8 +20,18 @@ export type AgreementModel = runtime.Types.Result.DefaultSelection<Prisma.$Agree
 
 export type AggregateAgreement = {
   _count: AgreementCountAggregateOutputType | null
+  _avg: AgreementAvgAggregateOutputType | null
+  _sum: AgreementSumAggregateOutputType | null
   _min: AgreementMinAggregateOutputType | null
   _max: AgreementMaxAggregateOutputType | null
+}
+
+export type AgreementAvgAggregateOutputType = {
+  tokenId: number | null
+}
+
+export type AgreementSumAggregateOutputType = {
+  tokenId: number | null
 }
 
 export type AgreementMinAggregateOutputType = {
@@ -36,8 +46,13 @@ export type AgreementMinAggregateOutputType = {
   ownerSignatureRef: string | null
   witnessId: string | null
   witnessedAt: Date | null
+  witnessSignatureRef: string | null
   effectiveDate: Date | null
   expiryDate: Date | null
+  tokenId: number | null
+  contractAddress: string | null
+  metadataUri: string | null
+  mintTxHash: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,8 +69,13 @@ export type AgreementMaxAggregateOutputType = {
   ownerSignatureRef: string | null
   witnessId: string | null
   witnessedAt: Date | null
+  witnessSignatureRef: string | null
   effectiveDate: Date | null
   expiryDate: Date | null
+  tokenId: number | null
+  contractAddress: string | null
+  metadataUri: string | null
+  mintTxHash: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -72,13 +92,26 @@ export type AgreementCountAggregateOutputType = {
   ownerSignatureRef: number
   witnessId: number
   witnessedAt: number
+  witnessSignatureRef: number
   effectiveDate: number
   expiryDate: number
+  tokenId: number
+  contractAddress: number
+  metadataUri: number
+  mintTxHash: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type AgreementAvgAggregateInputType = {
+  tokenId?: true
+}
+
+export type AgreementSumAggregateInputType = {
+  tokenId?: true
+}
 
 export type AgreementMinAggregateInputType = {
   id?: true
@@ -92,8 +125,13 @@ export type AgreementMinAggregateInputType = {
   ownerSignatureRef?: true
   witnessId?: true
   witnessedAt?: true
+  witnessSignatureRef?: true
   effectiveDate?: true
   expiryDate?: true
+  tokenId?: true
+  contractAddress?: true
+  metadataUri?: true
+  mintTxHash?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -110,8 +148,13 @@ export type AgreementMaxAggregateInputType = {
   ownerSignatureRef?: true
   witnessId?: true
   witnessedAt?: true
+  witnessSignatureRef?: true
   effectiveDate?: true
   expiryDate?: true
+  tokenId?: true
+  contractAddress?: true
+  metadataUri?: true
+  mintTxHash?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -128,8 +171,13 @@ export type AgreementCountAggregateInputType = {
   ownerSignatureRef?: true
   witnessId?: true
   witnessedAt?: true
+  witnessSignatureRef?: true
   effectiveDate?: true
   expiryDate?: true
+  tokenId?: true
+  contractAddress?: true
+  metadataUri?: true
+  mintTxHash?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -173,6 +221,18 @@ export type AgreementAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inte
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AgreementAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AgreementSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AgreementMinAggregateInputType
@@ -203,6 +263,8 @@ export type AgreementGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   _count?: AgreementCountAggregateInputType | true
+  _avg?: AgreementAvgAggregateInputType
+  _sum?: AgreementSumAggregateInputType
   _min?: AgreementMinAggregateInputType
   _max?: AgreementMaxAggregateInputType
 }
@@ -219,11 +281,18 @@ export type AgreementGroupByOutputType = {
   ownerSignatureRef: string | null
   witnessId: string | null
   witnessedAt: Date | null
+  witnessSignatureRef: string | null
   effectiveDate: Date | null
   expiryDate: Date | null
+  tokenId: number | null
+  contractAddress: string | null
+  metadataUri: string | null
+  mintTxHash: string | null
   createdAt: Date
   updatedAt: Date
   _count: AgreementCountAggregateOutputType | null
+  _avg: AgreementAvgAggregateOutputType | null
+  _sum: AgreementSumAggregateOutputType | null
   _min: AgreementMinAggregateOutputType | null
   _max: AgreementMaxAggregateOutputType | null
 }
@@ -258,8 +327,13 @@ export type AgreementWhereInput = {
   ownerSignatureRef?: Prisma.StringNullableFilter<"Agreement"> | string | null
   witnessId?: Prisma.StringNullableFilter<"Agreement"> | string | null
   witnessedAt?: Prisma.DateTimeNullableFilter<"Agreement"> | Date | string | null
+  witnessSignatureRef?: Prisma.StringNullableFilter<"Agreement"> | string | null
   effectiveDate?: Prisma.DateTimeNullableFilter<"Agreement"> | Date | string | null
   expiryDate?: Prisma.DateTimeNullableFilter<"Agreement"> | Date | string | null
+  tokenId?: Prisma.IntNullableFilter<"Agreement"> | number | null
+  contractAddress?: Prisma.StringNullableFilter<"Agreement"> | string | null
+  metadataUri?: Prisma.StringNullableFilter<"Agreement"> | string | null
+  mintTxHash?: Prisma.StringNullableFilter<"Agreement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Agreement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Agreement"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -280,8 +354,13 @@ export type AgreementOrderByWithRelationInput = {
   ownerSignatureRef?: Prisma.SortOrderInput | Prisma.SortOrder
   witnessId?: Prisma.SortOrderInput | Prisma.SortOrder
   witnessedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  witnessSignatureRef?: Prisma.SortOrderInput | Prisma.SortOrder
   effectiveDate?: Prisma.SortOrderInput | Prisma.SortOrder
   expiryDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  tokenId?: Prisma.SortOrderInput | Prisma.SortOrder
+  contractAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  metadataUri?: Prisma.SortOrderInput | Prisma.SortOrder
+  mintTxHash?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   owner?: Prisma.UserOrderByWithRelationInput
@@ -305,8 +384,13 @@ export type AgreementWhereUniqueInput = Prisma.AtLeast<{
   ownerSignatureRef?: Prisma.StringNullableFilter<"Agreement"> | string | null
   witnessId?: Prisma.StringNullableFilter<"Agreement"> | string | null
   witnessedAt?: Prisma.DateTimeNullableFilter<"Agreement"> | Date | string | null
+  witnessSignatureRef?: Prisma.StringNullableFilter<"Agreement"> | string | null
   effectiveDate?: Prisma.DateTimeNullableFilter<"Agreement"> | Date | string | null
   expiryDate?: Prisma.DateTimeNullableFilter<"Agreement"> | Date | string | null
+  tokenId?: Prisma.IntNullableFilter<"Agreement"> | number | null
+  contractAddress?: Prisma.StringNullableFilter<"Agreement"> | string | null
+  metadataUri?: Prisma.StringNullableFilter<"Agreement"> | string | null
+  mintTxHash?: Prisma.StringNullableFilter<"Agreement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Agreement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Agreement"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -327,13 +411,20 @@ export type AgreementOrderByWithAggregationInput = {
   ownerSignatureRef?: Prisma.SortOrderInput | Prisma.SortOrder
   witnessId?: Prisma.SortOrderInput | Prisma.SortOrder
   witnessedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  witnessSignatureRef?: Prisma.SortOrderInput | Prisma.SortOrder
   effectiveDate?: Prisma.SortOrderInput | Prisma.SortOrder
   expiryDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  tokenId?: Prisma.SortOrderInput | Prisma.SortOrder
+  contractAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  metadataUri?: Prisma.SortOrderInput | Prisma.SortOrder
+  mintTxHash?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AgreementCountOrderByAggregateInput
+  _avg?: Prisma.AgreementAvgOrderByAggregateInput
   _max?: Prisma.AgreementMaxOrderByAggregateInput
   _min?: Prisma.AgreementMinOrderByAggregateInput
+  _sum?: Prisma.AgreementSumOrderByAggregateInput
 }
 
 export type AgreementScalarWhereWithAggregatesInput = {
@@ -351,8 +442,13 @@ export type AgreementScalarWhereWithAggregatesInput = {
   ownerSignatureRef?: Prisma.StringNullableWithAggregatesFilter<"Agreement"> | string | null
   witnessId?: Prisma.StringNullableWithAggregatesFilter<"Agreement"> | string | null
   witnessedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Agreement"> | Date | string | null
+  witnessSignatureRef?: Prisma.StringNullableWithAggregatesFilter<"Agreement"> | string | null
   effectiveDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Agreement"> | Date | string | null
   expiryDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Agreement"> | Date | string | null
+  tokenId?: Prisma.IntNullableWithAggregatesFilter<"Agreement"> | number | null
+  contractAddress?: Prisma.StringNullableWithAggregatesFilter<"Agreement"> | string | null
+  metadataUri?: Prisma.StringNullableWithAggregatesFilter<"Agreement"> | string | null
+  mintTxHash?: Prisma.StringNullableWithAggregatesFilter<"Agreement"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Agreement"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Agreement"> | Date | string
 }
@@ -367,8 +463,13 @@ export type AgreementCreateInput = {
   ownerSignedAt?: Date | string | null
   ownerSignatureRef?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutAgreementsInput
@@ -389,8 +490,13 @@ export type AgreementUncheckedCreateInput = {
   ownerSignatureRef?: string | null
   witnessId?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assets?: Prisma.AgreementAssetUncheckedCreateNestedManyWithoutAgreementInput
@@ -407,8 +513,13 @@ export type AgreementUpdateInput = {
   ownerSignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutAgreementsNestedInput
@@ -429,8 +540,13 @@ export type AgreementUncheckedUpdateInput = {
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assets?: Prisma.AgreementAssetUncheckedUpdateManyWithoutAgreementNestedInput
@@ -449,8 +565,13 @@ export type AgreementCreateManyInput = {
   ownerSignatureRef?: string | null
   witnessId?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -465,8 +586,13 @@ export type AgreementUpdateManyMutationInput = {
   ownerSignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -483,8 +609,13 @@ export type AgreementUncheckedUpdateManyInput = {
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -511,10 +642,19 @@ export type AgreementCountOrderByAggregateInput = {
   ownerSignatureRef?: Prisma.SortOrder
   witnessId?: Prisma.SortOrder
   witnessedAt?: Prisma.SortOrder
+  witnessSignatureRef?: Prisma.SortOrder
   effectiveDate?: Prisma.SortOrder
   expiryDate?: Prisma.SortOrder
+  tokenId?: Prisma.SortOrder
+  contractAddress?: Prisma.SortOrder
+  metadataUri?: Prisma.SortOrder
+  mintTxHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type AgreementAvgOrderByAggregateInput = {
+  tokenId?: Prisma.SortOrder
 }
 
 export type AgreementMaxOrderByAggregateInput = {
@@ -529,8 +669,13 @@ export type AgreementMaxOrderByAggregateInput = {
   ownerSignatureRef?: Prisma.SortOrder
   witnessId?: Prisma.SortOrder
   witnessedAt?: Prisma.SortOrder
+  witnessSignatureRef?: Prisma.SortOrder
   effectiveDate?: Prisma.SortOrder
   expiryDate?: Prisma.SortOrder
+  tokenId?: Prisma.SortOrder
+  contractAddress?: Prisma.SortOrder
+  metadataUri?: Prisma.SortOrder
+  mintTxHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -547,10 +692,19 @@ export type AgreementMinOrderByAggregateInput = {
   ownerSignatureRef?: Prisma.SortOrder
   witnessId?: Prisma.SortOrder
   witnessedAt?: Prisma.SortOrder
+  witnessSignatureRef?: Prisma.SortOrder
   effectiveDate?: Prisma.SortOrder
   expiryDate?: Prisma.SortOrder
+  tokenId?: Prisma.SortOrder
+  contractAddress?: Prisma.SortOrder
+  metadataUri?: Prisma.SortOrder
+  mintTxHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type AgreementSumOrderByAggregateInput = {
+  tokenId?: Prisma.SortOrder
 }
 
 export type AgreementScalarRelationFilter = {
@@ -650,6 +804,14 @@ export type EnumAgreementStatusFieldUpdateOperationsInput = {
   set?: $Enums.AgreementStatus
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type AgreementCreateNestedOneWithoutAssetsInput = {
   create?: Prisma.XOR<Prisma.AgreementCreateWithoutAssetsInput, Prisma.AgreementUncheckedCreateWithoutAssetsInput>
   connectOrCreate?: Prisma.AgreementCreateOrConnectWithoutAssetsInput
@@ -688,8 +850,13 @@ export type AgreementCreateWithoutOwnerInput = {
   ownerSignedAt?: Date | string | null
   ownerSignatureRef?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   witness?: Prisma.AdminCreateNestedOneWithoutWitnessedAgreementsInput
@@ -708,8 +875,13 @@ export type AgreementUncheckedCreateWithoutOwnerInput = {
   ownerSignatureRef?: string | null
   witnessId?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assets?: Prisma.AgreementAssetUncheckedCreateNestedManyWithoutAgreementInput
@@ -757,8 +929,13 @@ export type AgreementScalarWhereInput = {
   ownerSignatureRef?: Prisma.StringNullableFilter<"Agreement"> | string | null
   witnessId?: Prisma.StringNullableFilter<"Agreement"> | string | null
   witnessedAt?: Prisma.DateTimeNullableFilter<"Agreement"> | Date | string | null
+  witnessSignatureRef?: Prisma.StringNullableFilter<"Agreement"> | string | null
   effectiveDate?: Prisma.DateTimeNullableFilter<"Agreement"> | Date | string | null
   expiryDate?: Prisma.DateTimeNullableFilter<"Agreement"> | Date | string | null
+  tokenId?: Prisma.IntNullableFilter<"Agreement"> | number | null
+  contractAddress?: Prisma.StringNullableFilter<"Agreement"> | string | null
+  metadataUri?: Prisma.StringNullableFilter<"Agreement"> | string | null
+  mintTxHash?: Prisma.StringNullableFilter<"Agreement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Agreement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Agreement"> | Date | string
 }
@@ -773,8 +950,13 @@ export type AgreementCreateWithoutWitnessInput = {
   ownerSignedAt?: Date | string | null
   ownerSignatureRef?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutAgreementsInput
@@ -793,8 +975,13 @@ export type AgreementUncheckedCreateWithoutWitnessInput = {
   ownerSignedAt?: Date | string | null
   ownerSignatureRef?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assets?: Prisma.AgreementAssetUncheckedCreateNestedManyWithoutAgreementInput
@@ -837,8 +1024,13 @@ export type AgreementCreateWithoutAssetsInput = {
   ownerSignedAt?: Date | string | null
   ownerSignatureRef?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutAgreementsInput
@@ -858,8 +1050,13 @@ export type AgreementUncheckedCreateWithoutAssetsInput = {
   ownerSignatureRef?: string | null
   witnessId?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   beneficiaries?: Prisma.AgreementBeneficiaryUncheckedCreateNestedManyWithoutAgreementInput
@@ -891,8 +1088,13 @@ export type AgreementUpdateWithoutAssetsInput = {
   ownerSignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutAgreementsNestedInput
@@ -912,8 +1114,13 @@ export type AgreementUncheckedUpdateWithoutAssetsInput = {
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   beneficiaries?: Prisma.AgreementBeneficiaryUncheckedUpdateManyWithoutAgreementNestedInput
@@ -929,8 +1136,13 @@ export type AgreementCreateWithoutBeneficiariesInput = {
   ownerSignedAt?: Date | string | null
   ownerSignatureRef?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutAgreementsInput
@@ -950,8 +1162,13 @@ export type AgreementUncheckedCreateWithoutBeneficiariesInput = {
   ownerSignatureRef?: string | null
   witnessId?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assets?: Prisma.AgreementAssetUncheckedCreateNestedManyWithoutAgreementInput
@@ -983,8 +1200,13 @@ export type AgreementUpdateWithoutBeneficiariesInput = {
   ownerSignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutAgreementsNestedInput
@@ -1004,8 +1226,13 @@ export type AgreementUncheckedUpdateWithoutBeneficiariesInput = {
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assets?: Prisma.AgreementAssetUncheckedUpdateManyWithoutAgreementNestedInput
@@ -1022,8 +1249,13 @@ export type AgreementCreateManyOwnerInput = {
   ownerSignatureRef?: string | null
   witnessId?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1038,8 +1270,13 @@ export type AgreementUpdateWithoutOwnerInput = {
   ownerSignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   witness?: Prisma.AdminUpdateOneWithoutWitnessedAgreementsNestedInput
@@ -1058,8 +1295,13 @@ export type AgreementUncheckedUpdateWithoutOwnerInput = {
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assets?: Prisma.AgreementAssetUncheckedUpdateManyWithoutAgreementNestedInput
@@ -1077,8 +1319,13 @@ export type AgreementUncheckedUpdateManyWithoutOwnerInput = {
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1094,8 +1341,13 @@ export type AgreementCreateManyWitnessInput = {
   ownerSignedAt?: Date | string | null
   ownerSignatureRef?: string | null
   witnessedAt?: Date | string | null
+  witnessSignatureRef?: string | null
   effectiveDate?: Date | string | null
   expiryDate?: Date | string | null
+  tokenId?: number | null
+  contractAddress?: string | null
+  metadataUri?: string | null
+  mintTxHash?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1110,8 +1362,13 @@ export type AgreementUpdateWithoutWitnessInput = {
   ownerSignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutAgreementsNestedInput
@@ -1130,8 +1387,13 @@ export type AgreementUncheckedUpdateWithoutWitnessInput = {
   ownerSignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assets?: Prisma.AgreementAssetUncheckedUpdateManyWithoutAgreementNestedInput
@@ -1149,8 +1411,13 @@ export type AgreementUncheckedUpdateManyWithoutWitnessInput = {
   ownerSignedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ownerSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   witnessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  witnessSignatureRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   expiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  metadataUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mintTxHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1207,8 +1474,13 @@ export type AgreementSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   ownerSignatureRef?: boolean
   witnessId?: boolean
   witnessedAt?: boolean
+  witnessSignatureRef?: boolean
   effectiveDate?: boolean
   expiryDate?: boolean
+  tokenId?: boolean
+  contractAddress?: boolean
+  metadataUri?: boolean
+  mintTxHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1230,8 +1502,13 @@ export type AgreementSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   ownerSignatureRef?: boolean
   witnessId?: boolean
   witnessedAt?: boolean
+  witnessSignatureRef?: boolean
   effectiveDate?: boolean
   expiryDate?: boolean
+  tokenId?: boolean
+  contractAddress?: boolean
+  metadataUri?: boolean
+  mintTxHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1250,8 +1527,13 @@ export type AgreementSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   ownerSignatureRef?: boolean
   witnessId?: boolean
   witnessedAt?: boolean
+  witnessSignatureRef?: boolean
   effectiveDate?: boolean
   expiryDate?: boolean
+  tokenId?: boolean
+  contractAddress?: boolean
+  metadataUri?: boolean
+  mintTxHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1270,13 +1552,18 @@ export type AgreementSelectScalar = {
   ownerSignatureRef?: boolean
   witnessId?: boolean
   witnessedAt?: boolean
+  witnessSignatureRef?: boolean
   effectiveDate?: boolean
   expiryDate?: boolean
+  tokenId?: boolean
+  contractAddress?: boolean
+  metadataUri?: boolean
+  mintTxHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AgreementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "distributionType" | "status" | "ownerId" | "ownerHasSigned" | "ownerSignedAt" | "ownerSignatureRef" | "witnessId" | "witnessedAt" | "effectiveDate" | "expiryDate" | "createdAt" | "updatedAt", ExtArgs["result"]["agreement"]>
+export type AgreementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "distributionType" | "status" | "ownerId" | "ownerHasSigned" | "ownerSignedAt" | "ownerSignatureRef" | "witnessId" | "witnessedAt" | "witnessSignatureRef" | "effectiveDate" | "expiryDate" | "tokenId" | "contractAddress" | "metadataUri" | "mintTxHash" | "createdAt" | "updatedAt", ExtArgs["result"]["agreement"]>
 export type AgreementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   witness?: boolean | Prisma.Agreement$witnessArgs<ExtArgs>
@@ -1313,8 +1600,13 @@ export type $AgreementPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     ownerSignatureRef: string | null
     witnessId: string | null
     witnessedAt: Date | null
+    witnessSignatureRef: string | null
     effectiveDate: Date | null
     expiryDate: Date | null
+    tokenId: number | null
+    contractAddress: string | null
+    metadataUri: string | null
+    mintTxHash: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["agreement"]>
@@ -1755,8 +2047,13 @@ export interface AgreementFieldRefs {
   readonly ownerSignatureRef: Prisma.FieldRef<"Agreement", 'String'>
   readonly witnessId: Prisma.FieldRef<"Agreement", 'String'>
   readonly witnessedAt: Prisma.FieldRef<"Agreement", 'DateTime'>
+  readonly witnessSignatureRef: Prisma.FieldRef<"Agreement", 'String'>
   readonly effectiveDate: Prisma.FieldRef<"Agreement", 'DateTime'>
   readonly expiryDate: Prisma.FieldRef<"Agreement", 'DateTime'>
+  readonly tokenId: Prisma.FieldRef<"Agreement", 'Int'>
+  readonly contractAddress: Prisma.FieldRef<"Agreement", 'String'>
+  readonly metadataUri: Prisma.FieldRef<"Agreement", 'String'>
+  readonly mintTxHash: Prisma.FieldRef<"Agreement", 'String'>
   readonly createdAt: Prisma.FieldRef<"Agreement", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Agreement", 'DateTime'>
 }

@@ -771,14 +771,6 @@ export type NullableBoolFieldUpdateOperationsInput = {
   set?: boolean | null
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type AgreementBeneficiaryCreateWithoutFamilyMemberInput = {
   id?: string
   sharePercentage: number

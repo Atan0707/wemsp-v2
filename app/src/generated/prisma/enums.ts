@@ -63,3 +63,12 @@ export const AgreementStatus = {
 } as const
 
 export type AgreementStatus = (typeof AgreementStatus)[keyof typeof AgreementStatus]
+
+
+export const AgentMessageRole = {
+  USER: 'USER',
+  ASSISTANT: 'ASSISTANT',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type AgentMessageRole = (typeof AgentMessageRole)[keyof typeof AgentMessageRole]
