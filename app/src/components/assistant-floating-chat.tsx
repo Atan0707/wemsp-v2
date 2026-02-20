@@ -360,8 +360,8 @@ export function AssistantFloatingChat() {
   return (
     <div className="fixed bottom-3 right-3 z-50 sm:bottom-5 sm:right-5">
       {open ? (
-        <Card className="w-[calc(100vw-1.5rem)] max-w-[420px] overflow-hidden border-border/70 shadow-2xl">
-          <CardHeader className="space-y-3 border-b border-border/70 bg-gradient-to-r from-sky-50 via-background to-emerald-50 pb-3 dark:from-sky-950/30 dark:to-emerald-950/20">
+        <Card className="w-[calc(100vw-1.5rem)] max-w-[420px] gap-0 overflow-hidden border-border/70 py-0 shadow-2xl">
+          <CardHeader className="space-y-3 border-b border-border/70 bg-gradient-to-r from-sky-50 via-background to-emerald-50 pb-3 pt-4 dark:from-sky-950/30 dark:to-emerald-950/20">
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-2">
                 <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
