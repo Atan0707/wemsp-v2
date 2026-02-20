@@ -63,7 +63,9 @@ export const ModelName = {
   Admin: 'Admin',
   Agreement: 'Agreement',
   AgreementAsset: 'AgreementAsset',
-  AgreementBeneficiary: 'AgreementBeneficiary'
+  AgreementBeneficiary: 'AgreementBeneficiary',
+  AgentConversation: 'AgentConversation',
+  AgentMessage: 'AgentMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -227,8 +229,13 @@ export const AgreementScalarFieldEnum = {
   ownerSignatureRef: 'ownerSignatureRef',
   witnessId: 'witnessId',
   witnessedAt: 'witnessedAt',
+  witnessSignatureRef: 'witnessSignatureRef',
   effectiveDate: 'effectiveDate',
   expiryDate: 'expiryDate',
+  tokenId: 'tokenId',
+  contractAddress: 'contractAddress',
+  metadataUri: 'metadataUri',
+  mintTxHash: 'mintTxHash',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -269,6 +276,28 @@ export const AgreementBeneficiaryScalarFieldEnum = {
 } as const
 
 export type AgreementBeneficiaryScalarFieldEnum = (typeof AgreementBeneficiaryScalarFieldEnum)[keyof typeof AgreementBeneficiaryScalarFieldEnum]
+
+
+export const AgentConversationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgentConversationScalarFieldEnum = (typeof AgentConversationScalarFieldEnum)[keyof typeof AgentConversationScalarFieldEnum]
+
+
+export const AgentMessageScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  role: 'role',
+  content: 'content',
+  createdAt: 'createdAt'
+} as const
+
+export type AgentMessageScalarFieldEnum = (typeof AgentMessageScalarFieldEnum)[keyof typeof AgentMessageScalarFieldEnum]
 
 
 export const SortOrder = {

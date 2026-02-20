@@ -99,6 +99,9 @@ model User {
   // Agreements owned by this user (as the distributor)
   agreements    Agreement[]
   
+  // AI assistant conversations
+  agentConversations AgentConversation[]
+  
   // Reference to IC registry for global uniqueness
   icRegistry    IcRegistry? @relation(fields: [icNumber], references: [icNumber], onDelete: SetNull)
   
@@ -361,4 +364,36 @@ model AgreementBeneficiary {
   @@index([nonRegisteredFamilyMemberId])
   @@index([adminSignedById])
   @@map("agreement_beneficiary")
+}
+
+enum AgentMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model AgentConversation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages AgentMessage[]
+
+  @@index([userId])
+  @@map("agent_conversation")
+}
+
+model AgentMessage {
+  id             String            @id @default(cuid())
+  conversationId String
+  conversation   AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           AgentMessageRole
+  content        String
+  createdAt      DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("agent_message")
 }

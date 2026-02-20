@@ -1,13 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { auth } from '@/lib/auth'
 import { runAgentTurn } from '@/lib/agent'
+import { prisma } from '@/db'
 
 interface ChatRequestBody {
   message?: string
-  history?: Array<{
-    role: 'user' | 'assistant'
-    content: string
-  }>
+  conversationId?: string
 }
 
 export const Route = createFileRoute('/api/agent/chat')({
@@ -27,10 +25,65 @@ export const Route = createFileRoute('/api/agent/chat')({
             return Response.json({ error: 'Message is required' }, { status: 400 })
           }
 
+          if (!body.conversationId) {
+            return Response.json({ error: 'conversationId is required' }, { status: 400 })
+          }
+
+          const conversation = await prisma.agentConversation.findFirst({
+            where: {
+              id: body.conversationId,
+              userId: session.user.id,
+            },
+            include: {
+              messages: {
+                orderBy: { createdAt: 'asc' },
+                take: 20,
+                select: { role: true, content: true },
+              },
+            },
+          })
+
+          if (!conversation) {
+            return Response.json({ error: 'Conversation not found' }, { status: 404 })
+          }
+
+          const userMessage = body.message.trim()
+
+          await prisma.agentMessage.create({
+            data: {
+              conversationId: conversation.id,
+              role: 'USER',
+              content: userMessage,
+            },
+          })
+
+          const history = conversation.messages
+            .filter((m) => m.role === 'USER' || m.role === 'ASSISTANT')
+            .map((m) => ({
+              role: m.role === 'USER' ? 'user' : 'assistant',
+              content: m.content,
+            }))
+
           const result = await runAgentTurn({
             userId: session.user.id,
-            message: body.message.trim(),
-            history: body.history || [],
+            message: userMessage,
+            history,
+          })
+
+          await prisma.agentMessage.create({
+            data: {
+              conversationId: conversation.id,
+              role: 'ASSISTANT',
+              content: result.text,
+            },
+          })
+
+          await prisma.agentConversation.update({
+            where: { id: conversation.id },
+            data: {
+              title: conversation.title === 'New chat' ? userMessage.slice(0, 80) : conversation.title,
+              updatedAt: new Date(),
+            },
           })
 
           return Response.json({
