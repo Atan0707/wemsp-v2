@@ -20,17 +20,33 @@ function contentToText(content: unknown): string {
   return JSON.stringify(content)
 }
 
-export async function runAgentTurn(input: RunAgentTurnInput) {
-  if (!process.env.OPENROUTER_API_KEY) {
+function getOpenRouterConfig() {
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim()
+
+  if (!apiKey) {
     throw new Error('OPENROUTER_API_KEY is not configured')
   }
 
-  const model = new ChatOpenAI({
+  if (!apiKey.startsWith('sk-or-v1-') || apiKey.length < 40) {
+    throw new Error('OPENROUTER_API_KEY appears invalid. Set a full OpenRouter API key (starts with sk-or-v1-).')
+  }
+
+  return {
+    apiKey,
     model: process.env.OPENROUTER_MODEL || 'moonshotai/kimi-k2.5',
+    baseURL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+  }
+}
+
+export async function runAgentTurn(input: RunAgentTurnInput) {
+  const openRouter = getOpenRouterConfig()
+
+  const model = new ChatOpenAI({
+    model: openRouter.model,
     temperature: 0.2,
-    apiKey: process.env.OPENROUTER_API_KEY,
+    apiKey: openRouter.apiKey,
     configuration: {
-      baseURL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+      baseURL: openRouter.baseURL,
       defaultHeaders: {
         ...(process.env.OPENROUTER_SITE_URL ? { 'HTTP-Referer': process.env.OPENROUTER_SITE_URL } : {}),
         ...(process.env.OPENROUTER_APP_NAME ? { 'X-Title': process.env.OPENROUTER_APP_NAME } : {}),
