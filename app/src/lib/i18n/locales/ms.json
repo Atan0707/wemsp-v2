@@ -72,9 +72,86 @@
       "title": "Tetapan",
       "languageTitle": "Bahasa",
       "languageDescription": "Pilih bahasa aplikasi pilihan anda.",
+      "notificationsTitle": "Notifikasi",
+      "notificationsDescription": "Urus notifikasi emel dan dalam aplikasi untuk tandatangan, kemas kini, pengesahan saksi, dan peringatan tamat tempoh.",
+      "changePasswordTitle": "Tukar Kata Laluan",
+      "changePasswordDescription": "Kemas kini kata laluan log masuk anda dan pilihan untuk log keluar peranti lain.",
+      "activeSessionsTitle": "Sesi Aktif",
+      "activeSessionsDescription": "Semak lokasi akaun anda sedang log masuk dan buang sesi yang anda tidak kenali.",
+      "twoFactorTitle": "Pengesahan Dua Faktor (2FA)",
+      "twoFactorDescription": "Tambah langkah pengesahan kedua untuk perlindungan akaun yang lebih baik.",
       "english": "Inggeris",
       "malay": "Melayu",
-      "current": "Semasa"
+      "current": "Semasa",
+      "saveSettings": "Simpan tetapan",
+      "saving": "Menyimpan...",
+      "saveNotificationPreferences": "Simpan keutamaan notifikasi",
+      "loadingNotificationPreferences": "Memuatkan keutamaan notifikasi...",
+      "unableToLoadNotificationPreferences": "Tidak dapat memuatkan keutamaan notifikasi.",
+      "alertType": "Jenis notifikasi",
+      "email": "Emel",
+      "inApp": "Dalam aplikasi",
+      "emailNotificationsSuffix": "notifikasi emel",
+      "inAppNotificationsSuffix": "notifikasi dalam aplikasi",
+      "reminderTimingTitle": "Masa peringatan",
+      "reminderTimingDescription": "Hantar peringatan tamat tempoh beberapa hari sebelum tarikh akhir.",
+      "reminderDays": {
+        "oneDay": "1 hari",
+        "threeDays": "3 hari",
+        "sevenDays": "7 hari"
+      },
+      "currentPasswordLabel": "Kata laluan semasa",
+      "newPasswordLabel": "Kata laluan baharu",
+      "confirmNewPasswordLabel": "Sahkan kata laluan baharu",
+      "logOutOtherDevicesAfterPasswordChange": "Log keluar peranti lain selepas tukar kata laluan",
+      "updating": "Mengemas kini...",
+      "updatePassword": "Kemas kini kata laluan",
+      "loggingOut": "Sedang log keluar...",
+      "logOutOtherDevices": "Log keluar peranti lain",
+      "loadingSessions": "Memuatkan sesi...",
+      "unableToLoadActiveSessions": "Tidak dapat memuatkan sesi aktif.",
+      "noActiveSessionsFound": "Tiada sesi aktif dijumpai.",
+      "currentDevice": "Peranti semasa",
+      "signedInDevice": "Peranti log masuk",
+      "logOut": "Log keluar",
+      "currentBadge": "Semasa",
+      "createdLabel": "Dicipta",
+      "expiresLabel": "Tamat",
+      "ipLabel": "IP",
+      "twoFactorNotEnabled": "Tetapan 2FA belum diaktifkan dalam versi ini.",
+      "enableTwoFactorComingSoon": "Aktifkan 2FA (Akan Datang)",
+      "browseDescription": "Semak dan buka tetapan daripada senarai.",
+      "searchPlaceholder": "Cari tetapan",
+      "noSettingsMatchSearch": "Tiada tetapan yang sepadan dengan carian anda.",
+      "notificationTypes": {
+        "signatureRequestsTitle": "Permintaan tandatangan",
+        "signatureRequestsDescription": "Apabila anda perlu tandatangan perjanjian sebagai pemilik atau penerima manfaat.",
+        "agreementStatusUpdatesTitle": "Kemas kini status perjanjian",
+        "agreementStatusUpdatesDescription": "Apabila status perjanjian berubah (draf, menunggu, aktif, dan lain-lain).",
+        "witnessConfirmationTitle": "Pengesahan saksi",
+        "witnessConfirmationDescription": "Apabila pengesahan saksi selesai.",
+        "expiryRemindersTitle": "Peringatan tamat tempoh",
+        "expiryRemindersDescription": "Sebelum tarikh akhir/tamat tempoh perjanjian."
+      },
+      "errors": {
+        "fetchSessions": "Gagal mendapatkan sesi",
+        "loadNotificationPreferences": "Gagal memuatkan keutamaan notifikasi",
+        "saveNotificationPreferences": "Gagal menyimpan keutamaan notifikasi",
+        "saveLanguagePreference": "Gagal menyimpan pilihan bahasa",
+        "changePassword": "Gagal menukar kata laluan",
+        "revokeOtherSessions": "Gagal log keluar sesi lain",
+        "revokeSession": "Gagal log keluar sesi",
+        "passwordFieldsRequired": "Semua medan kata laluan wajib diisi",
+        "passwordMinLength": "Kata laluan baharu mesti sekurang-kurangnya 8 aksara",
+        "passwordsDoNotMatch": "Kata laluan baharu tidak sepadan"
+      },
+      "messages": {
+        "notificationPreferencesUpdated": "Keutamaan notifikasi berjaya dikemas kini",
+        "languagePreferenceSaved": "Pilihan bahasa berjaya disimpan",
+        "passwordUpdated": "Kata laluan berjaya dikemas kini",
+        "otherSessionsLoggedOut": "Sesi lain telah dilog keluar",
+        "sessionRemoved": "Sesi berjaya dibuang"
+      }
     },
     "navigation": {
       "application": "Aplikasi",
@@ -312,6 +389,26 @@
       "emptyDescription": "Mulakan dengan menambah ahli keluarga pertama anda.",
       "noContactInfo": "Tiada maklumat hubungan",
       "noMembersFound": "Tiada ahli keluarga dijumpai."
+    },
+    "assistantChat": {
+      "title": "Pembantu WEMSP",
+      "newChatFallback": "Sembang baharu",
+      "conversationSingular": "perbualan",
+      "conversationPlural": "perbualan",
+      "loadingConversation": "Memuatkan perbualan...",
+      "greetingTitle": "Selamat kembali.",
+      "greetingDescription": "Tanya tentang perjanjian, ahli keluarga, dan aset.",
+      "thinking": "Sedang berfikir...",
+      "inputPlaceholder": "Tanya soalan...",
+      "enterHint": "Tekan Enter untuk hantar",
+      "quickPrompts": {
+        "agreementStatus": "Tunjukkan status perjanjian terkini saya",
+        "familySummary": "Ringkaskan ahli keluarga saya",
+        "assetsReview": "Bantu saya semak aset saya"
+      },
+      "errors": {
+        "createConversation": "Tidak dapat memulakan sembang baharu sekarang. Sila cuba lagi."
+      }
     }
   }
 }

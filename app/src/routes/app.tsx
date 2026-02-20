@@ -20,6 +20,7 @@ import { authClient } from '@/lib/auth-client'
 import { getServerSession, requireCompletedProfile } from '@/middleware'
 import { ProfileCompletionDialog } from '@/components/profile-completion-dialog'
 import { useLanguage } from '@/lib/i18n/context'
+import { AssistantFloatingChat } from '@/components/assistant-floating-chat'
 
 export const Route = createFileRoute('/app')({
   component: RouteComponent,
@@ -157,6 +158,7 @@ function RouteComponent() {
         <div className="flex flex-1 flex-col gap-4 p-4 pt-4">
           <Outlet />
         </div>
+        <AssistantFloatingChat />
       </SidebarInset>
     </SidebarProvider>
   )

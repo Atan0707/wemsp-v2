@@ -33,6 +33,11 @@ export type IcRegistry = Prisma.IcRegistryModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model UserSetting
+ * 
+ */
+export type UserSetting = Prisma.UserSettingModel
+/**
  * Model FamilyMember
  * 
  */
@@ -82,3 +87,13 @@ export type AgreementAsset = Prisma.AgreementAssetModel
  * 
  */
 export type AgreementBeneficiary = Prisma.AgreementBeneficiaryModel
+/**
+ * Model AgentConversation
+ * 
+ */
+export type AgentConversation = Prisma.AgentConversationModel
+/**
+ * Model AgentMessage
+ * 
+ */
+export type AgentMessage = Prisma.AgentMessageModel
