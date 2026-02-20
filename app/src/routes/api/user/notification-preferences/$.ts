@@ -24,7 +24,8 @@ function normalizeReminderDays(reminderDays: unknown): Array<number> {
   const values = reminderDays
     .map((value) => Number(value))
     .filter((value) => VALID_REMINDER_DAYS.includes(value as (typeof VALID_REMINDER_DAYS)[number]))
-  return [...new Set(values)].sort((a, b) => a - b)
+  const normalized = [...new Set(values)].sort((a, b) => a - b)
+  return normalized.length > 0 ? normalized : [1, 3, 7]
 }
 
 function normalizeLanguage(language: unknown): (typeof VALID_LANGUAGES)[number] | undefined {
@@ -77,8 +78,15 @@ export const Route = createFileRoute('/api/user/notification-preferences/$')({
           return Response.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
+        let body: Partial<NotificationPreferencePayload>
         try {
-          const body = (await request.json()) as Partial<NotificationPreferencePayload>
+          body = (await request.json()) as Partial<NotificationPreferencePayload>
+        } catch (error) {
+          console.error('Invalid notification preferences payload:', error)
+          return Response.json({ error: 'Invalid request payload' }, { status: 400 })
+        }
+
+        try {
           const existingSettings = await prisma.userSetting.findUnique({
             where: { userId: session.user.id },
           })
@@ -152,7 +160,7 @@ export const Route = createFileRoute('/api/user/notification-preferences/$')({
           })
         } catch (error) {
           console.error('Error updating notification preferences:', error)
-          return Response.json({ error: 'Invalid request payload' }, { status: 400 })
+          return Response.json({ error: 'Internal Server Error' }, { status: 500 })
         }
       },
     },

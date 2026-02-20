@@ -59,29 +59,6 @@ const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   reminderDays: [1, 3, 7],
 }
 
-const settingsPanels: Record<SettingsPanel, { description: string; title: string }> = {
-  'active-sessions': {
-    description: 'Review where your account is signed in and remove sessions you do not recognize.',
-    title: 'Active Sessions',
-  },
-  'change-password': {
-    description: 'Update your login password and optionally log out other devices.',
-    title: 'Change Password',
-  },
-  language: {
-    description: 'Choose your preferred app language.',
-    title: 'Language',
-  },
-  notifications: {
-    description: 'Manage email and in-app alerts for signatures, updates, witness confirmation, and expiry reminders.',
-    title: 'Notifications',
-  },
-  'two-factor': {
-    description: 'Add a second verification step for better account protection.',
-    title: 'Two-Factor Authentication (2FA)',
-  },
-}
-
 function RouteComponent() {
   const { language, setLanguage, t } = useLanguage()
   const isMobile = useIsMobile()
@@ -107,7 +84,7 @@ function RouteComponent() {
     queryFn: async () => {
       const response = await (authClient as any).listSessions()
       if (response?.error) {
-        throw new Error(response.error.message || 'Failed to fetch sessions')
+        throw new Error(response.error.message || t('settings.errors.fetchSessions'))
       }
       return Array.isArray(response?.data) ? response.data : []
     },
@@ -127,7 +104,7 @@ function RouteComponent() {
       const response = await fetch('/api/user/notification-preferences', { method: 'GET' })
       const data = await response.json()
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to load notification preferences')
+        throw new Error(data.error || t('settings.errors.loadNotificationPreferences'))
       }
       return data.settings as UserSettings
     },
@@ -153,12 +130,12 @@ function RouteComponent() {
       })
       const data = await response.json()
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to save notification preferences')
+        throw new Error(data.error || t('settings.errors.saveNotificationPreferences'))
       }
       return data.settings as UserSettings
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to save notification preferences')
+      toast.error(error.message || t('settings.errors.saveNotificationPreferences'))
     },
     onSuccess: (settings) => {
       queryClient.setQueryData(['notification-preferences'], settings)
@@ -167,7 +144,7 @@ function RouteComponent() {
         reminderDays: [...settings.reminderDays].sort((a, b) => a - b),
       })
       setPendingLanguage(settings.preferredLanguage)
-      toast.success('Notification preferences updated')
+      toast.success(t('settings.messages.notificationPreferencesUpdated'))
     },
   })
 
@@ -184,18 +161,18 @@ function RouteComponent() {
       })
       const data = await response.json()
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to save language preference')
+        throw new Error(data.error || t('settings.errors.saveLanguagePreference'))
       }
       return data.settings as UserSettings
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to save language preference')
+      toast.error(error.message || t('settings.errors.saveLanguagePreference'))
     },
     onSuccess: (settings) => {
       queryClient.setQueryData(['notification-preferences'], settings)
       setPendingLanguage(settings.preferredLanguage)
       setLanguage(settings.preferredLanguage)
-      toast.success('Language preference saved')
+      toast.success(t('settings.messages.languagePreferenceSaved'))
     },
   })
 
@@ -207,24 +184,22 @@ function RouteComponent() {
         revokeOtherSessions: revokeOtherSessionsOnPasswordChange,
       })
       if (response?.error) {
-        throw new Error(response.error.message || 'Failed to change password')
+        throw new Error(response.error.message || t('settings.errors.changePassword'))
       }
       return response
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to change password')
+      toast.error(error.message || t('settings.errors.changePassword'))
     },
     onSuccess: async () => {
-      toast.success('Password updated successfully')
+      toast.success(t('settings.messages.passwordUpdated'))
       setPasswordForm({
         confirmNewPassword: '',
         currentPassword: '',
         newPassword: '',
       })
       await queryClient.invalidateQueries({ queryKey: ['auth-sessions'] })
-      await queryClient.invalidateQueries({
-        predicate: (query) => (query.queryKey[0] as string).includes('session'),
-      })
+      await queryClient.invalidateQueries({ queryKey: ['session'] })
     },
   })
 
@@ -232,15 +207,15 @@ function RouteComponent() {
     mutationFn: async () => {
       const response = await (authClient as any).revokeOtherSessions()
       if (response?.error) {
-        throw new Error(response.error.message || 'Failed to revoke other sessions')
+        throw new Error(response.error.message || t('settings.errors.revokeOtherSessions'))
       }
       return response
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to revoke other sessions')
+      toast.error(error.message || t('settings.errors.revokeOtherSessions'))
     },
     onSuccess: async () => {
-      toast.success('Other sessions were logged out')
+      toast.success(t('settings.messages.otherSessionsLoggedOut'))
       await queryClient.invalidateQueries({ queryKey: ['auth-sessions'] })
     },
   })
@@ -249,15 +224,15 @@ function RouteComponent() {
     mutationFn: async (token: string) => {
       const response = await (authClient as any).revokeSession({ token })
       if (response?.error) {
-        throw new Error(response.error.message || 'Failed to revoke session')
+        throw new Error(response.error.message || t('settings.errors.revokeSession'))
       }
       return response
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to revoke session')
+      toast.error(error.message || t('settings.errors.revokeSession'))
     },
     onSuccess: async () => {
-      toast.success('Session removed')
+      toast.success(t('settings.messages.sessionRemoved'))
       await queryClient.invalidateQueries({ queryKey: ['auth-sessions'] })
     },
   })
@@ -265,15 +240,15 @@ function RouteComponent() {
   const onChangePassword = (event: React.FormEvent) => {
     event.preventDefault()
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmNewPassword) {
-      toast.error('All password fields are required')
+      toast.error(t('settings.errors.passwordFieldsRequired'))
       return
     }
     if (passwordForm.newPassword.length < 8) {
-      toast.error('New password must be at least 8 characters')
+      toast.error(t('settings.errors.passwordMinLength'))
       return
     }
     if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
-      toast.error('New passwords do not match')
+      toast.error(t('settings.errors.passwordsDoNotMatch'))
       return
     }
     changePasswordMutation.mutate()
@@ -344,6 +319,31 @@ function RouteComponent() {
   }
 
   const languageHasChanges = pendingLanguage !== language
+  const settingsPanels = useMemo<Record<SettingsPanel, { description: string; title: string }>>(
+    () => ({
+      'active-sessions': {
+        description: t('settings.activeSessionsDescription'),
+        title: t('settings.activeSessionsTitle'),
+      },
+      'change-password': {
+        description: t('settings.changePasswordDescription'),
+        title: t('settings.changePasswordTitle'),
+      },
+      language: {
+        description: t('settings.languageDescription'),
+        title: t('settings.languageTitle'),
+      },
+      notifications: {
+        description: t('settings.notificationsDescription'),
+        title: t('settings.notificationsTitle'),
+      },
+      'two-factor': {
+        description: t('settings.twoFactorDescription'),
+        title: t('settings.twoFactorTitle'),
+      },
+    }),
+    [t]
+  )
 
   const leftNavItems = useMemo(
     () => [
@@ -354,28 +354,28 @@ function RouteComponent() {
         label: t('settings.languageTitle'),
       },
       {
-        description: 'Control email and in-app notification channels.',
+        description: t('settings.notificationsDescription'),
         icon: <Bell className="h-4 w-4" />,
         id: 'notifications' as const,
-        label: 'Notifications',
+        label: t('settings.notificationsTitle'),
       },
       {
-        description: 'Change your account password.',
+        description: t('settings.changePasswordDescription'),
         icon: <KeyRound className="h-4 w-4" />,
         id: 'change-password' as const,
-        label: 'Change password',
+        label: t('settings.changePasswordTitle'),
       },
       {
-        description: 'Manage currently signed-in devices.',
+        description: t('settings.activeSessionsDescription'),
         icon: <Monitor className="h-4 w-4" />,
         id: 'active-sessions' as const,
-        label: 'Active sessions',
+        label: t('settings.activeSessionsTitle'),
       },
       {
-        description: 'Add a second authentication factor.',
+        description: t('settings.twoFactorDescription'),
         icon: <Smartphone className="h-4 w-4" />,
         id: 'two-factor' as const,
-        label: 'Two-factor authentication',
+        label: t('settings.twoFactorTitle'),
       },
     ],
     [t]
@@ -428,10 +428,10 @@ function RouteComponent() {
               {saveLanguagePreferencesMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
+                  {t('settings.saving')}
                 </>
               ) : (
-                'Save settings'
+                t('settings.saveSettings')
               )}
             </Button>
           </div>
@@ -447,26 +447,26 @@ function RouteComponent() {
         label: string
       }> = [
         {
-          label: 'Signature requests',
-          description: 'When you need to sign an agreement as owner or beneficiary.',
+          label: t('settings.notificationTypes.signatureRequestsTitle'),
+          description: t('settings.notificationTypes.signatureRequestsDescription'),
           emailKey: 'emailSignatureRequests',
           inAppKey: 'inAppSignatureRequests',
         },
         {
-          label: 'Agreement status updates',
-          description: 'When an agreement changes status (draft, pending, active, etc).',
+          label: t('settings.notificationTypes.agreementStatusUpdatesTitle'),
+          description: t('settings.notificationTypes.agreementStatusUpdatesDescription'),
           emailKey: 'emailAgreementStatusUpdates',
           inAppKey: 'inAppAgreementStatusUpdates',
         },
         {
-          label: 'Witness confirmation',
-          description: 'When witness verification is completed.',
+          label: t('settings.notificationTypes.witnessConfirmationTitle'),
+          description: t('settings.notificationTypes.witnessConfirmationDescription'),
           emailKey: 'emailWitnessConfirmation',
           inAppKey: 'inAppWitnessConfirmation',
         },
         {
-          label: 'Expiry reminders',
-          description: 'Before agreement due/expiry date.',
+          label: t('settings.notificationTypes.expiryRemindersTitle'),
+          description: t('settings.notificationTypes.expiryRemindersDescription'),
           emailKey: 'emailExpiryReminders',
           inAppKey: 'inAppExpiryReminders',
         },
@@ -477,21 +477,21 @@ function RouteComponent() {
           {notificationPreferencesQuery.isLoading ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading notification preferences...
+              {t('settings.loadingNotificationPreferences')}
             </div>
           ) : null}
 
           {notificationPreferencesQuery.isError ? (
-            <p className="text-sm text-destructive">Unable to load notification preferences.</p>
+            <p className="text-sm text-destructive">{t('settings.unableToLoadNotificationPreferences')}</p>
           ) : null}
 
           {!notificationPreferencesQuery.isLoading && !notificationPreferencesQuery.isError ? (
             <>
               <div className="overflow-hidden rounded-lg border border-border/70">
                 <div className="grid grid-cols-[minmax(0,1fr)_5rem_5rem] gap-2 border-b border-border/70 bg-muted/30 px-4 py-2 text-xs font-medium text-muted-foreground">
-                  <p>Alert type</p>
-                  <p className="text-center">Email</p>
-                  <p className="text-center">In-app</p>
+                  <p>{t('settings.alertType')}</p>
+                  <p className="text-center">{t('settings.email')}</p>
+                  <p className="text-center">{t('settings.inApp')}</p>
                 </div>
                 {notificationItems.map((item, index) => (
                   <div
@@ -508,14 +508,14 @@ function RouteComponent() {
                       <Checkbox
                         checked={notificationPreferences[item.emailKey]}
                         onCheckedChange={(checked) => updateNotificationPreference(item.emailKey, Boolean(checked))}
-                        aria-label={`${item.label} email notifications`}
+                        aria-label={`${item.label} ${t('settings.emailNotificationsSuffix')}`}
                       />
                     </div>
                     <div className="flex justify-center">
                       <Checkbox
                         checked={notificationPreferences[item.inAppKey]}
                         onCheckedChange={(checked) => updateNotificationPreference(item.inAppKey, Boolean(checked))}
-                        aria-label={`${item.label} in-app notifications`}
+                        aria-label={`${item.label} ${t('settings.inAppNotificationsSuffix')}`}
                       />
                     </div>
                   </div>
@@ -524,19 +524,23 @@ function RouteComponent() {
 
               <div className="space-y-3 rounded-lg border border-border/70 p-4">
                 <div>
-                  <p className="text-sm font-medium">Reminder timing</p>
-                  <p className="text-xs text-muted-foreground">Send expiry reminders this many days before due date.</p>
+                  <p className="text-sm font-medium">{t('settings.reminderTimingTitle')}</p>
+                  <p className="text-xs text-muted-foreground">{t('settings.reminderTimingDescription')}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {[1, 3, 7].map((day) => (
+                  {[
+                    { day: 1, label: t('settings.reminderDays.oneDay') },
+                    { day: 3, label: t('settings.reminderDays.threeDays') },
+                    { day: 7, label: t('settings.reminderDays.sevenDays') },
+                  ].map((item) => (
                     <Button
-                      key={day}
+                      key={item.day}
                       type="button"
-                      variant={notificationPreferences.reminderDays.includes(day) ? 'default' : 'outline'}
+                      variant={notificationPreferences.reminderDays.includes(item.day) ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => toggleReminderDay(day)}
+                      onClick={() => toggleReminderDay(item.day)}
                     >
-                      {day} day{day > 1 ? 's' : ''}
+                      {item.label}
                     </Button>
                   ))}
                 </div>
@@ -551,10 +555,10 @@ function RouteComponent() {
                   {saveNotificationPreferencesMutation.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Saving...
+                      {t('settings.saving')}
                     </>
                   ) : (
-                    'Save notification preferences'
+                    t('settings.saveNotificationPreferences')
                   )}
                 </Button>
               </div>
@@ -569,7 +573,7 @@ function RouteComponent() {
         <form onSubmit={onChangePassword}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="currentPassword">Current password</FieldLabel>
+              <FieldLabel htmlFor="currentPassword">{t('settings.currentPasswordLabel')}</FieldLabel>
               <Input
                 id="currentPassword"
                 type="password"
@@ -585,7 +589,7 @@ function RouteComponent() {
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="newPassword">New password</FieldLabel>
+              <FieldLabel htmlFor="newPassword">{t('settings.newPasswordLabel')}</FieldLabel>
               <Input
                 id="newPassword"
                 type="password"
@@ -601,7 +605,7 @@ function RouteComponent() {
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="confirmNewPassword">Confirm new password</FieldLabel>
+              <FieldLabel htmlFor="confirmNewPassword">{t('settings.confirmNewPasswordLabel')}</FieldLabel>
               <Input
                 id="confirmNewPassword"
                 type="password"
@@ -622,16 +626,16 @@ function RouteComponent() {
                 onCheckedChange={(checked) => setRevokeOtherSessionsOnPasswordChange(Boolean(checked))}
                 disabled={changePasswordMutation.isPending}
               />
-              Log out other devices after password change
+              {t('settings.logOutOtherDevicesAfterPasswordChange')}
             </label>
             <Button type="submit" disabled={changePasswordMutation.isPending} className="w-fit">
               {changePasswordMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Updating...
+                  {t('settings.updating')}
                 </>
               ) : (
-                'Update password'
+                t('settings.updatePassword')
               )}
             </Button>
           </FieldGroup>
@@ -652,10 +656,10 @@ function RouteComponent() {
               {revokeOtherSessionsMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Logging out...
+                  {t('settings.loggingOut')}
                 </>
               ) : (
-                'Log out other devices'
+                t('settings.logOutOtherDevices')
               )}
             </Button>
           </div>
@@ -663,16 +667,16 @@ function RouteComponent() {
           {sessionsQuery.isPending ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading sessions...
+              {t('settings.loadingSessions')}
             </div>
           ) : null}
 
           {sessionsQuery.isError ? (
-            <p className="text-sm text-destructive">Unable to load active sessions.</p>
+            <p className="text-sm text-destructive">{t('settings.unableToLoadActiveSessions')}</p>
           ) : null}
 
           {!sessionsQuery.isPending && !sessionsQuery.isError && sessions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No active sessions found.</p>
+            <p className="text-sm text-muted-foreground">{t('settings.noActiveSessionsFound')}</p>
           ) : null}
 
           {sessions.length > 0 ? (
@@ -686,7 +690,7 @@ function RouteComponent() {
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="text-sm font-medium">
-                        {isCurrentSession ? 'Current device' : 'Signed in device'}
+                        {isCurrentSession ? t('settings.currentDevice') : t('settings.signedInDevice')}
                       </div>
                       {!isCurrentSession ? (
                         <Button
@@ -696,18 +700,18 @@ function RouteComponent() {
                           disabled={revokeSessionMutation.isPending}
                           onClick={() => revokeSessionMutation.mutate(session.token)}
                         >
-                          Log out
+                          {t('settings.logOut')}
                         </Button>
                       ) : (
                         <span className="rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                          Current
+                          {t('settings.currentBadge')}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">Created: {formatDateTime(session.createdAt)}</p>
-                    <p className="text-xs text-muted-foreground">Expires: {formatDateTime(session.expiresAt)}</p>
+                    <p className="text-xs text-muted-foreground">{t('settings.createdLabel')}: {formatDateTime(session.createdAt)}</p>
+                    <p className="text-xs text-muted-foreground">{t('settings.expiresLabel')}: {formatDateTime(session.expiresAt)}</p>
                     {session.ipAddress ? (
-                      <p className="text-xs text-muted-foreground">IP: {session.ipAddress}</p>
+                      <p className="text-xs text-muted-foreground">{t('settings.ipLabel')}: {session.ipAddress}</p>
                     ) : null}
                     {session.userAgent ? (
                       <p className="line-clamp-2 break-words text-xs text-muted-foreground">{session.userAgent}</p>
@@ -724,10 +728,10 @@ function RouteComponent() {
     return (
       <div className="space-y-3">
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-          2FA setup is not enabled in this deployment yet.
+          {t('settings.twoFactorNotEnabled')}
         </div>
         <Button type="button" variant="outline" disabled>
-          Enable 2FA (Coming Soon)
+          {t('settings.enableTwoFactorComingSoon')}
         </Button>
       </div>
     )
@@ -744,15 +748,15 @@ function RouteComponent() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
-              Settings
+              {t('settings.title')}
             </CardTitle>
-            <CardDescription>Browse and open a setting from the list.</CardDescription>
+            <CardDescription>{t('settings.browseDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 space-y-3">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search settings"
+                placeholder={t('settings.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 className="pl-9"
@@ -761,7 +765,7 @@ function RouteComponent() {
 
             <div className="overflow-hidden rounded-lg border border-border/70">
               {filteredNavItems.length === 0 ? (
-                <div className="p-4 text-sm text-muted-foreground">No settings match your search.</div>
+                <div className="p-4 text-sm text-muted-foreground">{t('settings.noSettingsMatchSearch')}</div>
               ) : (
                 filteredNavItems.map((item, index) => (
                   <button

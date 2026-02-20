@@ -275,9 +275,18 @@ export function AssistantFloatingChat() {
   const onSelectConversation = async (id: string) => {
     if (!id || id === conversationId) return
 
+    const previousConversationId = conversationId
     setConversationId(id)
     persistState({ conversationId: id })
-    await loadConversationMessages(id)
+
+    try {
+      await loadConversationMessages(id)
+    } catch (error) {
+      console.error('Failed to switch conversation:', error)
+      setConversationId(previousConversationId ?? null)
+      persistState({ conversationId: previousConversationId ?? null })
+      return
+    }
   }
 
   const onToggleOpen = (next: boolean) => {

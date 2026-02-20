@@ -23,12 +23,16 @@ export const Route = createFileRoute('/api/agent/conversations/$')({
         })
 
         return Response.json({
-          conversations: conversations.map((c) => ({
-            ...c,
-            createdAt: c.createdAt.toISOString(),
-            updatedAt: c.updatedAt.toISOString(),
-            messageCount: c._count.messages,
-          })),
+          conversations: conversations.map((c) => {
+            const { _count, ...rest } = c
+
+            return {
+              ...rest,
+              createdAt: c.createdAt.toISOString(),
+              updatedAt: c.updatedAt.toISOString(),
+              messageCount: _count.messages,
+            }
+          }),
         })
       },
 
