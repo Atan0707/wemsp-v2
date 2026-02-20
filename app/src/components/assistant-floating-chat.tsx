@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Bot, Loader2, MessageCircle, Plus, SendHorizontal, Sparkles, User2, X } from 'lucide-react'
-import type { FormEvent } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -22,7 +22,132 @@ type ConversationSummary = {
   messageCount: number
 }
 
+type MessageBlock =
+  | { type: 'paragraph'; text: string }
+  | { type: 'unordered-list'; items: Array<string> }
+  | { type: 'ordered-list'; items: Array<string> }
+
 const getStorageKey = (userId: string) => `wemsp-assistant:${userId}:ui-state`
+
+function renderInlineMarkdown(text: string): Array<ReactNode> {
+  const segments = text.split(/(\*\*[^*\n]+?\*\*)/g)
+
+  return segments.filter(Boolean).map((segment, index) => {
+    const strongMatch = segment.match(/^\*\*([^*\n]+?)\*\*$/)
+    if (strongMatch) {
+      return (
+        <strong key={`strong-${index}`} className="font-semibold">
+          {strongMatch[1]}
+        </strong>
+      )
+    }
+
+    return <span key={`text-${index}`}>{segment}</span>
+  })
+}
+
+function parseMessageBlocks(content: string): Array<MessageBlock> {
+  const lines = content.replaceAll('\r\n', '\n').split('\n')
+  const blocks: Array<MessageBlock> = []
+  let paragraphLines: Array<string> = []
+
+  const flushParagraph = () => {
+    if (paragraphLines.length === 0) return
+    blocks.push({ type: 'paragraph', text: paragraphLines.join('\n') })
+    paragraphLines = []
+  }
+
+  let index = 0
+
+  while (index < lines.length) {
+    const trimmedLine = lines[index].trim()
+
+    if (!trimmedLine) {
+      flushParagraph()
+      index += 1
+      continue
+    }
+
+    const unorderedMatch = trimmedLine.match(/^-\s+(.+)$/)
+    if (unorderedMatch) {
+      flushParagraph()
+      const items: Array<string> = []
+
+      while (index < lines.length) {
+        const match = lines[index].trim().match(/^-\s+(.+)$/)
+        if (!match) break
+        items.push(match[1])
+        index += 1
+      }
+
+      blocks.push({ type: 'unordered-list', items })
+      continue
+    }
+
+    const orderedMatch = trimmedLine.match(/^\d+\.\s+(.+)$/)
+    if (orderedMatch) {
+      flushParagraph()
+      const items: Array<string> = []
+
+      while (index < lines.length) {
+        const match = lines[index].trim().match(/^\d+\.\s+(.+)$/)
+        if (!match) break
+        items.push(match[1])
+        index += 1
+      }
+
+      blocks.push({ type: 'ordered-list', items })
+      continue
+    }
+
+    paragraphLines.push(trimmedLine)
+    index += 1
+  }
+
+  flushParagraph()
+  return blocks
+}
+
+function AssistantMessageContent({ content }: { content: string }) {
+  const blocks = parseMessageBlocks(content)
+
+  return (
+    <div className="space-y-2 text-sm leading-relaxed">
+      {blocks.map((block, blockIndex) => {
+        if (block.type === 'unordered-list') {
+          return (
+            <ul key={`ul-${blockIndex}`} className="ml-5 list-disc space-y-1.5">
+              {block.items.map((item, itemIndex) => (
+                <li key={`ul-item-${blockIndex}-${itemIndex}`} className="pl-0.5">
+                  {renderInlineMarkdown(item)}
+                </li>
+              ))}
+            </ul>
+          )
+        }
+
+        if (block.type === 'ordered-list') {
+          return (
+            <ol key={`ol-${blockIndex}`} className="ml-5 list-decimal space-y-1.5">
+              {block.items.map((item, itemIndex) => (
+                <li key={`ol-item-${blockIndex}-${itemIndex}`} className="pl-0.5">
+                  {renderInlineMarkdown(item)}
+                </li>
+              ))}
+            </ol>
+          )
+        }
+
+        return (
+          <p key={`p-${blockIndex}`} className="whitespace-pre-wrap break-words">
+            {renderInlineMarkdown(block.text)}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
 const readPersistedState = (key: string) => {
   if (typeof window === 'undefined') return null
 
@@ -336,7 +461,13 @@ export function AssistantFloatingChat() {
                               : 'border border-border/70 bg-background'
                           }`}
                         >
-                          <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                          {message.role === 'USER' ? (
+                            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                              {message.content}
+                            </p>
+                          ) : (
+                            <AssistantMessageContent content={message.content} />
+                          )}
                         </div>
                       </div>
                     </div>
