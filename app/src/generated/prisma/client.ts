@@ -55,6 +55,11 @@ export type IcRegistry = Prisma.IcRegistryModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model UserSetting
+ * 
+ */
+export type UserSetting = Prisma.UserSettingModel
+/**
  * Model FamilyMember
  * 
  */

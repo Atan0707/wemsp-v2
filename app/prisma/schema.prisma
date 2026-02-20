@@ -101,11 +101,31 @@ model User {
   
   // AI assistant conversations
   agentConversations AgentConversation[]
+  settings UserSetting?
   
   // Reference to IC registry for global uniqueness
   icRegistry    IcRegistry? @relation(fields: [icNumber], references: [icNumber], onDelete: SetNull)
   
   @@map("user")
+}
+
+model UserSetting {
+  userId                         String   @id
+  user                           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferredLanguage              String   @default("en")
+  emailSignatureRequests         Boolean  @default(true)
+  inAppSignatureRequests         Boolean  @default(true)
+  emailAgreementStatusUpdates    Boolean  @default(true)
+  inAppAgreementStatusUpdates    Boolean  @default(true)
+  emailWitnessConfirmation       Boolean  @default(true)
+  inAppWitnessConfirmation       Boolean  @default(true)
+  emailExpiryReminders           Boolean  @default(true)
+  inAppExpiryReminders           Boolean  @default(true)
+  reminderDays                   Int[]    @default([1, 3, 7])
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+
+  @@map("user_setting")
 }
 
 // Junction table to link users as family members

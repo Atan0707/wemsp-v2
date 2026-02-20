@@ -54,6 +54,7 @@ export const ModelName = {
   Todo: 'Todo',
   IcRegistry: 'IcRegistry',
   User: 'User',
+  UserSetting: 'UserSetting',
   FamilyMember: 'FamilyMember',
   NonRegisteredFamilyMember: 'NonRegisteredFamilyMember',
   Asset: 'Asset',
@@ -115,6 +116,25 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const UserSettingScalarFieldEnum = {
+  userId: 'userId',
+  preferredLanguage: 'preferredLanguage',
+  emailSignatureRequests: 'emailSignatureRequests',
+  inAppSignatureRequests: 'inAppSignatureRequests',
+  emailAgreementStatusUpdates: 'emailAgreementStatusUpdates',
+  inAppAgreementStatusUpdates: 'inAppAgreementStatusUpdates',
+  emailWitnessConfirmation: 'emailWitnessConfirmation',
+  inAppWitnessConfirmation: 'inAppWitnessConfirmation',
+  emailExpiryReminders: 'emailExpiryReminders',
+  inAppExpiryReminders: 'inAppExpiryReminders',
+  reminderDays: 'reminderDays',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserSettingScalarFieldEnum = (typeof UserSettingScalarFieldEnum)[keyof typeof UserSettingScalarFieldEnum]
 
 
 export const FamilyMemberScalarFieldEnum = {

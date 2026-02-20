@@ -11,6 +11,7 @@
 export type * from './models/Todo.ts'
 export type * from './models/IcRegistry.ts'
 export type * from './models/User.ts'
+export type * from './models/UserSetting.ts'
 export type * from './models/FamilyMember.ts'
 export type * from './models/NonRegisteredFamilyMember.ts'
 export type * from './models/Asset.ts'

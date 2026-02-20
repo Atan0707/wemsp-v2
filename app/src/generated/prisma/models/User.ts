@@ -230,6 +230,7 @@ export type UserWhereInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberListRelationFilter
   agreements?: Prisma.AgreementListRelationFilter
   agentConversations?: Prisma.AgentConversationListRelationFilter
+  settings?: Prisma.XOR<Prisma.UserSettingNullableScalarRelationFilter, Prisma.UserSettingWhereInput> | null
   icRegistry?: Prisma.XOR<Prisma.IcRegistryNullableScalarRelationFilter, Prisma.IcRegistryWhereInput> | null
 }
 
@@ -252,6 +253,7 @@ export type UserOrderByWithRelationInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberOrderByRelationAggregateInput
   agreements?: Prisma.AgreementOrderByRelationAggregateInput
   agentConversations?: Prisma.AgentConversationOrderByRelationAggregateInput
+  settings?: Prisma.UserSettingOrderByWithRelationInput
   icRegistry?: Prisma.IcRegistryOrderByWithRelationInput
 }
 
@@ -277,6 +279,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberListRelationFilter
   agreements?: Prisma.AgreementListRelationFilter
   agentConversations?: Prisma.AgentConversationListRelationFilter
+  settings?: Prisma.XOR<Prisma.UserSettingNullableScalarRelationFilter, Prisma.UserSettingWhereInput> | null
   icRegistry?: Prisma.XOR<Prisma.IcRegistryNullableScalarRelationFilter, Prisma.IcRegistryWhereInput> | null
 }, "id" | "icNumber" | "email">
 
@@ -330,6 +333,7 @@ export type UserCreateInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingCreateNestedOneWithoutUserInput
   icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
@@ -352,6 +356,7 @@ export type UserUncheckedCreateInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationUncheckedCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -372,6 +377,7 @@ export type UserUpdateInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUpdateOneWithoutUserNestedInput
   icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
@@ -394,6 +400,7 @@ export type UserUncheckedUpdateInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUncheckedUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUncheckedUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -521,6 +528,20 @@ export type NullableStringFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type UserCreateNestedOneWithoutSettingsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSettingsInput, Prisma.UserUncheckedCreateWithoutSettingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSettingsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSettingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSettingsInput, Prisma.UserUncheckedCreateWithoutSettingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSettingsInput
+  upsert?: Prisma.UserUpsertWithoutSettingsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSettingsInput, Prisma.UserUpdateWithoutSettingsInput>, Prisma.UserUncheckedUpdateWithoutSettingsInput>
 }
 
 export type UserCreateNestedOneWithoutFamilyMembersInput = {
@@ -653,6 +674,7 @@ export type UserCreateWithoutIcRegistryInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutIcRegistryInput = {
@@ -673,6 +695,7 @@ export type UserUncheckedCreateWithoutIcRegistryInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationUncheckedCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutIcRegistryInput = {
@@ -709,11 +732,113 @@ export type UserUpdateWithoutIcRegistryInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutIcRegistryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutUserNestedInput
+  familyMembers?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  relatedFamilyMembers?: Prisma.FamilyMemberUncheckedUpdateManyWithoutFamilyMemberUserNestedInput
+  nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  agreements?: Prisma.AgreementUncheckedUpdateManyWithoutOwnerNestedInput
+  agentConversations?: Prisma.AgentConversationUncheckedUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutSettingsInput = {
+  id: string
+  name: string
+  address?: string | null
+  phoneNumber?: string | null
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  assets?: Prisma.AssetCreateNestedManyWithoutUserInput
+  familyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
+  relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
+  nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
+  agreements?: Prisma.AgreementCreateNestedManyWithoutOwnerInput
+  agentConversations?: Prisma.AgentConversationCreateNestedManyWithoutUserInput
+  icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSettingsInput = {
+  id: string
+  name: string
+  icNumber?: string | null
+  address?: string | null
+  phoneNumber?: string | null
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutUserInput
+  familyMembers?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  relatedFamilyMembers?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutFamilyMemberUserInput
+  nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  agreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutOwnerInput
+  agentConversations?: Prisma.AgentConversationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSettingsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSettingsInput, Prisma.UserUncheckedCreateWithoutSettingsInput>
+}
+
+export type UserUpsertWithoutSettingsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSettingsInput, Prisma.UserUncheckedUpdateWithoutSettingsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSettingsInput, Prisma.UserUncheckedCreateWithoutSettingsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSettingsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSettingsInput, Prisma.UserUncheckedUpdateWithoutSettingsInput>
+}
+
+export type UserUpdateWithoutSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutUserNestedInput
+  familyMembers?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
+  relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
+  nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
+  agreements?: Prisma.AgreementUpdateManyWithoutOwnerNestedInput
+  agentConversations?: Prisma.AgentConversationUpdateManyWithoutUserNestedInput
+  icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  icNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -748,6 +873,7 @@ export type UserCreateWithoutFamilyMembersInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingCreateNestedOneWithoutUserInput
   icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
@@ -769,6 +895,7 @@ export type UserUncheckedCreateWithoutFamilyMembersInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationUncheckedCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFamilyMembersInput = {
@@ -793,6 +920,7 @@ export type UserCreateWithoutRelatedFamilyMembersInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingCreateNestedOneWithoutUserInput
   icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
@@ -814,6 +942,7 @@ export type UserUncheckedCreateWithoutRelatedFamilyMembersInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationUncheckedCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRelatedFamilyMembersInput = {
@@ -849,6 +978,7 @@ export type UserUpdateWithoutFamilyMembersInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUpdateOneWithoutUserNestedInput
   icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
@@ -870,6 +1000,7 @@ export type UserUncheckedUpdateWithoutFamilyMembersInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUncheckedUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUncheckedUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutRelatedFamilyMembersInput = {
@@ -900,6 +1031,7 @@ export type UserUpdateWithoutRelatedFamilyMembersInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUpdateOneWithoutUserNestedInput
   icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
@@ -921,6 +1053,7 @@ export type UserUncheckedUpdateWithoutRelatedFamilyMembersInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUncheckedUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUncheckedUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNonRegisteredFamilyMembersInput = {
@@ -940,6 +1073,7 @@ export type UserCreateWithoutNonRegisteredFamilyMembersInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
   agreements?: Prisma.AgreementCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingCreateNestedOneWithoutUserInput
   icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
@@ -961,6 +1095,7 @@ export type UserUncheckedCreateWithoutNonRegisteredFamilyMembersInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutFamilyMemberUserInput
   agreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationUncheckedCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNonRegisteredFamilyMembersInput = {
@@ -996,6 +1131,7 @@ export type UserUpdateWithoutNonRegisteredFamilyMembersInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
   agreements?: Prisma.AgreementUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUpdateOneWithoutUserNestedInput
   icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
@@ -1017,6 +1153,7 @@ export type UserUncheckedUpdateWithoutNonRegisteredFamilyMembersInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberUncheckedUpdateManyWithoutFamilyMemberUserNestedInput
   agreements?: Prisma.AgreementUncheckedUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUncheckedUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAssetsInput = {
@@ -1036,6 +1173,7 @@ export type UserCreateWithoutAssetsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingCreateNestedOneWithoutUserInput
   icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
@@ -1057,6 +1195,7 @@ export type UserUncheckedCreateWithoutAssetsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationUncheckedCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssetsInput = {
@@ -1092,6 +1231,7 @@ export type UserUpdateWithoutAssetsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUpdateOneWithoutUserNestedInput
   icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
@@ -1113,6 +1253,7 @@ export type UserUncheckedUpdateWithoutAssetsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUncheckedUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUncheckedUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -1132,6 +1273,7 @@ export type UserCreateWithoutSessionsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingCreateNestedOneWithoutUserInput
   icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
@@ -1153,6 +1295,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationUncheckedCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1188,6 +1331,7 @@ export type UserUpdateWithoutSessionsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUpdateOneWithoutUserNestedInput
   icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
@@ -1209,6 +1353,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUncheckedUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUncheckedUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -1228,6 +1373,7 @@ export type UserCreateWithoutAccountsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingCreateNestedOneWithoutUserInput
   icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
@@ -1249,6 +1395,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutOwnerInput
   agentConversations?: Prisma.AgentConversationUncheckedCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -1284,6 +1431,7 @@ export type UserUpdateWithoutAccountsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUpdateOneWithoutUserNestedInput
   icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
@@ -1305,6 +1453,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUncheckedUpdateManyWithoutOwnerNestedInput
   agentConversations?: Prisma.AgentConversationUncheckedUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAgreementsInput = {
@@ -1324,6 +1473,7 @@ export type UserCreateWithoutAgreementsInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
   agentConversations?: Prisma.AgentConversationCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingCreateNestedOneWithoutUserInput
   icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
@@ -1345,6 +1495,7 @@ export type UserUncheckedCreateWithoutAgreementsInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutFamilyMemberUserInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
   agentConversations?: Prisma.AgentConversationUncheckedCreateNestedManyWithoutUserInput
+  settings?: Prisma.UserSettingUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAgreementsInput = {
@@ -1380,6 +1531,7 @@ export type UserUpdateWithoutAgreementsInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
   agentConversations?: Prisma.AgentConversationUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUpdateOneWithoutUserNestedInput
   icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
@@ -1401,6 +1553,7 @@ export type UserUncheckedUpdateWithoutAgreementsInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberUncheckedUpdateManyWithoutFamilyMemberUserNestedInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput
   agentConversations?: Prisma.AgentConversationUncheckedUpdateManyWithoutUserNestedInput
+  settings?: Prisma.UserSettingUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAgentConversationsInput = {
@@ -1420,6 +1573,7 @@ export type UserCreateWithoutAgentConversationsInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyMemberUserInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementCreateNestedManyWithoutOwnerInput
+  settings?: Prisma.UserSettingCreateNestedOneWithoutUserInput
   icRegistry?: Prisma.IcRegistryCreateNestedOneWithoutUserInput
 }
 
@@ -1441,6 +1595,7 @@ export type UserUncheckedCreateWithoutAgentConversationsInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutFamilyMemberUserInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedCreateNestedManyWithoutUserInput
   agreements?: Prisma.AgreementUncheckedCreateNestedManyWithoutOwnerInput
+  settings?: Prisma.UserSettingUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAgentConversationsInput = {
@@ -1476,6 +1631,7 @@ export type UserUpdateWithoutAgentConversationsInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberUpdateManyWithoutFamilyMemberUserNestedInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUpdateManyWithoutOwnerNestedInput
+  settings?: Prisma.UserSettingUpdateOneWithoutUserNestedInput
   icRegistry?: Prisma.IcRegistryUpdateOneWithoutUserNestedInput
 }
 
@@ -1497,6 +1653,7 @@ export type UserUncheckedUpdateWithoutAgentConversationsInput = {
   relatedFamilyMembers?: Prisma.FamilyMemberUncheckedUpdateManyWithoutFamilyMemberUserNestedInput
   nonRegisteredFamilyMembers?: Prisma.NonRegisteredFamilyMemberUncheckedUpdateManyWithoutUserNestedInput
   agreements?: Prisma.AgreementUncheckedUpdateManyWithoutOwnerNestedInput
+  settings?: Prisma.UserSettingUncheckedUpdateOneWithoutUserNestedInput
 }
 
 
@@ -1612,6 +1769,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   nonRegisteredFamilyMembers?: boolean | Prisma.User$nonRegisteredFamilyMembersArgs<ExtArgs>
   agreements?: boolean | Prisma.User$agreementsArgs<ExtArgs>
   agentConversations?: boolean | Prisma.User$agentConversationsArgs<ExtArgs>
+  settings?: boolean | Prisma.User$settingsArgs<ExtArgs>
   icRegistry?: boolean | Prisma.User$icRegistryArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -1667,6 +1825,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   nonRegisteredFamilyMembers?: boolean | Prisma.User$nonRegisteredFamilyMembersArgs<ExtArgs>
   agreements?: boolean | Prisma.User$agreementsArgs<ExtArgs>
   agentConversations?: boolean | Prisma.User$agentConversationsArgs<ExtArgs>
+  settings?: boolean | Prisma.User$settingsArgs<ExtArgs>
   icRegistry?: boolean | Prisma.User$icRegistryArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1688,6 +1847,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     nonRegisteredFamilyMembers: Prisma.$NonRegisteredFamilyMemberPayload<ExtArgs>[]
     agreements: Prisma.$AgreementPayload<ExtArgs>[]
     agentConversations: Prisma.$AgentConversationPayload<ExtArgs>[]
+    settings: Prisma.$UserSettingPayload<ExtArgs> | null
     icRegistry: Prisma.$IcRegistryPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2103,6 +2263,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   nonRegisteredFamilyMembers<T extends Prisma.User$nonRegisteredFamilyMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$nonRegisteredFamilyMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NonRegisteredFamilyMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   agreements<T extends Prisma.User$agreementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$agreementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgreementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   agentConversations<T extends Prisma.User$agentConversationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$agentConversationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgentConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  settings<T extends Prisma.User$settingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$settingsArgs<ExtArgs>>): Prisma.Prisma__UserSettingClient<runtime.Types.Result.GetResult<Prisma.$UserSettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   icRegistry<T extends Prisma.User$icRegistryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$icRegistryArgs<ExtArgs>>): Prisma.Prisma__IcRegistryClient<runtime.Types.Result.GetResult<Prisma.$IcRegistryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2728,6 +2889,25 @@ export type User$agentConversationsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.AgentConversationScalarFieldEnum | Prisma.AgentConversationScalarFieldEnum[]
+}
+
+/**
+ * User.settings
+ */
+export type User$settingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserSetting
+   */
+  select?: Prisma.UserSettingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserSetting
+   */
+  omit?: Prisma.UserSettingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserSettingInclude<ExtArgs> | null
+  where?: Prisma.UserSettingWhereInput
 }
 
 /**

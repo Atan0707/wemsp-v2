@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, ChevronRight, KeyRound, Languages, Loader2, Monitor, Search, Shield, Smartphone } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { Bell, Check, ChevronRight, KeyRound, Languages, Loader2, Monitor, Search, Shield, Smartphone } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -18,7 +18,40 @@ export const Route = createFileRoute('/app/settings/')({
   component: RouteComponent,
 })
 
-type SettingsPanel = 'active-sessions' | 'change-password' | 'language' | 'two-factor'
+type SettingsPanel = 'active-sessions' | 'change-password' | 'language' | 'notifications' | 'two-factor'
+type NotificationPreferenceKey =
+  | 'emailAgreementStatusUpdates'
+  | 'emailExpiryReminders'
+  | 'emailSignatureRequests'
+  | 'emailWitnessConfirmation'
+  | 'inAppAgreementStatusUpdates'
+  | 'inAppExpiryReminders'
+  | 'inAppSignatureRequests'
+  | 'inAppWitnessConfirmation'
+
+type NotificationPreferences = {
+  emailAgreementStatusUpdates: boolean
+  emailExpiryReminders: boolean
+  emailSignatureRequests: boolean
+  emailWitnessConfirmation: boolean
+  inAppAgreementStatusUpdates: boolean
+  inAppExpiryReminders: boolean
+  inAppSignatureRequests: boolean
+  inAppWitnessConfirmation: boolean
+  reminderDays: Array<number>
+}
+
+const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
+  emailAgreementStatusUpdates: true,
+  emailExpiryReminders: true,
+  emailSignatureRequests: true,
+  emailWitnessConfirmation: true,
+  inAppAgreementStatusUpdates: true,
+  inAppExpiryReminders: true,
+  inAppSignatureRequests: true,
+  inAppWitnessConfirmation: true,
+  reminderDays: [1, 3, 7],
+}
 
 const settingsPanels: Record<SettingsPanel, { description: string; title: string }> = {
   'active-sessions': {
@@ -32,6 +65,10 @@ const settingsPanels: Record<SettingsPanel, { description: string; title: string
   language: {
     description: 'Choose your preferred app language.',
     title: 'Language',
+  },
+  notifications: {
+    description: 'Manage email and in-app alerts for signatures, updates, witness confirmation, and expiry reminders.',
+    title: 'Notifications',
   },
   'two-factor': {
     description: 'Add a second verification step for better account protection.',
@@ -52,6 +89,9 @@ function RouteComponent() {
     currentPassword: '',
     newPassword: '',
   })
+  const [notificationPreferences, setNotificationPreferences] = useState<NotificationPreferences>(
+    DEFAULT_NOTIFICATION_PREFERENCES
+  )
   const { data: sessionData } = authClient.useSession()
   const currentSessionToken = (sessionData as any)?.session?.token
 
@@ -73,6 +113,54 @@ function RouteComponent() {
       ),
     [sessionsQuery.data]
   )
+
+  const notificationPreferencesQuery = useQuery({
+    queryKey: ['notification-preferences'],
+    queryFn: async () => {
+      const response = await fetch('/api/user/notification-preferences', { method: 'GET' })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load notification preferences')
+      }
+      return data.preferences as NotificationPreferences
+    },
+  })
+
+  useEffect(() => {
+    if (!notificationPreferencesQuery.data) return
+    setNotificationPreferences({
+      ...notificationPreferencesQuery.data,
+      reminderDays: [...notificationPreferencesQuery.data.reminderDays].sort((a, b) => a - b),
+    })
+  }, [notificationPreferencesQuery.data])
+
+  const saveNotificationPreferencesMutation = useMutation({
+    mutationFn: async (preferences: NotificationPreferences) => {
+      const response = await fetch('/api/user/notification-preferences', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(preferences),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save notification preferences')
+      }
+      return data.preferences as NotificationPreferences
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to save notification preferences')
+    },
+    onSuccess: (preferences) => {
+      queryClient.setQueryData(['notification-preferences'], preferences)
+      setNotificationPreferences({
+        ...preferences,
+        reminderDays: [...preferences.reminderDays].sort((a, b) => a - b),
+      })
+      toast.success('Notification preferences updated')
+    },
+  })
 
   const changePasswordMutation = useMutation({
     mutationFn: async () => {
@@ -167,6 +255,50 @@ function RouteComponent() {
     })
   }
 
+  const updateNotificationPreference = (key: NotificationPreferenceKey, checked: boolean) => {
+    setNotificationPreferences((prev) => ({
+      ...prev,
+      [key]: checked,
+    }))
+  }
+
+  const toggleReminderDay = (day: number) => {
+    setNotificationPreferences((prev) => {
+      const hasDay = prev.reminderDays.includes(day)
+      const reminderDays = hasDay
+        ? prev.reminderDays.filter((value) => value !== day)
+        : [...prev.reminderDays, day]
+      return {
+        ...prev,
+        reminderDays: reminderDays.sort((a, b) => a - b),
+      }
+    })
+  }
+
+  const normalizedNotificationState = useMemo(
+    () => ({
+      ...notificationPreferences,
+      reminderDays: [...notificationPreferences.reminderDays].sort((a, b) => a - b),
+    }),
+    [notificationPreferences]
+  )
+
+  const normalizedServerNotificationState = useMemo(() => {
+    const source = notificationPreferencesQuery.data || DEFAULT_NOTIFICATION_PREFERENCES
+    return {
+      ...source,
+      reminderDays: [...source.reminderDays].sort((a, b) => a - b),
+    }
+  }, [notificationPreferencesQuery.data])
+
+  const notificationPreferencesChanged = useMemo(() => {
+    return JSON.stringify(normalizedNotificationState) !== JSON.stringify(normalizedServerNotificationState)
+  }, [normalizedNotificationState, normalizedServerNotificationState])
+
+  const saveNotificationPreferences = () => {
+    saveNotificationPreferencesMutation.mutate(normalizedNotificationState)
+  }
+
   const leftNavItems = useMemo(
     () => [
       {
@@ -174,6 +306,12 @@ function RouteComponent() {
         icon: <Languages className="h-4 w-4" />,
         id: 'language' as const,
         label: t('settings.languageTitle'),
+      },
+      {
+        description: 'Control email and in-app notification channels.',
+        icon: <Bell className="h-4 w-4" />,
+        id: 'notifications' as const,
+        label: 'Notifications',
       },
       {
         description: 'Change your account password.',
@@ -232,6 +370,131 @@ function RouteComponent() {
             {t('settings.malay')}
             {language === 'ms' ? <Check className="h-4 w-4" /> : null}
           </Button>
+        </div>
+      )
+    }
+
+    if (selectedPanel === 'notifications') {
+      const notificationItems: Array<{
+        description: string
+        emailKey: NotificationPreferenceKey
+        inAppKey: NotificationPreferenceKey
+        label: string
+      }> = [
+        {
+          label: 'Signature requests',
+          description: 'When you need to sign an agreement as owner or beneficiary.',
+          emailKey: 'emailSignatureRequests',
+          inAppKey: 'inAppSignatureRequests',
+        },
+        {
+          label: 'Agreement status updates',
+          description: 'When an agreement changes status (draft, pending, active, etc).',
+          emailKey: 'emailAgreementStatusUpdates',
+          inAppKey: 'inAppAgreementStatusUpdates',
+        },
+        {
+          label: 'Witness confirmation',
+          description: 'When witness verification is completed.',
+          emailKey: 'emailWitnessConfirmation',
+          inAppKey: 'inAppWitnessConfirmation',
+        },
+        {
+          label: 'Expiry reminders',
+          description: 'Before agreement due/expiry date.',
+          emailKey: 'emailExpiryReminders',
+          inAppKey: 'inAppExpiryReminders',
+        },
+      ]
+
+      return (
+        <div className="space-y-5">
+          {notificationPreferencesQuery.isLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading notification preferences...
+            </div>
+          ) : null}
+
+          {notificationPreferencesQuery.isError ? (
+            <p className="text-sm text-destructive">Unable to load notification preferences.</p>
+          ) : null}
+
+          {!notificationPreferencesQuery.isLoading && !notificationPreferencesQuery.isError ? (
+            <>
+              <div className="overflow-hidden rounded-lg border border-border/70">
+                <div className="grid grid-cols-[minmax(0,1fr)_5rem_5rem] gap-2 border-b border-border/70 bg-muted/30 px-4 py-2 text-xs font-medium text-muted-foreground">
+                  <p>Alert type</p>
+                  <p className="text-center">Email</p>
+                  <p className="text-center">In-app</p>
+                </div>
+                {notificationItems.map((item, index) => (
+                  <div
+                    key={item.label}
+                    className={`grid grid-cols-[minmax(0,1fr)_5rem_5rem] items-center gap-2 px-4 py-3 ${
+                      index > 0 ? 'border-t border-border/70' : ''
+                    }`}
+                  >
+                    <div className="pr-2">
+                      <p className="text-sm font-medium">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.description}</p>
+                    </div>
+                    <div className="flex justify-center">
+                      <Checkbox
+                        checked={notificationPreferences[item.emailKey]}
+                        onCheckedChange={(checked) => updateNotificationPreference(item.emailKey, Boolean(checked))}
+                        aria-label={`${item.label} email notifications`}
+                      />
+                    </div>
+                    <div className="flex justify-center">
+                      <Checkbox
+                        checked={notificationPreferences[item.inAppKey]}
+                        onCheckedChange={(checked) => updateNotificationPreference(item.inAppKey, Boolean(checked))}
+                        aria-label={`${item.label} in-app notifications`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-3 rounded-lg border border-border/70 p-4">
+                <div>
+                  <p className="text-sm font-medium">Reminder timing</p>
+                  <p className="text-xs text-muted-foreground">Send expiry reminders this many days before due date.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[1, 3, 7].map((day) => (
+                    <Button
+                      key={day}
+                      type="button"
+                      variant={notificationPreferences.reminderDays.includes(day) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => toggleReminderDay(day)}
+                    >
+                      {day} day{day > 1 ? 's' : ''}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  onClick={saveNotificationPreferences}
+                  disabled={!notificationPreferencesChanged || saveNotificationPreferencesMutation.isPending}
+                >
+                  {saveNotificationPreferencesMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save notification preferences'
+                  )}
+                </Button>
+              </div>
+            </>
+          ) : null}
         </div>
       )
     }

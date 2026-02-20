@@ -52,6 +52,7 @@ import { Route as AppAssetsViewIdRouteImport } from './routes/app/assets/view/$i
 import { Route as AppAssetsEditIdRouteImport } from './routes/app/assets/edit/$id'
 import { Route as AppAgreementViewIdRouteImport } from './routes/app/agreement/view/$id'
 import { Route as ApiUserProfileSplatRouteImport } from './routes/api/user/profile/$'
+import { Route as ApiUserNotificationPreferencesSplatRouteImport } from './routes/api/user/notification-preferences/$'
 import { Route as ApiAgentConversationsSplatRouteImport } from './routes/api/agent/conversations/$'
 import { Route as ApiAdminUsersIdRouteImport } from './routes/api/admin/users/$id'
 import { Route as ApiAdminUsersSplatRouteImport } from './routes/api/admin/users/$'
@@ -289,6 +290,12 @@ const ApiUserProfileSplatRoute = ApiUserProfileSplatRouteImport.update({
   path: '/api/user/profile/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUserNotificationPreferencesSplatRoute =
+  ApiUserNotificationPreferencesSplatRouteImport.update({
+    id: '/api/user/notification-preferences/$',
+    path: '/api/user/notification-preferences/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAgentConversationsSplatRoute =
   ApiAgentConversationsSplatRouteImport.update({
     id: '/api/agent/conversations/$',
@@ -439,6 +446,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/users/$': typeof ApiAdminUsersSplatRoute
   '/api/admin/users/$id': typeof ApiAdminUsersIdRoute
   '/api/agent/conversations/$': typeof ApiAgentConversationsSplatRoute
+  '/api/user/notification-preferences/$': typeof ApiUserNotificationPreferencesSplatRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
@@ -502,6 +510,7 @@ export interface FileRoutesByTo {
   '/api/admin/users/$': typeof ApiAdminUsersSplatRoute
   '/api/admin/users/$id': typeof ApiAdminUsersIdRoute
   '/api/agent/conversations/$': typeof ApiAgentConversationsSplatRoute
+  '/api/user/notification-preferences/$': typeof ApiUserNotificationPreferencesSplatRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
@@ -567,6 +576,7 @@ export interface FileRoutesById {
   '/api/admin/users/$': typeof ApiAdminUsersSplatRoute
   '/api/admin/users/$id': typeof ApiAdminUsersIdRoute
   '/api/agent/conversations/$': typeof ApiAgentConversationsSplatRoute
+  '/api/user/notification-preferences/$': typeof ApiUserNotificationPreferencesSplatRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
   '/app/assets/edit/$id': typeof AppAssetsEditIdRoute
@@ -633,6 +643,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$'
     | '/api/admin/users/$id'
     | '/api/agent/conversations/$'
+    | '/api/user/notification-preferences/$'
     | '/api/user/profile/$'
     | '/app/agreement/view/$id'
     | '/app/assets/edit/$id'
@@ -696,6 +707,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$'
     | '/api/admin/users/$id'
     | '/api/agent/conversations/$'
+    | '/api/user/notification-preferences/$'
     | '/api/user/profile/$'
     | '/app/agreement/view/$id'
     | '/app/assets/edit/$id'
@@ -760,6 +772,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$'
     | '/api/admin/users/$id'
     | '/api/agent/conversations/$'
+    | '/api/user/notification-preferences/$'
     | '/api/user/profile/$'
     | '/app/agreement/view/$id'
     | '/app/assets/edit/$id'
@@ -805,6 +818,7 @@ export interface RootRouteChildren {
   ApiAdminUsersSplatRoute: typeof ApiAdminUsersSplatRoute
   ApiAdminUsersIdRoute: typeof ApiAdminUsersIdRoute
   ApiAgentConversationsSplatRoute: typeof ApiAgentConversationsSplatRoute
+  ApiUserNotificationPreferencesSplatRoute: typeof ApiUserNotificationPreferencesSplatRoute
   ApiUserProfileSplatRoute: typeof ApiUserProfileSplatRoute
   ApiUploadJsonIndexRoute: typeof ApiUploadJsonIndexRoute
   ApiAdminAgreementsIdSplatRoute: typeof ApiAdminAgreementsIdSplatRoute
@@ -1123,6 +1137,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUserProfileSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/user/notification-preferences/$': {
+      id: '/api/user/notification-preferences/$'
+      path: '/api/user/notification-preferences/$'
+      fullPath: '/api/user/notification-preferences/$'
+      preLoaderRoute: typeof ApiUserNotificationPreferencesSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/agent/conversations/$': {
       id: '/api/agent/conversations/$'
       path: '/api/agent/conversations/$'
@@ -1354,6 +1375,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminUsersSplatRoute: ApiAdminUsersSplatRoute,
   ApiAdminUsersIdRoute: ApiAdminUsersIdRoute,
   ApiAgentConversationsSplatRoute: ApiAgentConversationsSplatRoute,
+  ApiUserNotificationPreferencesSplatRoute:
+    ApiUserNotificationPreferencesSplatRoute,
   ApiUserProfileSplatRoute: ApiUserProfileSplatRoute,
   ApiUploadJsonIndexRoute: ApiUploadJsonIndexRoute,
   ApiAdminAgreementsIdSplatRoute: ApiAdminAgreementsIdSplatRoute,
