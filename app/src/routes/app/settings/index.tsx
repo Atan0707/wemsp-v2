@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, Languages, Loader2, Lock, Shield, Smartphone } from 'lucide-react'
+import { Check, ChevronRight, KeyRound, Languages, Loader2, Monitor, Search, Shield, Smartphone } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -16,9 +16,32 @@ export const Route = createFileRoute('/app/settings/')({
   component: RouteComponent,
 })
 
+type SettingsPanel = 'active-sessions' | 'change-password' | 'language' | 'two-factor'
+
+const settingsPanels: Record<SettingsPanel, { description: string; title: string }> = {
+  'active-sessions': {
+    description: 'Review where your account is signed in and remove sessions you do not recognize.',
+    title: 'Active Sessions',
+  },
+  'change-password': {
+    description: 'Update your login password and optionally log out other devices.',
+    title: 'Change Password',
+  },
+  language: {
+    description: 'Choose your preferred app language.',
+    title: 'Language',
+  },
+  'two-factor': {
+    description: 'Add a second verification step for better account protection.',
+    title: 'Two-Factor Authentication (2FA)',
+  },
+}
+
 function RouteComponent() {
   const { language, setLanguage, t } = useLanguage()
   const queryClient = useQueryClient()
+  const [selectedPanel, setSelectedPanel] = useState<SettingsPanel>('language')
+  const [searchTerm, setSearchTerm] = useState('')
   const [revokeOtherSessionsOnPasswordChange, setRevokeOtherSessionsOnPasswordChange] = useState(true)
   const [passwordForm, setPasswordForm] = useState({
     confirmNewPassword: '',
@@ -140,21 +163,52 @@ function RouteComponent() {
     })
   }
 
-  return (
-    <div className="max-w-2xl space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold">{t('settings.title')}</h1>
-      </div>
+  const leftNavItems = useMemo(
+    () => [
+      {
+        description: t('settings.languageDescription'),
+        icon: <Languages className="h-4 w-4" />,
+        id: 'language' as const,
+        label: t('settings.languageTitle'),
+      },
+      {
+        description: 'Change your account password.',
+        icon: <KeyRound className="h-4 w-4" />,
+        id: 'change-password' as const,
+        label: 'Change password',
+      },
+      {
+        description: 'Manage currently signed-in devices.',
+        icon: <Monitor className="h-4 w-4" />,
+        id: 'active-sessions' as const,
+        label: 'Active sessions',
+      },
+      {
+        description: 'Add a second authentication factor.',
+        icon: <Smartphone className="h-4 w-4" />,
+        id: 'two-factor' as const,
+        label: 'Two-factor authentication',
+      },
+    ],
+    [t]
+  )
 
-      <Card className="border-border/70">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Languages className="h-5 w-5" />
-            {t('settings.languageTitle')}
-          </CardTitle>
-          <CardDescription>{t('settings.languageDescription')}</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
+  const filteredNavItems = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return leftNavItems
+    return leftNavItems.filter(
+      (item) =>
+        item.label.toLowerCase().includes(term) ||
+        item.description.toLowerCase().includes(term)
+    )
+  }, [leftNavItems, searchTerm])
+
+  const selectedPanelInfo = settingsPanels[selectedPanel]
+
+  const renderPanelContent = () => {
+    if (selectedPanel === 'language') {
+      return (
+        <div className="grid gap-3 sm:grid-cols-2">
           <Button
             type="button"
             variant={language === 'en' ? 'default' : 'outline'}
@@ -174,107 +228,88 @@ function RouteComponent() {
             {t('settings.malay')}
             {language === 'ms' ? <Check className="h-4 w-4" /> : null}
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      )
+    }
 
-      <Card className="border-border/70">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lock className="h-5 w-5" />
-            Account & Security
-          </CardTitle>
-          <CardDescription>Manage your password, active sessions, and security controls.</CardDescription>
-        </CardHeader>
-      </Card>
+    if (selectedPanel === 'change-password') {
+      return (
+        <form onSubmit={onChangePassword}>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="currentPassword">Current password</FieldLabel>
+              <Input
+                id="currentPassword"
+                type="password"
+                value={passwordForm.currentPassword}
+                onChange={(event) =>
+                  setPasswordForm((prev) => ({
+                    ...prev,
+                    currentPassword: event.target.value,
+                  }))
+                }
+                disabled={changePasswordMutation.isPending}
+                required
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="newPassword">New password</FieldLabel>
+              <Input
+                id="newPassword"
+                type="password"
+                value={passwordForm.newPassword}
+                onChange={(event) =>
+                  setPasswordForm((prev) => ({
+                    ...prev,
+                    newPassword: event.target.value,
+                  }))
+                }
+                disabled={changePasswordMutation.isPending}
+                required
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="confirmNewPassword">Confirm new password</FieldLabel>
+              <Input
+                id="confirmNewPassword"
+                type="password"
+                value={passwordForm.confirmNewPassword}
+                onChange={(event) =>
+                  setPasswordForm((prev) => ({
+                    ...prev,
+                    confirmNewPassword: event.target.value,
+                  }))
+                }
+                disabled={changePasswordMutation.isPending}
+                required
+              />
+            </Field>
+            <label className="flex items-center gap-3 text-sm">
+              <Checkbox
+                checked={revokeOtherSessionsOnPasswordChange}
+                onCheckedChange={(checked) => setRevokeOtherSessionsOnPasswordChange(Boolean(checked))}
+                disabled={changePasswordMutation.isPending}
+              />
+              Log out other devices after password change
+            </label>
+            <Button type="submit" disabled={changePasswordMutation.isPending} className="w-fit">
+              {changePasswordMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                'Update password'
+              )}
+            </Button>
+          </FieldGroup>
+        </form>
+      )
+    }
 
-      <Card className="border-border/70">
-        <CardHeader>
-          <CardTitle>Change Password</CardTitle>
-          <CardDescription>Update your login password and optionally log out other devices.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onChangePassword}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="currentPassword">Current password</FieldLabel>
-                <Input
-                  id="currentPassword"
-                  type="password"
-                  value={passwordForm.currentPassword}
-                  onChange={(event) =>
-                    setPasswordForm((prev) => ({
-                      ...prev,
-                      currentPassword: event.target.value,
-                    }))
-                  }
-                  disabled={changePasswordMutation.isPending}
-                  required
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="newPassword">New password</FieldLabel>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={passwordForm.newPassword}
-                  onChange={(event) =>
-                    setPasswordForm((prev) => ({
-                      ...prev,
-                      newPassword: event.target.value,
-                    }))
-                  }
-                  disabled={changePasswordMutation.isPending}
-                  required
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="confirmNewPassword">Confirm new password</FieldLabel>
-                <Input
-                  id="confirmNewPassword"
-                  type="password"
-                  value={passwordForm.confirmNewPassword}
-                  onChange={(event) =>
-                    setPasswordForm((prev) => ({
-                      ...prev,
-                      confirmNewPassword: event.target.value,
-                    }))
-                  }
-                  disabled={changePasswordMutation.isPending}
-                  required
-                />
-              </Field>
-              <label className="flex items-center gap-3 text-sm">
-                <Checkbox
-                  checked={revokeOtherSessionsOnPasswordChange}
-                  onCheckedChange={(checked) => setRevokeOtherSessionsOnPasswordChange(Boolean(checked))}
-                  disabled={changePasswordMutation.isPending}
-                />
-                Log out other devices after password change
-              </label>
-              <Button type="submit" disabled={changePasswordMutation.isPending}>
-                {changePasswordMutation.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  'Update password'
-                )}
-              </Button>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border/70">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            Active Sessions
-          </CardTitle>
-          <CardDescription>Review where your account is signed in and remove sessions you do not recognize.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
+    if (selectedPanel === 'active-sessions') {
+      return (
+        <div className="space-y-3">
           <div className="flex justify-end">
             <Button
               type="button"
@@ -308,61 +343,126 @@ function RouteComponent() {
             <p className="text-sm text-muted-foreground">No active sessions found.</p>
           ) : null}
 
-          {sessions.map((session: any) => {
-            const isCurrentSession = Boolean(currentSessionToken && session.token === currentSessionToken)
-            return (
-              <div key={session.id} className="space-y-2 rounded-lg border border-border/70 p-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="text-sm font-medium">
-                    {isCurrentSession ? 'Current device' : 'Signed in device'}
+          {sessions.length > 0 ? (
+            <div className="overflow-hidden rounded-lg border border-border/70">
+              {sessions.map((session: any, index: number) => {
+                const isCurrentSession = Boolean(currentSessionToken && session.token === currentSessionToken)
+                return (
+                  <div
+                    key={session.id}
+                    className={`space-y-2 p-4 ${index > 0 ? 'border-t border-border/70' : ''}`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="text-sm font-medium">
+                        {isCurrentSession ? 'Current device' : 'Signed in device'}
+                      </div>
+                      {!isCurrentSession ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={revokeSessionMutation.isPending}
+                          onClick={() => revokeSessionMutation.mutate(session.token)}
+                        >
+                          Log out
+                        </Button>
+                      ) : (
+                        <span className="rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Created: {formatDateTime(session.createdAt)}</p>
+                    <p className="text-xs text-muted-foreground">Expires: {formatDateTime(session.expiresAt)}</p>
+                    {session.ipAddress ? (
+                      <p className="text-xs text-muted-foreground">IP: {session.ipAddress}</p>
+                    ) : null}
+                    {session.userAgent ? (
+                      <p className="line-clamp-2 text-xs text-muted-foreground">{session.userAgent}</p>
+                    ) : null}
                   </div>
-                  {!isCurrentSession ? (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      disabled={revokeSessionMutation.isPending}
-                      onClick={() => revokeSessionMutation.mutate(session.token)}
-                    >
-                      Log out
-                    </Button>
-                  ) : (
-                    <span className="rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                      Current
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">Created: {formatDateTime(session.createdAt)}</p>
-                <p className="text-xs text-muted-foreground">Expires: {formatDateTime(session.expiresAt)}</p>
-                {session.ipAddress ? (
-                  <p className="text-xs text-muted-foreground">IP: {session.ipAddress}</p>
-                ) : null}
-                {session.userAgent ? (
-                  <p className="line-clamp-2 text-xs text-muted-foreground">{session.userAgent}</p>
-                ) : null}
-              </div>
-            )
-          })}
-        </CardContent>
-      </Card>
+                )
+              })}
+            </div>
+          ) : null}
+        </div>
+      )
+    }
 
-      <Card className="border-border/70">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Smartphone className="h-5 w-5" />
-            Two-Factor Authentication (2FA)
-          </CardTitle>
-          <CardDescription>Add a second verification step for better account protection.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-            2FA setup is not enabled in this deployment yet.
-          </div>
-          <Button type="button" variant="outline" disabled>
-            Enable 2FA (Coming Soon)
-          </Button>
-        </CardContent>
-      </Card>
+    return (
+      <div className="space-y-3">
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          2FA setup is not enabled in this deployment yet.
+        </div>
+        <Button type="button" variant="outline" disabled>
+          Enable 2FA (Coming Soon)
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[120rem] space-y-4">
+      <div>
+        <h1 className="text-2xl font-semibold">{t('settings.title')}</h1>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[30rem_minmax(0,1fr)] lg:items-stretch">
+        <Card className="flex flex-col border-border/70 lg:min-h-[36rem]">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Settings
+            </CardTitle>
+            <CardDescription>Browse and open a setting from the list.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 space-y-3">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search settings"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                className="pl-9"
+              />
+            </div>
+
+            <div className="overflow-hidden rounded-lg border border-border/70">
+              {filteredNavItems.length === 0 ? (
+                <div className="p-4 text-sm text-muted-foreground">No settings match your search.</div>
+              ) : (
+                filteredNavItems.map((item, index) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setSelectedPanel(item.id)}
+                    className={`flex min-h-[5.5rem] w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors ${
+                      selectedPanel === item.id ? 'bg-primary/10' : 'hover:bg-muted/40'
+                    } ${index > 0 ? 'border-t border-border/70' : ''}`}
+                  >
+                    <div className="flex min-w-0 items-start gap-3">
+                      <span className="mt-0.5 text-muted-foreground">{item.icon}</span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{item.label}</p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{item.description}</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  </button>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="min-w-0 w-full flex flex-col overflow-hidden border-border/70 lg:min-h-[36rem]">
+          <CardHeader className="border-b border-border/70">
+            <CardTitle>{selectedPanelInfo.title}</CardTitle>
+            <CardDescription>{selectedPanelInfo.description}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 pt-6">{renderPanelContent()}</CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
