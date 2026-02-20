@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import type { AgentResponseLanguage } from '@/lib/agent/system-prompt'
 import { auth } from '@/lib/auth'
 import { runAgentTurn } from '@/lib/agent'
 import { prisma } from '@/db'
@@ -6,6 +7,12 @@ import { prisma } from '@/db'
 interface ChatRequestBody {
   message?: string
   conversationId?: string
+  language?: string
+}
+
+function normalizeLanguage(value: unknown): AgentResponseLanguage | undefined {
+  if (value === 'en' || value === 'ms') return value
+  return undefined
 }
 
 export const Route = createFileRoute('/api/agent/chat')({
@@ -48,6 +55,15 @@ export const Route = createFileRoute('/api/agent/chat')({
           }
 
           const userMessage = body.message.trim()
+          const uiLanguage = normalizeLanguage(body.language)
+
+          const settings = await prisma.userSetting.findUnique({
+            where: { userId: session.user.id },
+            select: { preferredLanguage: true },
+          })
+
+          const preferredLanguage =
+            uiLanguage || normalizeLanguage(settings?.preferredLanguage) || 'en'
 
           await prisma.agentMessage.create({
             data: {
@@ -68,6 +84,7 @@ export const Route = createFileRoute('/api/agent/chat')({
             userId: session.user.id,
             message: userMessage,
             history,
+            languagePreference: preferredLanguage,
           })
 
           await prisma.agentMessage.create({

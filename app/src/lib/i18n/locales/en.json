@@ -312,6 +312,26 @@
       "emptyDescription": "Get started by adding your first family member.",
       "noContactInfo": "No contact info",
       "noMembersFound": "No family members found."
+    },
+    "assistantChat": {
+      "title": "WEMSP Assistant",
+      "newChatFallback": "New chat",
+      "conversationSingular": "conversation",
+      "conversationPlural": "conversations",
+      "loadingConversation": "Loading conversation...",
+      "greetingTitle": "Welcome back.",
+      "greetingDescription": "Ask about agreements, family members, and assets.",
+      "thinking": "Thinking...",
+      "inputPlaceholder": "Ask a question...",
+      "enterHint": "Press Enter to send",
+      "quickPrompts": {
+        "agreementStatus": "Show my latest agreement status",
+        "familySummary": "Summarize my family members",
+        "assetsReview": "Help me review my assets"
+      },
+      "errors": {
+        "createConversation": "Unable to start a new chat right now. Please try again."
+      }
     }
   }
 }

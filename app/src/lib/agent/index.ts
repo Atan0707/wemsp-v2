@@ -1,7 +1,8 @@
 import { AIMessage, HumanMessage, SystemMessage, ToolMessage } from '@langchain/core/messages'
 import { ChatOpenAI } from '@langchain/openai'
-import { AGENT_SYSTEM_PROMPT } from './system-prompt'
+import { buildAgentSystemPrompt } from './system-prompt'
 import { buildAgentTools } from './tools'
+import type { AgentResponseLanguage } from './system-prompt'
 
 type HistoryMessage = {
   role: 'user' | 'assistant'
@@ -11,7 +12,8 @@ type HistoryMessage = {
 type RunAgentTurnInput = {
   userId: string
   message: string
-  history?: HistoryMessage[]
+  history?: Array<HistoryMessage>
+  languagePreference?: AgentResponseLanguage
 }
 
 function contentToText(content: unknown): string {
@@ -63,14 +65,14 @@ export async function runAgentTurn(input: RunAgentTurnInput) {
   })
 
   const baseMessages = [
-    new SystemMessage(AGENT_SYSTEM_PROMPT),
+    new SystemMessage(buildAgentSystemPrompt(input.languagePreference || 'en')),
     ...historyMessages,
     new HumanMessage(input.message),
   ]
 
   const first = await model.bindTools(tools).invoke(baseMessages)
 
-  const toolMessages: ToolMessage[] = []
+  const toolMessages: Array<ToolMessage> = []
 
   for (const call of first.tool_calls ?? []) {
     const matchedTool = toolMap.get(call.name)

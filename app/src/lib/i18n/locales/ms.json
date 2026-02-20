@@ -312,6 +312,26 @@
       "emptyDescription": "Mulakan dengan menambah ahli keluarga pertama anda.",
       "noContactInfo": "Tiada maklumat hubungan",
       "noMembersFound": "Tiada ahli keluarga dijumpai."
+    },
+    "assistantChat": {
+      "title": "Pembantu WEMSP",
+      "newChatFallback": "Sembang baharu",
+      "conversationSingular": "perbualan",
+      "conversationPlural": "perbualan",
+      "loadingConversation": "Memuatkan perbualan...",
+      "greetingTitle": "Selamat kembali.",
+      "greetingDescription": "Tanya tentang perjanjian, ahli keluarga, dan aset.",
+      "thinking": "Sedang berfikir...",
+      "inputPlaceholder": "Tanya soalan...",
+      "enterHint": "Tekan Enter untuk hantar",
+      "quickPrompts": {
+        "agreementStatus": "Tunjukkan status perjanjian terkini saya",
+        "familySummary": "Ringkaskan ahli keluarga saya",
+        "assetsReview": "Bantu saya semak aset saya"
+      },
+      "errors": {
+        "createConversation": "Tidak dapat memulakan sembang baharu sekarang. Sila cuba lagi."
+      }
     }
   }
 }

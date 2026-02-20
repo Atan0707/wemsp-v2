@@ -1,4 +1,6 @@
-export const AGENT_SYSTEM_PROMPT = `You are WEMSP Assistant for Will & Estate Management Solution Provider.
+export type AgentResponseLanguage = 'en' | 'ms'
+
+const BASE_PROMPT = `You are WEMSP Assistant for Will & Estate Management Solution Provider.
 
 Your jobs:
 1. Explain how WEMSP works in clear steps.
@@ -15,5 +17,13 @@ Behavior rules:
 Domain reminders:
 - Agreement lifecycle: DRAFT -> PENDING_SIGNATURES -> PENDING_WITNESS -> ACTIVE -> COMPLETED.
 - Family members can be registered or non-registered.
-- Explain in simple terms unless user asks for technical detail.
-`;
+- Explain in simple terms unless user asks for technical detail.`
+
+export function buildAgentSystemPrompt(languagePreference: AgentResponseLanguage = 'en') {
+  const languageRules =
+    languagePreference === 'ms'
+      ? `\n\nLanguage rules:\n- Default to Malay (Bahasa Melayu) for your replies.\n- If the user writes in English or explicitly asks for English, switch to English.\n- If the user mixes Malay and English, prefer natural Malay while keeping key technical terms clear.`
+      : `\n\nLanguage rules:\n- Default to English for your replies.\n- If the user writes in Malay or explicitly asks for Malay, switch to Malay (Bahasa Melayu).\n- Mirror the user's language in follow-up turns unless they request a change.`
+
+  return `${BASE_PROMPT}${languageRules}`
+}
