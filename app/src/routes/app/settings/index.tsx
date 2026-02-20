@@ -9,6 +9,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { authClient } from '@/lib/auth-client'
 import { useLanguage } from '@/lib/i18n/context'
 
@@ -39,8 +41,10 @@ const settingsPanels: Record<SettingsPanel, { description: string; title: string
 
 function RouteComponent() {
   const { language, setLanguage, t } = useLanguage()
+  const isMobile = useIsMobile()
   const queryClient = useQueryClient()
   const [selectedPanel, setSelectedPanel] = useState<SettingsPanel>('language')
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [revokeOtherSessionsOnPasswordChange, setRevokeOtherSessionsOnPasswordChange] = useState(true)
   const [passwordForm, setPasswordForm] = useState({
@@ -378,7 +382,7 @@ function RouteComponent() {
                       <p className="text-xs text-muted-foreground">IP: {session.ipAddress}</p>
                     ) : null}
                     {session.userAgent ? (
-                      <p className="line-clamp-2 text-xs text-muted-foreground">{session.userAgent}</p>
+                      <p className="line-clamp-2 break-words text-xs text-muted-foreground">{session.userAgent}</p>
                     ) : null}
                   </div>
                 )
@@ -402,7 +406,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[120rem] space-y-4">
+    <div className="mx-auto w-full max-w-[120rem] space-y-4 overflow-x-hidden">
       <div>
         <h1 className="text-2xl font-semibold">{t('settings.title')}</h1>
       </div>
@@ -435,7 +439,12 @@ function RouteComponent() {
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => setSelectedPanel(item.id)}
+                    onClick={() => {
+                      setSelectedPanel(item.id)
+                      if (isMobile) {
+                        setMobilePanelOpen(true)
+                      }
+                    }}
                     className={`flex min-h-[5.5rem] w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors ${
                       selectedPanel === item.id ? 'bg-primary/10' : 'hover:bg-muted/40'
                     } ${index > 0 ? 'border-t border-border/70' : ''}`}
@@ -455,7 +464,7 @@ function RouteComponent() {
           </CardContent>
         </Card>
 
-        <Card className="min-w-0 w-full flex flex-col overflow-hidden border-border/70 lg:min-h-[36rem]">
+        <Card className="hidden min-w-0 w-full flex-col overflow-hidden border-border/70 md:flex md:min-h-[36rem]">
           <CardHeader className="border-b border-border/70">
             <CardTitle>{selectedPanelInfo.title}</CardTitle>
             <CardDescription>{selectedPanelInfo.description}</CardDescription>
@@ -463,6 +472,19 @@ function RouteComponent() {
           <CardContent className="flex-1 pt-6">{renderPanelContent()}</CardContent>
         </Card>
       </div>
+
+      <Sheet open={isMobile && mobilePanelOpen} onOpenChange={setMobilePanelOpen}>
+        <SheetContent
+          side="right"
+          className="inset-0 h-dvh w-[100dvw] max-w-[100dvw] overflow-hidden gap-0 rounded-none border-0 p-0 sm:max-w-[100dvw]"
+        >
+          <SheetHeader className="border-b border-border/70">
+            <SheetTitle>{selectedPanelInfo.title}</SheetTitle>
+            <SheetDescription>{selectedPanelInfo.description}</SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-4">{renderPanelContent()}</div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }
