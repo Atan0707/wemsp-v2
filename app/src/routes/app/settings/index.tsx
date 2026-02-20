@@ -41,6 +41,12 @@ type NotificationPreferences = {
   reminderDays: Array<number>
 }
 
+type AppLanguage = 'en' | 'ms'
+
+type UserSettings = NotificationPreferences & {
+  preferredLanguage: AppLanguage
+}
+
 const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   emailAgreementStatusUpdates: true,
   emailExpiryReminders: true,
@@ -89,6 +95,7 @@ function RouteComponent() {
     currentPassword: '',
     newPassword: '',
   })
+  const [pendingLanguage, setPendingLanguage] = useState<AppLanguage>(language)
   const [notificationPreferences, setNotificationPreferences] = useState<NotificationPreferences>(
     DEFAULT_NOTIFICATION_PREFERENCES
   )
@@ -122,7 +129,7 @@ function RouteComponent() {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to load notification preferences')
       }
-      return data.preferences as NotificationPreferences
+      return data.settings as UserSettings
     },
   })
 
@@ -132,6 +139,7 @@ function RouteComponent() {
       ...notificationPreferencesQuery.data,
       reminderDays: [...notificationPreferencesQuery.data.reminderDays].sort((a, b) => a - b),
     })
+    setPendingLanguage(notificationPreferencesQuery.data.preferredLanguage)
   }, [notificationPreferencesQuery.data])
 
   const saveNotificationPreferencesMutation = useMutation({
@@ -147,18 +155,47 @@ function RouteComponent() {
       if (!response.ok) {
         throw new Error(data.error || 'Failed to save notification preferences')
       }
-      return data.preferences as NotificationPreferences
+      return data.settings as UserSettings
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to save notification preferences')
     },
-    onSuccess: (preferences) => {
-      queryClient.setQueryData(['notification-preferences'], preferences)
+    onSuccess: (settings) => {
+      queryClient.setQueryData(['notification-preferences'], settings)
       setNotificationPreferences({
-        ...preferences,
-        reminderDays: [...preferences.reminderDays].sort((a, b) => a - b),
+        ...settings,
+        reminderDays: [...settings.reminderDays].sort((a, b) => a - b),
       })
+      setPendingLanguage(settings.preferredLanguage)
       toast.success('Notification preferences updated')
+    },
+  })
+
+  const saveLanguagePreferencesMutation = useMutation({
+    mutationFn: async (nextLanguage: AppLanguage) => {
+      const response = await fetch('/api/user/notification-preferences', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          preferredLanguage: nextLanguage,
+        }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save language preference')
+      }
+      return data.settings as UserSettings
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to save language preference')
+    },
+    onSuccess: (settings) => {
+      queryClient.setQueryData(['notification-preferences'], settings)
+      setPendingLanguage(settings.preferredLanguage)
+      setLanguage(settings.preferredLanguage)
+      toast.success('Language preference saved')
     },
   })
 
@@ -286,7 +323,14 @@ function RouteComponent() {
   const normalizedServerNotificationState = useMemo(() => {
     const source = notificationPreferencesQuery.data || DEFAULT_NOTIFICATION_PREFERENCES
     return {
-      ...source,
+      emailAgreementStatusUpdates: source.emailAgreementStatusUpdates,
+      emailExpiryReminders: source.emailExpiryReminders,
+      emailSignatureRequests: source.emailSignatureRequests,
+      emailWitnessConfirmation: source.emailWitnessConfirmation,
+      inAppAgreementStatusUpdates: source.inAppAgreementStatusUpdates,
+      inAppExpiryReminders: source.inAppExpiryReminders,
+      inAppSignatureRequests: source.inAppSignatureRequests,
+      inAppWitnessConfirmation: source.inAppWitnessConfirmation,
       reminderDays: [...source.reminderDays].sort((a, b) => a - b),
     }
   }, [notificationPreferencesQuery.data])
@@ -298,6 +342,8 @@ function RouteComponent() {
   const saveNotificationPreferences = () => {
     saveNotificationPreferencesMutation.mutate(normalizedNotificationState)
   }
+
+  const languageHasChanges = pendingLanguage !== language
 
   const leftNavItems = useMemo(
     () => [
@@ -350,26 +396,45 @@ function RouteComponent() {
   const renderPanelContent = () => {
     if (selectedPanel === 'language') {
       return (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Button
-            type="button"
-            variant={language === 'en' ? 'default' : 'outline'}
-            className="justify-between"
-            onClick={() => setLanguage('en')}
-          >
-            {t('settings.english')}
-            {language === 'en' ? <Check className="h-4 w-4" /> : null}
-          </Button>
+        <div className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Button
+              type="button"
+              variant={pendingLanguage === 'en' ? 'default' : 'outline'}
+              className="justify-between"
+              onClick={() => setPendingLanguage('en')}
+            >
+              {t('settings.english')}
+              {pendingLanguage === 'en' ? <Check className="h-4 w-4" /> : null}
+            </Button>
 
-          <Button
-            type="button"
-            variant={language === 'ms' ? 'default' : 'outline'}
-            className="justify-between"
-            onClick={() => setLanguage('ms')}
-          >
-            {t('settings.malay')}
-            {language === 'ms' ? <Check className="h-4 w-4" /> : null}
-          </Button>
+            <Button
+              type="button"
+              variant={pendingLanguage === 'ms' ? 'default' : 'outline'}
+              className="justify-between"
+              onClick={() => setPendingLanguage('ms')}
+            >
+              {t('settings.malay')}
+              {pendingLanguage === 'ms' ? <Check className="h-4 w-4" /> : null}
+            </Button>
+          </div>
+
+          <div className="flex justify-end">
+            <Button
+              type="button"
+              onClick={() => saveLanguagePreferencesMutation.mutate(pendingLanguage)}
+              disabled={!languageHasChanges || saveLanguagePreferencesMutation.isPending}
+            >
+              {saveLanguagePreferencesMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save settings'
+              )}
+            </Button>
+          </div>
         </div>
       )
     }

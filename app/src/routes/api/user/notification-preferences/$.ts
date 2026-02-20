@@ -4,6 +4,7 @@ import { prisma } from '@/db'
 import { auth } from '@/lib/auth'
 
 const VALID_REMINDER_DAYS = [1, 3, 7] as const
+const VALID_LANGUAGES = ['en', 'ms'] as const
 
 type NotificationPreferencePayload = {
   emailAgreementStatusUpdates: boolean
@@ -14,6 +15,7 @@ type NotificationPreferencePayload = {
   inAppExpiryReminders: boolean
   inAppSignatureRequests: boolean
   inAppWitnessConfirmation: boolean
+  preferredLanguage: (typeof VALID_LANGUAGES)[number]
   reminderDays: Array<number>
 }
 
@@ -23,6 +25,13 @@ function normalizeReminderDays(reminderDays: unknown): Array<number> {
     .map((value) => Number(value))
     .filter((value) => VALID_REMINDER_DAYS.includes(value as (typeof VALID_REMINDER_DAYS)[number]))
   return [...new Set(values)].sort((a, b) => a - b)
+}
+
+function normalizeLanguage(language: unknown): (typeof VALID_LANGUAGES)[number] | undefined {
+  if (typeof language !== 'string') return undefined
+  return VALID_LANGUAGES.includes(language as (typeof VALID_LANGUAGES)[number])
+    ? (language as (typeof VALID_LANGUAGES)[number])
+    : undefined
 }
 
 export const Route = createFileRoute('/api/user/notification-preferences/$')({
@@ -44,7 +53,8 @@ export const Route = createFileRoute('/api/user/notification-preferences/$')({
         })
 
         return Response.json({
-          preferences: {
+          settings: {
+            preferredLanguage: normalizeLanguage(preferences.preferredLanguage) || 'en',
             emailSignatureRequests: preferences.emailSignatureRequests,
             inAppSignatureRequests: preferences.inAppSignatureRequests,
             emailAgreementStatusUpdates: preferences.emailAgreementStatusUpdates,
@@ -69,36 +79,65 @@ export const Route = createFileRoute('/api/user/notification-preferences/$')({
 
         try {
           const body = (await request.json()) as Partial<NotificationPreferencePayload>
+          const existingSettings = await prisma.userSetting.findUnique({
+            where: { userId: session.user.id },
+          })
+
+          const nextSettings = {
+            preferredLanguage:
+              normalizeLanguage(body.preferredLanguage) ||
+              normalizeLanguage(existingSettings?.preferredLanguage) ||
+              'en',
+            emailSignatureRequests:
+              typeof body.emailSignatureRequests === 'boolean'
+                ? body.emailSignatureRequests
+                : (existingSettings?.emailSignatureRequests ?? true),
+            inAppSignatureRequests:
+              typeof body.inAppSignatureRequests === 'boolean'
+                ? body.inAppSignatureRequests
+                : (existingSettings?.inAppSignatureRequests ?? true),
+            emailAgreementStatusUpdates:
+              typeof body.emailAgreementStatusUpdates === 'boolean'
+                ? body.emailAgreementStatusUpdates
+                : (existingSettings?.emailAgreementStatusUpdates ?? true),
+            inAppAgreementStatusUpdates:
+              typeof body.inAppAgreementStatusUpdates === 'boolean'
+                ? body.inAppAgreementStatusUpdates
+                : (existingSettings?.inAppAgreementStatusUpdates ?? true),
+            emailWitnessConfirmation:
+              typeof body.emailWitnessConfirmation === 'boolean'
+                ? body.emailWitnessConfirmation
+                : (existingSettings?.emailWitnessConfirmation ?? true),
+            inAppWitnessConfirmation:
+              typeof body.inAppWitnessConfirmation === 'boolean'
+                ? body.inAppWitnessConfirmation
+                : (existingSettings?.inAppWitnessConfirmation ?? true),
+            emailExpiryReminders:
+              typeof body.emailExpiryReminders === 'boolean'
+                ? body.emailExpiryReminders
+                : (existingSettings?.emailExpiryReminders ?? true),
+            inAppExpiryReminders:
+              typeof body.inAppExpiryReminders === 'boolean'
+                ? body.inAppExpiryReminders
+                : (existingSettings?.inAppExpiryReminders ?? true),
+            reminderDays:
+              body.reminderDays !== undefined
+                ? normalizeReminderDays(body.reminderDays)
+                : (existingSettings?.reminderDays ?? [1, 3, 7]),
+          }
 
           const preferences = await prisma.userSetting.upsert({
             where: { userId: session.user.id },
             create: {
               userId: session.user.id,
-              emailSignatureRequests: Boolean(body.emailSignatureRequests),
-              inAppSignatureRequests: Boolean(body.inAppSignatureRequests),
-              emailAgreementStatusUpdates: Boolean(body.emailAgreementStatusUpdates),
-              inAppAgreementStatusUpdates: Boolean(body.inAppAgreementStatusUpdates),
-              emailWitnessConfirmation: Boolean(body.emailWitnessConfirmation),
-              inAppWitnessConfirmation: Boolean(body.inAppWitnessConfirmation),
-              emailExpiryReminders: Boolean(body.emailExpiryReminders),
-              inAppExpiryReminders: Boolean(body.inAppExpiryReminders),
-              reminderDays: normalizeReminderDays(body.reminderDays),
+              ...nextSettings,
             },
-            update: {
-              emailSignatureRequests: Boolean(body.emailSignatureRequests),
-              inAppSignatureRequests: Boolean(body.inAppSignatureRequests),
-              emailAgreementStatusUpdates: Boolean(body.emailAgreementStatusUpdates),
-              inAppAgreementStatusUpdates: Boolean(body.inAppAgreementStatusUpdates),
-              emailWitnessConfirmation: Boolean(body.emailWitnessConfirmation),
-              inAppWitnessConfirmation: Boolean(body.inAppWitnessConfirmation),
-              emailExpiryReminders: Boolean(body.emailExpiryReminders),
-              inAppExpiryReminders: Boolean(body.inAppExpiryReminders),
-              reminderDays: normalizeReminderDays(body.reminderDays),
-            },
+            update: nextSettings,
           })
 
           return Response.json({
-            preferences: {
+            settings: {
+              preferredLanguage: normalizeLanguage(preferences.preferredLanguage) || 'en',
               emailSignatureRequests: preferences.emailSignatureRequests,
               inAppSignatureRequests: preferences.inAppSignatureRequests,
               emailAgreementStatusUpdates: preferences.emailAgreementStatusUpdates,
