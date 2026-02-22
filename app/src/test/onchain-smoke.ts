@@ -1,15 +1,17 @@
-import {
-  ensureAgreementMinted,
-  getAgreementData,
-  getTokenIdByAgreementId,
-  isAgreementFullySigned,
-  recordBeneficiarySignature,
-  recordOwnerSignature,
-  recordWitnessSignature,
-  finalizeAgreement,
-} from '@/lib/contract'
+import dotenv from 'dotenv'
+dotenv.config({ path: '.env.local' })
 
 async function main() {
+  const {
+    ensureAgreementMinted,
+    getAgreementData,
+    getTokenIdByAgreementId,
+    isAgreementFullySigned,
+    recordBeneficiarySignature,
+    recordOwnerSignature,
+    recordWitnessSignature,
+    finalizeAgreement,
+  } = await import('@/lib/contract')
   const agreementId = `smoke-${Date.now()}`
   const beneficiaries = ['101', '102']
 
