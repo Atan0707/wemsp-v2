@@ -154,7 +154,7 @@ jobs:
       - name: Run database migrations
         run: |
           echo "Running Prisma migrations..."
-          docker exec wemsp-app pnpm prisma migrate deploy
+          docker exec -e DATABASE_URL=${{ secrets.DATABASE_URL }} wemsp-app pnpm prisma migrate deploy
         continue-on-error: false
 
       - name: Verify deployment
