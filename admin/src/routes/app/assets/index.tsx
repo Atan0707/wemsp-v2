@@ -23,11 +23,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Search, Plus, Pencil, Trash2, Loader2, FileText } from 'lucide-react'
 import { AdminBreadcrumb } from '@/components/admin-breadcrumb'
 import { toast } from 'sonner'
 import { endpoint } from '@/lib/config'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface User {
   id: string
@@ -61,6 +63,9 @@ interface AssetsResponse {
 }
 
 const ASSET_TYPES = ['PROPERTY', 'VEHICLE', 'INVESTMENT', 'OTHER'] as const
+
+const formatLabel = (value: string) =>
+  value.charAt(0) + value.slice(1).toLowerCase()
 
 export const Route = createFileRoute('/app/assets/')({
   component: RouteComponent,
@@ -312,9 +317,14 @@ function RouteComponent() {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <AdminBreadcrumb />
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          {/* Search and Create */}
-          <div className="flex items-center gap-4">
+        <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle>Assets</CardTitle>
+              <CardDescription>Track property, vehicles, investments, and supporting documents.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -334,9 +344,9 @@ function RouteComponent() {
           </div>
 
           {/* Assets Table */}
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 z-10 bg-muted/50 backdrop-blur supports-[backdrop-filter]:bg-muted/40">
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
@@ -365,7 +375,7 @@ function RouteComponent() {
                     <TableRow key={asset.id}>
                       <TableCell className="font-medium">{asset.name}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">{asset.type}</Badge>
+                        <Badge variant="outline">{formatLabel(asset.type)}</Badge>
                       </TableCell>
                       <TableCell>RM {asset.value.toLocaleString()}</TableCell>
                       <TableCell>{asset.user.name}</TableCell>
@@ -386,21 +396,40 @@ function RouteComponent() {
                       </TableCell>
                       <TableCell>{asset._count.agreementAssets}</TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditDialog(asset)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openDeleteDialog(asset)}
-                          disabled={asset._count.agreementAssets > 0}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={`Edit ${asset.name}`}
+                                onClick={() => openEditDialog(asset)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit asset</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive hover:text-destructive"
+                                aria-label={`Delete ${asset.name}`}
+                                onClick={() => openDeleteDialog(asset)}
+                                disabled={asset._count.agreementAssets > 0}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {asset._count.agreementAssets > 0
+                                ? 'Cannot delete: linked to agreements'
+                                : 'Delete asset'}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -410,31 +439,33 @@ function RouteComponent() {
           </div>
 
           {/* Pagination */}
-          {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                Showing {((page - 1) * pagination.limit) + 1} to {Math.min(page * pagination.limit, pagination.total)} of {pagination.total} assets
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
-                  disabled={page === pagination.totalPages}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          )}
+              {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {((page - 1) * pagination.limit) + 1} to {Math.min(page * pagination.limit, pagination.total)} of {pagination.total} assets
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                      disabled={page === pagination.totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </SidebarInset>
 

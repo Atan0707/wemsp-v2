@@ -16,6 +16,10 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY app/ ./
 
+# Build-time public env vars (inlined by Vite at build time)
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 # Build app
 RUN pnpm build
 

@@ -23,11 +23,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Search, Plus, Pencil, Trash2, Loader2, Eye } from 'lucide-react'
 import { AdminBreadcrumb } from '@/components/admin-breadcrumb'
 import { toast } from 'sonner'
 import { endpoint } from '@/lib/config'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface User {
   id: string
@@ -106,6 +108,13 @@ interface AgreementsResponse {
 
 const AGREEMENT_STATUSES = ['DRAFT', 'PENDING_SIGNATURES', 'PENDING_WITNESS', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'EXPIRED'] as const
 const DISTRIBUTION_TYPES = ['FARAID', 'HIBAH', 'WASIYYAH', 'WAKAF'] as const
+
+const formatLabel = (value: string) =>
+  value
+    .toLowerCase()
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 
 export const Route = createFileRoute('/app/agreements/')({
   component: RouteComponent,
@@ -277,9 +286,14 @@ function RouteComponent() {
           <Separator orientation="vertical" className="mr-2 h-4" />
           <AdminBreadcrumb />
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          {/* Search */}
-          <div className="flex items-center gap-4">
+        <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle>Agreements</CardTitle>
+              <CardDescription>Monitor status, signatures, and completion progress.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -295,9 +309,9 @@ function RouteComponent() {
           </div>
 
           {/* Agreements Table */}
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 z-10 bg-muted/50 backdrop-blur supports-[backdrop-filter]:bg-muted/40">
                 <TableRow>
                   <TableHead>Title</TableHead>
                   <TableHead>Owner</TableHead>
@@ -328,11 +342,11 @@ function RouteComponent() {
                       <TableCell className="font-medium">{agreement.title}</TableCell>
                       <TableCell>{agreement.owner.name}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">{agreement.distributionType}</Badge>
+                        <Badge variant="outline">{formatLabel(agreement.distributionType)}</Badge>
                       </TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(agreement.status)}>
-                          {agreement.status.replace(/_/g, ' ')}
+                          {formatLabel(agreement.status)}
                         </Badge>
                       </TableCell>
                       <TableCell>{agreement._count.assets}</TableCell>
@@ -344,24 +358,37 @@ function RouteComponent() {
                         }
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => navigate({ to: '/app/agreements/$id', params: { id: agreement.id } })}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {canEditOrDelete(agreement.status) && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => openDeleteDialog(agreement)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
+                        <div className="flex items-center justify-end gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={`View ${agreement.title}`}
+                                onClick={() => navigate({ to: '/app/agreements/$id', params: { id: agreement.id } })}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>View agreement</TooltipContent>
+                          </Tooltip>
+                          {canEditOrDelete(agreement.status) && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-destructive hover:text-destructive"
+                                  aria-label={`Delete ${agreement.title}`}
+                                  onClick={() => openDeleteDialog(agreement)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Delete draft agreement</TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -371,31 +398,33 @@ function RouteComponent() {
           </div>
 
           {/* Pagination */}
-          {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                Showing {((page - 1) * pagination.limit) + 1} to {Math.min(page * pagination.limit, pagination.total)} of {pagination.total} agreements
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
-                  disabled={page === pagination.totalPages}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          )}
+              {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {((page - 1) * pagination.limit) + 1} to {Math.min(page * pagination.limit, pagination.total)} of {pagination.total} agreements
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                      disabled={page === pagination.totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </SidebarInset>
 

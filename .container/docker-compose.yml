@@ -1,13 +1,40 @@
 services:
 
+  db:
+    image: postgres:17-alpine
+    container_name: wemsp-db
+    restart: unless-stopped
+    ports:
+    - "5053:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+    - wemsp_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+    - wemsp-network
+
   app:
     build:
       context: ..
       dockerfile: .container/Dockerfile.app
+      args:
+        VITE_API_BASE_URL: ${VITE_APP_BASE_URL:-http://localhost:3000}
     container_name: wemsp-app
     restart: unless-stopped
+    env_file:
+    - ../app/.env.local
     ports:
     - "5050:3000"
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
     - wemsp-network
 
@@ -15,14 +42,21 @@ services:
     build:
       context: ..
       dockerfile: .container/Dockerfile.admin
+      args:
+        VITE_API_BASE_URL: ${VITE_ADMIN_BASE_URL:-http://localhost:5050}
     container_name: wemsp-admin
     restart: unless-stopped
+    env_file:
+    - ../admin/.env
     ports:
     - "5051:3000"
     networks:
     - wemsp-network
     depends_on:
     - app
+
+volumes:
+  wemsp_db_data:
 
 networks:
   wemsp-network:
