@@ -3,13 +3,11 @@ import { prisma } from '@/db'
 import { verifyPassword, createAdminSessionToken } from '@/lib/admin-auth'
 import { corsHeaders } from '@/lib/cors'
 
-export const Route = createFileRoute('/api/admin/login/$')({
-  server: {
-    handlers: {
-      OPTIONS: async () => {
-        return new Response(null, { headers: corsHeaders })
-      },
-      POST: async ({ request }: { request: Request }) => {
+export const adminLoginHandlers = {
+  OPTIONS: async () => {
+    return new Response(null, { headers: corsHeaders })
+  },
+  POST: async ({ request }: { request: Request }) => {
         try {
           const body = await request.json()
           const { email, password } = body
@@ -81,7 +79,11 @@ export const Route = createFileRoute('/api/admin/login/$')({
             { status: 500, headers: corsHeaders }
           )
         }
-      },
-    },
+  },
+}
+
+export const Route = createFileRoute('/api/admin/login/$')({
+  server: {
+    handlers: adminLoginHandlers,
   },
 })
