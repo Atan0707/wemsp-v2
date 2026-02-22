@@ -2,6 +2,7 @@ import { AIMessage, HumanMessage, SystemMessage, ToolMessage } from '@langchain/
 import { ChatOpenAI } from '@langchain/openai'
 import { buildAgentSystemPrompt } from './system-prompt'
 import { buildAgentTools } from './tools'
+import type { AgentPendingActionSummary } from './pending-actions'
 import type { AgentResponseLanguage } from './system-prompt'
 
 type HistoryMessage = {
@@ -10,6 +11,7 @@ type HistoryMessage = {
 }
 
 type RunAgentTurnInput = {
+  conversationId: string
   userId: string
   message: string
   history?: Array<HistoryMessage>
@@ -20,6 +22,19 @@ function contentToText(content: unknown): string {
   if (typeof content === 'string') return content
   if (Array.isArray(content)) return content.map((c) => JSON.stringify(c)).join('\n')
   return JSON.stringify(content)
+}
+
+function extractPendingActionSummary(value: unknown): AgentPendingActionSummary | null {
+  if (!value || typeof value !== 'object' || !('pendingAction' in value)) return null
+
+  const pendingAction = (value as { pendingAction?: unknown }).pendingAction
+  if (!pendingAction || typeof pendingAction !== 'object') return null
+
+  const typedPending = pendingAction as Partial<AgentPendingActionSummary>
+  if (typedPending.kind !== 'ASSET_CREATE' || typedPending.status !== 'PENDING') return null
+  if (!typedPending.pendingId || !typedPending.createdAt || !typedPending.asset) return null
+
+  return typedPending as AgentPendingActionSummary
 }
 
 function getOpenRouterConfig() {
@@ -56,7 +71,7 @@ export async function runAgentTurn(input: RunAgentTurnInput) {
     },
   })
 
-  const tools = buildAgentTools({ userId: input.userId })
+  const tools = buildAgentTools({ userId: input.userId, conversationId: input.conversationId })
   const toolMap = new Map(tools.map((t) => [t.name, t]))
 
   const historyMessages = (input.history || []).slice(-10).map((m) => {
@@ -73,6 +88,7 @@ export async function runAgentTurn(input: RunAgentTurnInput) {
   const first = await model.bindTools(tools).invoke(baseMessages)
 
   const toolMessages: Array<ToolMessage> = []
+  const pendingActions: Array<AgentPendingActionSummary> = []
 
   for (const call of first.tool_calls ?? []) {
     const matchedTool = toolMap.get(call.name)
@@ -89,6 +105,9 @@ export async function runAgentTurn(input: RunAgentTurnInput) {
 
     try {
       const result = await matchedTool.invoke(call.args)
+      const pendingAction = extractPendingActionSummary(result)
+      if (pendingAction) pendingActions.push(pendingAction)
+
       toolMessages.push(
         new ToolMessage({
           content: contentToText(result),
@@ -113,5 +132,6 @@ export async function runAgentTurn(input: RunAgentTurnInput) {
   return {
     text: contentToText(finalResponse.content),
     toolCalls: (first.tool_calls ?? []).map((c) => ({ name: c.name })),
+    pendingActions,
   }
 }

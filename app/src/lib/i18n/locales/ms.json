@@ -401,13 +401,30 @@
       "thinking": "Sedang berfikir...",
       "inputPlaceholder": "Tanya soalan...",
       "enterHint": "Tekan Enter untuk hantar",
+      "uploadHint": "Lampirkan dokumen PDF",
+      "documentAttachedPrefix": "Saya telah memuat naik dokumen sokongan:",
+      "documentUrlLabel": "URL Dokumen",
+      "confirmAssetTitle": "Draf aset sedia untuk pengesahan",
+      "confirmAssetDescription": "Semak butiran aset di bawah, kemudian sahkan untuk cipta aset.",
+      "confirmButton": "Sahkan & cipta aset",
+      "confirming": "Sedang mencipta aset...",
+      "assetCreatedSuccess": "Aset berjaya dicipta.",
+      "viewDocument": "Lihat dokumen",
+      "assetFields": {
+        "name": "Nama",
+        "type": "Jenis",
+        "value": "Nilai",
+        "document": "Dokumen"
+      },
       "quickPrompts": {
         "agreementStatus": "Tunjukkan status perjanjian terkini saya",
         "familySummary": "Ringkaskan ahli keluarga saya",
         "assetsReview": "Bantu saya semak aset saya"
       },
       "errors": {
-        "createConversation": "Tidak dapat memulakan sembang baharu sekarang. Sila cuba lagi."
+        "createConversation": "Tidak dapat memulakan sembang baharu sekarang. Sila cuba lagi.",
+        "confirmAsset": "Tidak dapat mengesahkan draf aset sekarang. Sila cuba lagi.",
+        "uploadDocument": "Tidak dapat memuat naik dokumen sekarang. Sila cuba lagi."
       }
     }
   }

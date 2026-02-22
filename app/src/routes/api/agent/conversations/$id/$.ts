@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/db'
+import { getPendingActionSummaries } from '@/lib/agent/pending-actions'
 
 export const Route = createFileRoute('/api/agent/conversations/$id/$')({
   server: {
@@ -23,6 +24,15 @@ export const Route = createFileRoute('/api/agent/conversations/$id/$')({
           return Response.json({ error: 'Conversation not found' }, { status: 404 })
         }
 
+        const pendingActions = getPendingActionSummaries(
+          conversation.messages.map((message) => ({
+            id: message.id,
+            role: message.role,
+            content: message.content,
+            createdAt: message.createdAt,
+          }))
+        )
+
         return Response.json({
           conversation: {
             id: conversation.id,
@@ -34,6 +44,7 @@ export const Route = createFileRoute('/api/agent/conversations/$id/$')({
             ...m,
             createdAt: m.createdAt.toISOString(),
           })),
+          pendingActions,
         })
       },
     },
