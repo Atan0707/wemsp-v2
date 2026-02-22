@@ -1,0 +1,226 @@
+name: Deploy to homelab server
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  setup:
+    name: Setup Environment
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Write .container/.env
+        run: |
+          cd .container
+          cp .env.example .env
+          cat >> .env << EOF
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          VITE_APP_BASE_URL=${{ secrets.VITE_APP_BASE_URL }}
+          VITE_ADMIN_BASE_URL=${{ secrets.VITE_ADMIN_BASE_URL }}
+          EOF
+
+      - name: Write app/.env.local
+        run: |
+          cat > app/.env.local << EOF
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }}
+          VITE_API_BASE_URL=${{ secrets.VITE_APP_BASE_URL }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_APP_PASSWORD=${{ secrets.GOOGLE_APP_PASSWORD }}
+          EMAIL_ADMIN=${{ secrets.EMAIL_ADMIN }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
+          PRIVATE_KEY=${{ secrets.CONTRACT_PRIVATE_KEY }}
+          RPC_URL=${{ secrets.RPC_URL }}
+          CONTRACT_ADDRESS=${{ secrets.CONTRACT_ADDRESS }}
+          OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL=${{ secrets.OPENROUTER_MODEL }}
+          OPENROUTER_BASE_URL=${{ secrets.OPENROUTER_BASE_URL }}
+          OPENROUTER_SITE_URL=${{ secrets.OPENROUTER_SITE_URL }}
+          OPENROUTER_APP_NAME=${{ secrets.OPENROUTER_APP_NAME }}
+          EOF
+
+      - name: Write admin/.env
+        run: |
+          cat > admin/.env << EOF
+          VITE_API_BASE_URL=${{ secrets.VITE_ADMIN_BASE_URL }}
+          PROD_ENDPOINT=${{ secrets.PROD_ENDPOINT }}
+          EOF
+
+  docker-build:
+    name: Build Docker Images
+    runs-on: self-hosted
+    needs: setup
+
+    steps:
+      - name: Stop existing containers
+        run: |
+          cd .container
+          docker compose down || true
+        continue-on-error: true
+
+      - name: Clean up unused Docker resources
+        run: |
+          docker system prune -f --volumes || true
+        continue-on-error: true
+
+      - name: Build Docker images
+        run: |
+          cd .container
+          docker compose build --no-cache
+
+  docker-start:
+    name: Start Services
+    runs-on: self-hosted
+    needs: docker-build
+
+    steps:
+      - name: Start services
+        run: |
+          cd .container
+          docker compose up -d
+
+      - name: Wait for services to start
+        run: |
+          echo "Waiting for containers to start..."
+          sleep 5
+
+      - name: Check container status
+        run: |
+          echo "Container status:"
+          docker compose -f .container/docker-compose.yml ps
+          echo ""
+          echo "Running containers:"
+          docker ps
+
+  health-checks:
+    name: Health Checks
+    runs-on: self-hosted
+    needs: docker-start
+
+    steps:
+      - name: Wait for database to be healthy
+        run: |
+          echo "Waiting for database to be ready..."
+          timeout 60 bash -c 'until docker exec wemsp-db pg_isready -U ${{ secrets.POSTGRES_USER }}; do sleep 2; done'
+
+      - name: Check database logs
+        run: |
+          echo "=== Database container logs ==="
+          docker logs wemsp-db --tail=50 2>&1 || true
+
+      - name: Wait for app to be healthy
+        run: |
+          echo "Waiting for app to be ready..."
+          for i in {1..40}; do
+            if curl -sf http://localhost:5050 > /dev/null 2>&1; then
+              echo "App is ready!"
+              exit 0
+            fi
+            echo "Attempt $i: App not ready yet, checking logs..."
+            docker logs wemsp-app --tail=5 2>&1 || true
+            sleep 5
+          done
+          echo "App failed to become healthy"
+          docker logs wemsp-app --tail=100 2>&1 || true
+          exit 1
+
+      - name: Wait for admin to be healthy
+        run: |
+          echo "Waiting for admin to be ready..."
+          timeout 60 bash -c 'until curl -sf http://localhost:5051 > /dev/null 2>&1; do echo "Retrying..."; sleep 3; done'
+
+  verify:
+    name: Verify Deployment
+    runs-on: self-hosted
+    needs: health-checks
+
+    steps:
+      - name: Run database migrations
+        run: |
+          echo "Running Prisma migrations..."
+          docker exec wemsp-app pnpm prisma migrate deploy
+        continue-on-error: false
+
+      - name: Verify deployment
+        run: |
+          echo "==================================="
+          echo "Deployment Verification"
+          echo "==================================="
+          echo "Checking service status..."
+          docker compose -f .container/docker-compose.yml ps
+
+          echo ""
+          echo "App health check:"
+          curl -f http://localhost:5050 || exit 1
+
+          echo ""
+          echo "Admin health check:"
+          curl -f http://localhost:5051 || exit 1
+
+          echo ""
+          echo "==================================="
+          echo "Deployment successful!"
+          echo "==================================="
+          echo "Services are running at:"
+          echo "  - App:      http://localhost:5050"
+          echo "  - Admin:    http://localhost:5051"
+          echo "  - Database: localhost:5053"
+
+  on-failure:
+    name: Cleanup on Failure
+    runs-on: self-hosted
+    if: failure()
+    needs: [setup, docker-build, docker-start, health-checks, verify]
+
+    steps:
+      - name: Show logs on failure
+        run: |
+          echo "==================================="
+          echo "Deployment Failed - Container Logs"
+          echo "==================================="
+          echo ""
+          echo "Container Status:"
+          docker ps -a
+          echo ""
+          echo "==================================="
+          echo "Database Logs:"
+          echo "==================================="
+          docker logs wemsp-db --tail=100 || true
+          echo ""
+          echo "==================================="
+          echo "App Logs:"
+          echo "==================================="
+          docker logs wemsp-app --tail=100 || true
+          echo ""
+          echo "==================================="
+          echo "Admin Logs:"
+          echo "==================================="
+          docker logs wemsp-admin --tail=100 || true
+          echo ""
+          echo "==================================="
+          echo "Network Info:"
+          echo "==================================="
+          docker network ls
+          docker network inspect .container_wemsp-network || true
+
+      - name: Cleanup on failure
+        run: |
+          cd .container
+          docker compose down
+        continue-on-error: true
