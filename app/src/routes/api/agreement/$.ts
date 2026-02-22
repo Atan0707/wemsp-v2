@@ -10,9 +10,7 @@ import {
   validateBeneficiaries,
 } from '@/lib/agreement-validation'
 
-export const Route = createFileRoute('/api/agreement/$')({
-  server: {
-    handlers: {
+export const agreementHandlers = {
       // GET /api/agreement - List agreements or get single agreement by ID
       GET: async ({ request }: { request: Request }) => {
         const session = await auth.api.getSession({
@@ -615,6 +613,10 @@ export const Route = createFileRoute('/api/agreement/$')({
           )
         }
       },
-    },
+}
+
+export const Route = createFileRoute('/api/agreement/$')({
+  server: {
+    handlers: agreementHandlers,
   },
 })
