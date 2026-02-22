@@ -81,6 +81,7 @@ export const Route = createFileRoute('/api/agent/chat')({
             }))
 
           const result = await runAgentTurn({
+            conversationId: conversation.id,
             userId: session.user.id,
             message: userMessage,
             history,
@@ -106,6 +107,7 @@ export const Route = createFileRoute('/api/agent/chat')({
           return Response.json({
             reply: result.text,
             toolCalls: result.toolCalls,
+            pendingActions: result.pendingActions,
           })
         } catch (error) {
           console.error('Agent chat error:', error)

@@ -1,13 +1,15 @@
 import { tool } from '@langchain/core/tools'
 import { z } from 'zod'
+import { serializePendingAction } from './pending-actions'
 import { prisma } from '@/db'
 
 type AgentRuntime = {
+  conversationId: string
   userId: string
 }
 
 const explainFeature = tool(
-  async ({ topic }) => {
+  ({ topic }) => {
     const normalized = topic.toLowerCase()
 
     if (normalized.includes('agreement')) {
@@ -151,5 +153,59 @@ export function buildAgentTools(runtime: AgentRuntime) {
     }
   )
 
-  return [explainFeature, listAgreements, listFamilyMembers, listAssets]
+  const stageAssetCreation = tool(
+    async ({ description, documentUrl, name, type, value }) => {
+      const pendingId = crypto.randomUUID()
+      const createdAt = new Date().toISOString()
+
+      const pendingAction = {
+        createdAt,
+        kind: 'ASSET_CREATE' as const,
+        pendingId,
+        status: 'PENDING' as const,
+        asset: {
+          description: description?.trim() || null,
+          documentUrl: documentUrl?.trim() || null,
+          name: name.trim(),
+          type,
+          value,
+        },
+      }
+
+      await prisma.agentMessage.create({
+        data: {
+          conversationId: runtime.conversationId,
+          role: 'SYSTEM',
+          content: serializePendingAction(pendingAction),
+        },
+      })
+
+      return {
+        pendingAction: {
+          createdAt: pendingAction.createdAt,
+          kind: pendingAction.kind,
+          pendingId: pendingAction.pendingId,
+          status: pendingAction.status,
+          asset: pendingAction.asset,
+        },
+        message: 'Asset draft is ready. Ask user to press confirm.',
+      }
+    },
+    {
+      name: 'stage_asset_creation',
+      description:
+        'Stage a new asset creation request after required fields are collected and confirmed by the user. This does not create the asset yet.',
+      schema: z.object({
+        name: z.string().min(1).describe('Asset name'),
+        type: z
+          .enum(['PROPERTY', 'VEHICLE', 'INVESTMENT', 'OTHER'])
+          .describe('Asset type based on schema enum'),
+        value: z.number().positive().describe('Asset value as positive number'),
+        description: z.string().optional().describe('Optional asset description'),
+        documentUrl: z.string().url().optional().describe('Optional uploaded document URL'),
+      }),
+    }
+  )
+
+  return [explainFeature, listAgreements, listFamilyMembers, listAssets, stageAssetCreation]
 }
