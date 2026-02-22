@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { prisma } from '@/db'
 import { getAdminFromSession } from '@/lib/admin-auth'
 import { corsHeaders } from '@/lib/cors'
-import { AgreementStatus } from '@/generated/prisma/enums'
+import { AgreementStatus, DistributionType } from '@/generated/prisma/enums'
 
 export const Route = createFileRoute('/api/admin/agreements/$')({
   server: {
@@ -102,6 +102,77 @@ export const Route = createFileRoute('/api/admin/agreements/$')({
           }, { headers: corsHeaders })
         } catch (error) {
           console.error('Error fetching agreements:', error)
+          return Response.json(
+            { error: 'Internal server error' },
+            { status: 500, headers: corsHeaders },
+          )
+        }
+      },
+
+      POST: async ({ request }: { request: Request }) => {
+        try {
+          const admin = await getAdminFromSession(request.headers)
+          if (!admin) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders })
+          }
+
+          const body = await request.json()
+          const { title, description, distributionType, effectiveDate, expiryDate, ownerId } = body
+
+          if (!title || !distributionType || !ownerId) {
+            return Response.json(
+              { error: 'Title, distribution type, and owner are required' },
+              { status: 400, headers: corsHeaders },
+            )
+          }
+
+          if (!Object.values(DistributionType).includes(distributionType as DistributionType)) {
+            return Response.json(
+              { error: 'Invalid distribution type' },
+              { status: 400, headers: corsHeaders },
+            )
+          }
+
+          const owner = await prisma.user.findUnique({ where: { id: ownerId } })
+          if (!owner) {
+            return Response.json({ error: 'Owner not found' }, { status: 404, headers: corsHeaders })
+          }
+
+          const agreement = await prisma.agreement.create({
+            data: {
+              title,
+              description: description || null,
+              distributionType: distributionType as DistributionType,
+              ownerId,
+              effectiveDate: effectiveDate ? new Date(effectiveDate) : null,
+              expiryDate: expiryDate ? new Date(expiryDate) : null,
+            },
+            include: {
+              owner: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+              witness: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              _count: {
+                select: {
+                  assets: true,
+                  beneficiaries: true,
+                },
+              },
+            },
+          })
+
+          return Response.json({ success: true, agreement }, { status: 201, headers: corsHeaders })
+        } catch (error) {
+          console.error('Error creating agreement:', error)
           return Response.json(
             { error: 'Internal server error' },
             { status: 500, headers: corsHeaders },

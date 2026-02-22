@@ -70,6 +70,13 @@ export const Route = createFileRoute('/app/agreements/$id')({
   component: RouteComponent,
 })
 
+const formatLabel = (value: string) =>
+  value
+    .toLowerCase()
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+
 function RouteComponent() {
   const { id } = Route.useParams()
   const navigate = useNavigate()
@@ -166,7 +173,7 @@ function RouteComponent() {
                   </p>
                 </div>
                 <Badge variant={getStatusBadgeVariant(agreement.status)} className="text-sm">
-                  {agreement.status.replace(/_/g, ' ')}
+                  {formatLabel(agreement.status)}
                 </Badge>
               </div>
 
@@ -182,7 +189,7 @@ function RouteComponent() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="rounded-md border p-4">
                   <p className="text-sm text-muted-foreground">Distribution Type</p>
-                  <p className="font-semibold">{agreement.distributionType}</p>
+                  <p className="font-semibold">{formatLabel(agreement.distributionType)}</p>
                 </div>
                 <div className="rounded-md border p-4">
                   <p className="text-sm text-muted-foreground">Owner</p>

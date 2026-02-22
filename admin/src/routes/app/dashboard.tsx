@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
-import { getAdminToken, verifyAdminSession } from '@/lib/admin-auth'
+import { getAdminToken, getAuthHeaders, verifyAdminSession } from '@/lib/admin-auth'
 import { AdminSidebar } from '@/components/admin-sidebar'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Bell, FileText, Package, Users } from 'lucide-react'
+import { endpoint } from '@/lib/config'
 
 export const Route = createFileRoute('/app/dashboard')({
   component: RouteComponent,
@@ -17,6 +18,7 @@ function RouteComponent() {
   const navigate = useNavigate()
   const [isChecking, setIsChecking] = useState(true)
   const [admin, setAdmin] = useState<{ name: string } | null>(null)
+  const [counts, setCounts] = useState({ users: 0, assets: 0, pendingAgreements: 0 })
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -33,7 +35,32 @@ function RouteComponent() {
       }
 
       setAdmin({ name: adminData.name })
-      setIsChecking(false)
+
+      try {
+        const [usersRes, assetsRes, pendingRes] = await Promise.all([
+          fetch(`${endpoint}/api/admin/users?page=1&limit=1`, { headers: getAuthHeaders() }),
+          fetch(`${endpoint}/api/admin/assets?page=1&limit=1`, { headers: getAuthHeaders() }),
+          fetch(`${endpoint}/api/admin/agreements?page=1&limit=1&status=PENDING_SIGNATURES`, { headers: getAuthHeaders() }),
+        ])
+
+        if (usersRes.ok && assetsRes.ok && pendingRes.ok) {
+          const [usersData, assetsData, pendingData] = await Promise.all([
+            usersRes.json(),
+            assetsRes.json(),
+            pendingRes.json(),
+          ])
+
+          setCounts({
+            users: usersData?.pagination?.total ?? 0,
+            assets: assetsData?.pagination?.total ?? 0,
+            pendingAgreements: pendingData?.pagination?.total ?? 0,
+          })
+        }
+      } catch {
+        // Keep dashboard usable even if stats endpoint fails
+      } finally {
+        setIsChecking(false)
+      }
     }
 
     checkAuth()
@@ -43,24 +70,24 @@ function RouteComponent() {
     () => [
       {
         title: 'Total users',
-        value: '0',
+        value: counts.users.toLocaleString(),
         helper: 'Registered accounts',
         icon: Users,
       },
       {
         title: 'Total assets',
-        value: '0',
+        value: counts.assets.toLocaleString(),
         helper: 'Tracked by owners',
         icon: Package,
       },
       {
         title: 'Pending agreements',
-        value: '0',
+        value: counts.pendingAgreements.toLocaleString(),
         helper: 'Need attention',
         icon: FileText,
       },
     ],
-    []
+    [counts]
   )
 
   if (isChecking) {

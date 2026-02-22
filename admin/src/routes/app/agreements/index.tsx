@@ -25,7 +25,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Search, Plus, Pencil, Trash2, Loader2, Eye } from 'lucide-react'
+import { Search, Plus, Trash2, Loader2, Eye } from 'lucide-react'
 import { AdminBreadcrumb } from '@/components/admin-breadcrumb'
 import { toast } from 'sonner'
 import { endpoint } from '@/lib/config'
@@ -225,6 +225,49 @@ function RouteComponent() {
     }
   }, [page, search])
 
+  const handleCreateAgreement = async () => {
+    setIsSubmitting(true)
+    try {
+      const response = await fetch(`${endpoint}/api/admin/agreements`, {
+        method: 'POST',
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description || undefined,
+          distributionType: formData.distributionType,
+          effectiveDate: formData.effectiveDate || undefined,
+          expiryDate: formData.expiryDate || undefined,
+          ownerId: formData.ownerId,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to create agreement')
+      }
+
+      toast.success('Agreement created successfully')
+      setIsCreateDialogOpen(false)
+      setFormData({
+        title: '',
+        description: '',
+        distributionType: 'FARAID',
+        effectiveDate: '',
+        expiryDate: '',
+        ownerId: '',
+      })
+      setPage(1)
+      fetchAgreements()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to create agreement')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const handleDeleteAgreement = async () => {
     if (!selectedAgreement) return
 
@@ -306,6 +349,10 @@ function RouteComponent() {
                 className="pl-10"
               />
             </div>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Agreement
+            </Button>
           </div>
 
           {/* Agreements Table */}
@@ -427,6 +474,92 @@ function RouteComponent() {
           </Card>
         </div>
       </SidebarInset>
+
+      {/* Create Agreement Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="sm:max-w-[560px]">
+          <DialogHeader>
+            <DialogTitle>Create Agreement</DialogTitle>
+            <DialogDescription>Create a draft agreement and assign the owner.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="create-title">Title *</FieldLabel>
+                <Input
+                  id="create-title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="create-description">Description</FieldLabel>
+                <Input
+                  id="create-description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="create-owner">Owner *</FieldLabel>
+                <select
+                  id="create-owner"
+                  value={formData.ownerId}
+                  onChange={(e) => setFormData({ ...formData, ownerId: e.target.value })}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  <option value="">Select an owner</option>
+                  {users.map((user) => (
+                    <option key={user.id} value={user.id}>{user.name} ({user.email})</option>
+                  ))}
+                </select>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="create-type">Distribution Type *</FieldLabel>
+                <select
+                  id="create-type"
+                  value={formData.distributionType}
+                  onChange={(e) => setFormData({ ...formData, distributionType: e.target.value as DistributionType })}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  {DISTRIBUTION_TYPES.map((type) => (
+                    <option key={type} value={type}>{formatLabel(type)}</option>
+                  ))}
+                </select>
+              </Field>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Field>
+                  <FieldLabel htmlFor="create-effective">Effective Date</FieldLabel>
+                  <Input
+                    id="create-effective"
+                    type="date"
+                    value={formData.effectiveDate}
+                    onChange={(e) => setFormData({ ...formData, effectiveDate: e.target.value })}
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="create-expiry">Expiry Date</FieldLabel>
+                  <Input
+                    id="create-expiry"
+                    type="date"
+                    value={formData.expiryDate}
+                    onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
+                  />
+                </Field>
+              </div>
+            </FieldGroup>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateAgreement} disabled={isSubmitting || !formData.title || !formData.ownerId}>
+              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create'}
+              Create Agreement
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Agreement Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
