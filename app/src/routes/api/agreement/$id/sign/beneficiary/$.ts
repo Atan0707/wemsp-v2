@@ -13,10 +13,8 @@ import {
   recordOwnerSignature,
 } from '@/lib/contract'
 
-export const Route = createFileRoute('/api/agreement/$id/sign/beneficiary/$')({
-  server: {
-    handlers: {
-      POST: async ({ request, params }: { request: Request; params: { id: string } }) => {
+export const beneficiarySignHandlers = {
+  POST: async ({ request, params }: { request: Request; params: { id: string } }) => {
         const session = await auth.api.getSession({
           headers: request.headers,
         })
@@ -215,7 +213,11 @@ export const Route = createFileRoute('/api/agreement/$id/sign/beneficiary/$')({
             { status: 500 }
           )
         }
-      },
-    },
+  },
+}
+
+export const Route = createFileRoute('/api/agreement/$id/sign/beneficiary/$')({
+  server: {
+    handlers: beneficiarySignHandlers,
   },
 })

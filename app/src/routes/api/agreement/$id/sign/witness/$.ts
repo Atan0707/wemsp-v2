@@ -16,10 +16,8 @@ import {
   recordWitnessSignature,
 } from '@/lib/contract'
 
-export const Route = createFileRoute('/api/agreement/$id/sign/witness/$')({
-  server: {
-    handlers: {
-      POST: async ({ request, params }: { request: Request; params: { id: string } }) => {
+export const witnessSignHandlers = {
+  POST: async ({ request, params }: { request: Request; params: { id: string } }) => {
         const adminSession = await getAdminFromSession(request.headers)
 
         if (!adminSession) {
@@ -180,7 +178,11 @@ export const Route = createFileRoute('/api/agreement/$id/sign/witness/$')({
             { status: 500 }
           )
         }
-      },
-    },
+  },
+}
+
+export const Route = createFileRoute('/api/agreement/$id/sign/witness/$')({
+  server: {
+    handlers: witnessSignHandlers,
   },
 })

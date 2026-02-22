@@ -1,4 +1,4 @@
-import { Contract, JsonRpcProvider, Wallet } from 'ethers'
+import { Contract, JsonRpcProvider, NonceManager, Wallet } from 'ethers'
 import AgreementContractArtifact from '../contract/AgreementContract.json'
 import type { Log, LogDescription } from 'ethers'
 
@@ -12,6 +12,7 @@ const EXPLORER_ADDRESS_BASE =
 
 let _provider: JsonRpcProvider | null = null
 let _wallet: Wallet | null = null
+let _signer: NonceManager | null = null
 let _contract: Contract | null = null
 
 export interface MintResult {
@@ -69,12 +70,19 @@ function getWallet(): Wallet {
 	return _wallet
 }
 
+function getSigner(): NonceManager {
+	if (!_signer) {
+		_signer = new NonceManager(getWallet())
+	}
+	return _signer
+}
+
 function getContract(): Contract {
 	if (!CONTRACT_ADDRESS) {
 		throw new Error('CONTRACT_ADDRESS environment variable is not set')
 	}
 	if (!_contract) {
-		_contract = new Contract(CONTRACT_ADDRESS, AgreementContractArtifact.abi, getWallet())
+		_contract = new Contract(CONTRACT_ADDRESS, AgreementContractArtifact.abi, getSigner())
 	}
 	return _contract
 }

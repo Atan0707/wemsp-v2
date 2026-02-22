@@ -2,13 +2,11 @@ import { createFileRoute } from '@tanstack/react-router'
 import { verifyAdminSessionToken } from '@/lib/admin-auth'
 import { corsHeaders } from '@/lib/cors'
 
-export const Route = createFileRoute('/api/admin/session/$')({
-  server: {
-    handlers: {
-      OPTIONS: async () => {
-        return new Response(null, { headers: corsHeaders })
-      },
-      GET: async ({ request }: { request: Request }) => {
+export const adminSessionHandlers = {
+  OPTIONS: async () => {
+    return new Response(null, { headers: corsHeaders })
+  },
+  GET: async ({ request }: { request: Request }) => {
         // Check Authorization header
         const authHeader = request.headers.get('Authorization')
         if (!authHeader?.startsWith('Bearer ')) {
@@ -35,7 +33,11 @@ export const Route = createFileRoute('/api/admin/session/$')({
             name: adminSession.name,
           },
         }, { headers: corsHeaders })
-      },
-    },
+  },
+}
+
+export const Route = createFileRoute('/api/admin/session/$')({
+  server: {
+    handlers: adminSessionHandlers,
   },
 })
