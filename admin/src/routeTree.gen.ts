@@ -19,6 +19,7 @@ import { Route as AppAssetsIndexRouteImport } from './routes/app/assets/index'
 import { Route as AppAgreementsIndexRouteImport } from './routes/app/agreements/index'
 import { Route as AppUsersIdRouteImport } from './routes/app/users/$id'
 import { Route as AppAgreementsIdRouteImport } from './routes/app/agreements/$id'
+import { Route as ApiFileSplatRouteImport } from './routes/api/file/$'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -70,6 +71,11 @@ const AppAgreementsIdRoute = AppAgreementsIdRouteImport.update({
   path: '/agreements/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiFileSplatRoute = ApiFileSplatRouteImport.update({
+  id: '/api/file/$',
+  path: '/api/file/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/': typeof AppIndexRoute
+  '/api/file/$': typeof ApiFileSplatRoute
   '/app/agreements/$id': typeof AppAgreementsIdRoute
   '/app/users/$id': typeof AppUsersIdRoute
   '/app/agreements/': typeof AppAgreementsIndexRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app': typeof AppIndexRoute
+  '/api/file/$': typeof ApiFileSplatRoute
   '/app/agreements/$id': typeof AppAgreementsIdRoute
   '/app/users/$id': typeof AppUsersIdRoute
   '/app/agreements': typeof AppAgreementsIndexRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/': typeof AppIndexRoute
+  '/api/file/$': typeof ApiFileSplatRoute
   '/app/agreements/$id': typeof AppAgreementsIdRoute
   '/app/users/$id': typeof AppUsersIdRoute
   '/app/agreements/': typeof AppAgreementsIndexRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/dashboard'
     | '/app/'
+    | '/api/file/$'
     | '/app/agreements/$id'
     | '/app/users/$id'
     | '/app/agreements/'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/dashboard'
     | '/app'
+    | '/api/file/$'
     | '/app/agreements/$id'
     | '/app/users/$id'
     | '/app/agreements'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/dashboard'
     | '/app/'
+    | '/api/file/$'
     | '/app/agreements/$id'
     | '/app/users/$id'
     | '/app/agreements/'
@@ -149,6 +161,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ApiFileSplatRoute: typeof ApiFileSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -223,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAgreementsIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/file/$': {
+      id: '/api/file/$'
+      path: '/api/file/$'
+      fullPath: '/api/file/$'
+      preLoaderRoute: typeof ApiFileSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -252,6 +272,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  ApiFileSplatRoute: ApiFileSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
