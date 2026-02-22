@@ -108,6 +108,13 @@ interface AgreementsResponse {
 const AGREEMENT_STATUSES = ['DRAFT', 'PENDING_SIGNATURES', 'PENDING_WITNESS', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'EXPIRED'] as const
 const DISTRIBUTION_TYPES = ['FARAID', 'HIBAH', 'WASIYYAH', 'WAKAF'] as const
 
+const formatLabel = (value: string) =>
+  value
+    .toLowerCase()
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+
 export const Route = createFileRoute('/app/agreements/')({
   component: RouteComponent,
 })
@@ -334,11 +341,11 @@ function RouteComponent() {
                       <TableCell className="font-medium">{agreement.title}</TableCell>
                       <TableCell>{agreement.owner.name}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">{agreement.distributionType}</Badge>
+                        <Badge variant="outline">{formatLabel(agreement.distributionType)}</Badge>
                       </TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(agreement.status)}>
-                          {agreement.status.replace(/_/g, ' ')}
+                          {formatLabel(agreement.status)}
                         </Badge>
                       </TableCell>
                       <TableCell>{agreement._count.assets}</TableCell>
