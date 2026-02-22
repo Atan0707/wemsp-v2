@@ -15,8 +15,12 @@ const config = defineConfig({
     },
   },
   plugins: [
-    devtools(),
-    nitro(),
+    devtools({ eventBusConfig: { port: 42070 } }),
+    nitro({
+      devServer: {
+        port: 3001,
+      },
+    }),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
