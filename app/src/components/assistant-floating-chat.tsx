@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Bot, Loader2, MessageCircle, Plus, SendHorizontal, Sparkles, User2, X } from 'lucide-react'
-import type { FormEvent, ReactNode } from 'react'
+import { Bot, Check, Loader2, MessageCircle, Paperclip, Plus, SendHorizontal, Sparkles, User2, X } from 'lucide-react'
+import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -20,6 +20,20 @@ type ConversationSummary = {
   title: string | null
   updatedAt: string
   messageCount: number
+}
+
+type PendingAssetAction = {
+  createdAt: string
+  kind: 'ASSET_CREATE'
+  pendingId: string
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
+  asset: {
+    description?: string | null
+    documentUrl?: string | null
+    name: string
+    type: 'PROPERTY' | 'VEHICLE' | 'INVESTMENT' | 'OTHER'
+    value: number
+  }
 }
 
 type MessageBlock =
@@ -168,11 +182,15 @@ export function AssistantFloatingChat() {
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [conversations, setConversations] = useState<Array<ConversationSummary>>([])
   const [messages, setMessages] = useState<Array<ChatMessage>>([])
+  const [pendingActions, setPendingActions] = useState<Array<PendingAssetAction>>([])
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [isCreatingConversation, setIsCreatingConversation] = useState(false)
+  const [isUploadingDocument, setIsUploadingDocument] = useState(false)
+  const [confirmingPendingId, setConfirmingPendingId] = useState<string | null>(null)
   const [isBootstrapping, setIsBootstrapping] = useState(true)
   const messagesContainerRef = useRef<HTMLDivElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const persistState = useCallback(
     (patch: Partial<{ open: boolean; conversationId: string | null }>) => {
@@ -200,9 +218,13 @@ export function AssistantFloatingChat() {
     const historyRes = await fetch(`/api/agent/conversations/${id}`)
     if (!historyRes.ok) throw new Error('Unable to load conversation history')
 
-    const historyData = await historyRes.json()
-    const parsed = (historyData?.messages || []).filter((m: ChatMessage) => m.role !== 'SYSTEM')
+    const historyData = (await historyRes.json()) as {
+      messages?: Array<ChatMessage>
+      pendingActions?: Array<PendingAssetAction>
+    }
+    const parsed = (historyData.messages || []).filter((m: ChatMessage) => m.role !== 'SYSTEM')
     setMessages(parsed)
+    setPendingActions((historyData.pendingActions || []).filter((item) => item.status === 'PENDING'))
   }, [])
 
   const createNewConversation = useCallback(async () => {
@@ -224,6 +246,7 @@ export function AssistantFloatingChat() {
       await fetchConversations()
       setConversationId(id)
       setMessages([])
+      setPendingActions([])
       persistState({ conversationId: id })
       return id
     } finally {
@@ -276,6 +299,7 @@ export function AssistantFloatingChat() {
     if (!id || id === conversationId) return
 
     const previousConversationId = conversationId
+    const previousPendingActions = pendingActions
     setConversationId(id)
     persistState({ conversationId: id })
 
@@ -285,6 +309,7 @@ export function AssistantFloatingChat() {
       console.error('Failed to switch conversation:', error)
       setConversationId(previousConversationId ?? null)
       persistState({ conversationId: previousConversationId ?? null })
+      setPendingActions(previousPendingActions)
       return
     }
   }
@@ -330,7 +355,94 @@ export function AssistantFloatingChat() {
     conversations.length === 1
       ? t('assistantChat.conversationSingular')
       : t('assistantChat.conversationPlural')
-  const isInputDisabled = isSending || isBootstrapping || isCreatingConversation
+  const isInputDisabled = isSending || isBootstrapping || isCreatingConversation || isUploadingDocument
+  const formatAssetValue = useCallback(
+    (value: number) =>
+      new Intl.NumberFormat(language === 'ms' ? 'ms-MY' : 'en-MY', {
+        style: 'currency',
+        currency: 'MYR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value),
+    [language]
+  )
+
+  const onConfirmPendingAsset = async (pendingId: string) => {
+    if (!conversationId || !pendingId || confirmingPendingId) return
+
+    setConfirmingPendingId(pendingId)
+
+    try {
+      const response = await fetch('/api/agent/pending-actions/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId, pendingId }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data?.error || t('assistantChat.errors.confirmAsset'))
+
+      setPendingActions((prev) => prev.filter((action) => action.pendingId !== pendingId))
+      setMessages((prev) => [
+        ...prev,
+        { role: 'ASSISTANT', content: data?.message || t('assistantChat.assetCreatedSuccess') },
+      ])
+      await fetchConversations()
+      await loadConversationMessages(conversationId)
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'ASSISTANT',
+          content: error instanceof Error ? error.message : t('assistantChat.errors.confirmAsset'),
+        },
+      ])
+    } finally {
+      setConfirmingPendingId(null)
+    }
+  }
+
+  const onPickDocument = () => {
+    if (isInputDisabled) return
+    fileInputRef.current?.click()
+  }
+
+  const onDocumentSelected = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setIsUploadingDocument(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(errorText || t('assistantChat.errors.uploadDocument'))
+      }
+
+      const data = (await response.json()) as { fileName?: string; url?: string }
+      if (!data.url) throw new Error(t('assistantChat.errors.uploadDocument'))
+
+      const nextInput = `${t('assistantChat.documentAttachedPrefix')} ${data.fileName || file.name}\n${t('assistantChat.documentUrlLabel')}: ${data.url}`
+      setInput((prev) => (prev ? `${prev}\n\n${nextInput}` : nextInput))
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'ASSISTANT',
+          content: error instanceof Error ? error.message : t('assistantChat.errors.uploadDocument'),
+        },
+      ])
+    } finally {
+      setIsUploadingDocument(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -353,7 +465,18 @@ export function AssistantFloatingChat() {
       if (!response.ok) throw new Error(data?.error || 'Failed to send message')
 
       setMessages((prev) => [...prev, { role: 'ASSISTANT', content: data.reply || 'No reply generated.' }])
+      if (Array.isArray(data.pendingActions) && data.pendingActions.length > 0) {
+        setPendingActions((prev) => {
+          const merged = new Map(prev.map((action) => [action.pendingId, action]))
+          for (const action of data.pendingActions as Array<PendingAssetAction>) {
+            if (action.status !== 'PENDING') continue
+            merged.set(action.pendingId, action)
+          }
+          return Array.from(merged.values())
+        })
+      }
       await fetchConversations()
+      await loadConversationMessages(conversationId)
     } catch (error) {
       setMessages((prev) => [
         ...prev,
@@ -424,6 +547,62 @@ export function AssistantFloatingChat() {
                 </div>
               ) : (
                 <div className="space-y-3">
+                  {pendingActions.map((action) => (
+                    <div
+                      key={action.pendingId}
+                      className="rounded-xl border border-primary/25 bg-primary/5 p-3 text-sm"
+                    >
+                      <p className="font-semibold text-foreground">{t('assistantChat.confirmAssetTitle')}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {t('assistantChat.confirmAssetDescription')}
+                      </p>
+                      <div className="mt-2 space-y-1 text-sm">
+                        <p>
+                          <span className="font-medium">{t('assistantChat.assetFields.name')}:</span> {action.asset.name}
+                        </p>
+                        <p>
+                          <span className="font-medium">{t('assistantChat.assetFields.type')}:</span> {action.asset.type}
+                        </p>
+                        <p>
+                          <span className="font-medium">{t('assistantChat.assetFields.value')}:</span>{' '}
+                          {formatAssetValue(action.asset.value)}
+                        </p>
+                        {action.asset.documentUrl ? (
+                          <p className="truncate">
+                            <span className="font-medium">{t('assistantChat.assetFields.document')}:</span>{' '}
+                            <a
+                              href={action.asset.documentUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-primary underline underline-offset-2"
+                            >
+                              {t('assistantChat.viewDocument')}
+                            </a>
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="mt-3">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => onConfirmPendingAsset(action.pendingId)}
+                          disabled={confirmingPendingId === action.pendingId}
+                        >
+                          {confirmingPendingId === action.pendingId ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              {t('assistantChat.confirming')}
+                            </>
+                          ) : (
+                            <>
+                              <Check className="h-4 w-4" />
+                              {t('assistantChat.confirmButton')}
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                   {greeting && (
                     <div className="rounded-2xl border border-dashed border-primary/30 bg-background/90 p-3 text-sm shadow-sm">
                       <p className="font-medium text-foreground">{t('assistantChat.greetingTitle')}</p>
@@ -501,7 +680,24 @@ export function AssistantFloatingChat() {
             </div>
 
             <form className="space-y-2 border-t border-border/70 bg-background p-3" onSubmit={onSubmit}>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={onDocumentSelected}
+              />
               <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  className="h-10 w-10 rounded-xl"
+                  onClick={onPickDocument}
+                  disabled={isInputDisabled}
+                >
+                  {isUploadingDocument ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
+                </Button>
                 <Input
                   disabled={isInputDisabled}
                   value={input}
@@ -518,7 +714,9 @@ export function AssistantFloatingChat() {
                   {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <SendHorizontal className="h-4 w-4" />}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">{t('assistantChat.enterHint')}</p>
+              <p className="text-xs text-muted-foreground">
+                {t('assistantChat.enterHint')} • {t('assistantChat.uploadHint')}
+              </p>
             </form>
           </CardContent>
         </Card>

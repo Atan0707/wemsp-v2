@@ -53,6 +53,7 @@ import { Route as AppAssetsEditIdRouteImport } from './routes/app/assets/edit/$i
 import { Route as AppAgreementViewIdRouteImport } from './routes/app/agreement/view/$id'
 import { Route as ApiUserProfileSplatRouteImport } from './routes/api/user/profile/$'
 import { Route as ApiUserNotificationPreferencesSplatRouteImport } from './routes/api/user/notification-preferences/$'
+import { Route as ApiAgentPendingActionsConfirmRouteImport } from './routes/api/agent/pending-actions/confirm'
 import { Route as ApiAgentConversationsSplatRouteImport } from './routes/api/agent/conversations/$'
 import { Route as ApiAdminUsersIdRouteImport } from './routes/api/admin/users/$id'
 import { Route as ApiAdminUsersSplatRouteImport } from './routes/api/admin/users/$'
@@ -296,6 +297,12 @@ const ApiUserNotificationPreferencesSplatRoute =
     path: '/api/user/notification-preferences/$',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAgentPendingActionsConfirmRoute =
+  ApiAgentPendingActionsConfirmRouteImport.update({
+    id: '/api/agent/pending-actions/confirm',
+    path: '/api/agent/pending-actions/confirm',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAgentConversationsSplatRoute =
   ApiAgentConversationsSplatRouteImport.update({
     id: '/api/agent/conversations/$',
@@ -446,6 +453,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/users/$': typeof ApiAdminUsersSplatRoute
   '/api/admin/users/$id': typeof ApiAdminUsersIdRoute
   '/api/agent/conversations/$': typeof ApiAgentConversationsSplatRoute
+  '/api/agent/pending-actions/confirm': typeof ApiAgentPendingActionsConfirmRoute
   '/api/user/notification-preferences/$': typeof ApiUserNotificationPreferencesSplatRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
@@ -510,6 +518,7 @@ export interface FileRoutesByTo {
   '/api/admin/users/$': typeof ApiAdminUsersSplatRoute
   '/api/admin/users/$id': typeof ApiAdminUsersIdRoute
   '/api/agent/conversations/$': typeof ApiAgentConversationsSplatRoute
+  '/api/agent/pending-actions/confirm': typeof ApiAgentPendingActionsConfirmRoute
   '/api/user/notification-preferences/$': typeof ApiUserNotificationPreferencesSplatRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
@@ -576,6 +585,7 @@ export interface FileRoutesById {
   '/api/admin/users/$': typeof ApiAdminUsersSplatRoute
   '/api/admin/users/$id': typeof ApiAdminUsersIdRoute
   '/api/agent/conversations/$': typeof ApiAgentConversationsSplatRoute
+  '/api/agent/pending-actions/confirm': typeof ApiAgentPendingActionsConfirmRoute
   '/api/user/notification-preferences/$': typeof ApiUserNotificationPreferencesSplatRoute
   '/api/user/profile/$': typeof ApiUserProfileSplatRoute
   '/app/agreement/view/$id': typeof AppAgreementViewIdRoute
@@ -643,6 +653,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$'
     | '/api/admin/users/$id'
     | '/api/agent/conversations/$'
+    | '/api/agent/pending-actions/confirm'
     | '/api/user/notification-preferences/$'
     | '/api/user/profile/$'
     | '/app/agreement/view/$id'
@@ -707,6 +718,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$'
     | '/api/admin/users/$id'
     | '/api/agent/conversations/$'
+    | '/api/agent/pending-actions/confirm'
     | '/api/user/notification-preferences/$'
     | '/api/user/profile/$'
     | '/app/agreement/view/$id'
@@ -772,6 +784,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$'
     | '/api/admin/users/$id'
     | '/api/agent/conversations/$'
+    | '/api/agent/pending-actions/confirm'
     | '/api/user/notification-preferences/$'
     | '/api/user/profile/$'
     | '/app/agreement/view/$id'
@@ -818,6 +831,7 @@ export interface RootRouteChildren {
   ApiAdminUsersSplatRoute: typeof ApiAdminUsersSplatRoute
   ApiAdminUsersIdRoute: typeof ApiAdminUsersIdRoute
   ApiAgentConversationsSplatRoute: typeof ApiAgentConversationsSplatRoute
+  ApiAgentPendingActionsConfirmRoute: typeof ApiAgentPendingActionsConfirmRoute
   ApiUserNotificationPreferencesSplatRoute: typeof ApiUserNotificationPreferencesSplatRoute
   ApiUserProfileSplatRoute: typeof ApiUserProfileSplatRoute
   ApiUploadJsonIndexRoute: typeof ApiUploadJsonIndexRoute
@@ -1144,6 +1158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUserNotificationPreferencesSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agent/pending-actions/confirm': {
+      id: '/api/agent/pending-actions/confirm'
+      path: '/api/agent/pending-actions/confirm'
+      fullPath: '/api/agent/pending-actions/confirm'
+      preLoaderRoute: typeof ApiAgentPendingActionsConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/agent/conversations/$': {
       id: '/api/agent/conversations/$'
       path: '/api/agent/conversations/$'
@@ -1375,6 +1396,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminUsersSplatRoute: ApiAdminUsersSplatRoute,
   ApiAdminUsersIdRoute: ApiAdminUsersIdRoute,
   ApiAgentConversationsSplatRoute: ApiAgentConversationsSplatRoute,
+  ApiAgentPendingActionsConfirmRoute: ApiAgentPendingActionsConfirmRoute,
   ApiUserNotificationPreferencesSplatRoute:
     ApiUserNotificationPreferencesSplatRoute,
   ApiUserProfileSplatRoute: ApiUserProfileSplatRoute,
