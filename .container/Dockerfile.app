@@ -36,6 +36,12 @@ COPY app/package.json app/pnpm-lock.yaml ./
 # Install production dependencies only
 RUN pnpm install --frozen-lockfile --prod
 
+# Copy prisma schema and migrations (needed for migrate deploy at runtime)
+COPY --from=builder /app/prisma ./prisma
+
+# Regenerate Prisma client for production runtime
+RUN pnpm prisma generate
+
 # Copy built output
 COPY --from=builder /app/.output ./.output
 
