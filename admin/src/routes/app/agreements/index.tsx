@@ -29,6 +29,7 @@ import { Search, Plus, Pencil, Trash2, Loader2, Eye } from 'lucide-react'
 import { AdminBreadcrumb } from '@/components/admin-breadcrumb'
 import { toast } from 'sonner'
 import { endpoint } from '@/lib/config'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface User {
   id: string
@@ -308,9 +309,9 @@ function RouteComponent() {
           </div>
 
           {/* Agreements Table */}
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 z-10 bg-muted/50 backdrop-blur supports-[backdrop-filter]:bg-muted/40">
                 <TableRow>
                   <TableHead>Title</TableHead>
                   <TableHead>Owner</TableHead>
@@ -357,24 +358,37 @@ function RouteComponent() {
                         }
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => navigate({ to: '/app/agreements/$id', params: { id: agreement.id } })}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {canEditOrDelete(agreement.status) && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => openDeleteDialog(agreement)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
+                        <div className="flex items-center justify-end gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={`View ${agreement.title}`}
+                                onClick={() => navigate({ to: '/app/agreements/$id', params: { id: agreement.id } })}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>View agreement</TooltipContent>
+                          </Tooltip>
+                          {canEditOrDelete(agreement.status) && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-destructive hover:text-destructive"
+                                  aria-label={`Delete ${agreement.title}`}
+                                  onClick={() => openDeleteDialog(agreement)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Delete draft agreement</TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

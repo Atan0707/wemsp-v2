@@ -29,6 +29,7 @@ import { Search, Plus, Pencil, Trash2, Loader2, FileText } from 'lucide-react'
 import { AdminBreadcrumb } from '@/components/admin-breadcrumb'
 import { toast } from 'sonner'
 import { endpoint } from '@/lib/config'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface User {
   id: string
@@ -62,6 +63,9 @@ interface AssetsResponse {
 }
 
 const ASSET_TYPES = ['PROPERTY', 'VEHICLE', 'INVESTMENT', 'OTHER'] as const
+
+const formatLabel = (value: string) =>
+  value.charAt(0) + value.slice(1).toLowerCase()
 
 export const Route = createFileRoute('/app/assets/')({
   component: RouteComponent,
@@ -340,9 +344,9 @@ function RouteComponent() {
           </div>
 
           {/* Assets Table */}
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 z-10 bg-muted/50 backdrop-blur supports-[backdrop-filter]:bg-muted/40">
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
@@ -371,7 +375,7 @@ function RouteComponent() {
                     <TableRow key={asset.id}>
                       <TableCell className="font-medium">{asset.name}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">{asset.type}</Badge>
+                        <Badge variant="outline">{formatLabel(asset.type)}</Badge>
                       </TableCell>
                       <TableCell>RM {asset.value.toLocaleString()}</TableCell>
                       <TableCell>{asset.user.name}</TableCell>
@@ -392,21 +396,40 @@ function RouteComponent() {
                       </TableCell>
                       <TableCell>{asset._count.agreementAssets}</TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditDialog(asset)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openDeleteDialog(asset)}
-                          disabled={asset._count.agreementAssets > 0}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={`Edit ${asset.name}`}
+                                onClick={() => openEditDialog(asset)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit asset</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive hover:text-destructive"
+                                aria-label={`Delete ${asset.name}`}
+                                onClick={() => openDeleteDialog(asset)}
+                                disabled={asset._count.agreementAssets > 0}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {asset._count.agreementAssets > 0
+                                ? 'Cannot delete: linked to agreements'
+                                : 'Delete asset'}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
