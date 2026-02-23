@@ -129,6 +129,8 @@ function RouteComponent() {
   const [agreements, setAgreements] = useState<Agreement[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'ALL' | AgreementStatus>('ALL')
+  const [typeFilter, setTypeFilter] = useState<'ALL' | DistributionType>('ALL')
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 })
 
@@ -138,7 +140,7 @@ function RouteComponent() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedAgreement, setSelectedAgreement] = useState<Agreement | null>(null)
 
-  // Form states (for create - simplified for now)
+  // Form states
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -182,6 +184,8 @@ function RouteComponent() {
         page: page.toString(),
         limit: '10',
         ...(search && { search }),
+        ...(statusFilter !== 'ALL' && { status: statusFilter }),
+        ...(typeFilter !== 'ALL' && { distributionType: typeFilter }),
       })
 
       const response = await fetch(`${endpoint}/api/admin/agreements?${params}`, {
@@ -223,9 +227,14 @@ function RouteComponent() {
     if (!isChecking) {
       fetchAgreements()
     }
-  }, [page, search])
+  }, [page, search, statusFilter, typeFilter])
 
   const handleCreateAgreement = async () => {
+    if (formData.effectiveDate && formData.expiryDate && formData.expiryDate < formData.effectiveDate) {
+      toast.error('Expiry date cannot be earlier than effective date')
+      return
+    }
+
     setIsSubmitting(true)
     try {
       const response = await fetch(`${endpoint}/api/admin/agreements`, {
@@ -317,7 +326,11 @@ function RouteComponent() {
   }
 
   if (isChecking) {
-    return <div>Loading...</div>
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted/20">
+        <div className="rounded-md border bg-card px-4 py-2 text-sm text-muted-foreground">Loading agreements...</div>
+      </div>
+    )
   }
 
   return (
@@ -336,7 +349,7 @@ function RouteComponent() {
               <CardDescription>Monitor status, signatures, and completion progress.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -349,6 +362,32 @@ function RouteComponent() {
                 className="pl-10"
               />
             </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value as 'ALL' | AgreementStatus)
+                setPage(1)
+              }}
+              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+            >
+              <option value="ALL">All statuses</option>
+              {AGREEMENT_STATUSES.map((status) => (
+                <option key={status} value={status}>{formatLabel(status)}</option>
+              ))}
+            </select>
+            <select
+              value={typeFilter}
+              onChange={(e) => {
+                setTypeFilter(e.target.value as 'ALL' | DistributionType)
+                setPage(1)
+              }}
+              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+            >
+              <option value="ALL">All types</option>
+              {DISTRIBUTION_TYPES.map((type) => (
+                <option key={type} value={type}>{formatLabel(type)}</option>
+              ))}
+            </select>
             <Button onClick={() => setIsCreateDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Add Agreement
@@ -379,8 +418,14 @@ function RouteComponent() {
                   </TableRow>
                 ) : agreements.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground">
-                      No agreements found
+                    <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
+                      <div className="space-y-2">
+                        <p>No agreements found.</p>
+                        <Button size="sm" variant="outline" onClick={() => setIsCreateDialogOpen(true)}>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Create first agreement
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (

@@ -23,11 +23,12 @@ export const Route = createFileRoute('/api/admin/users/$')({
           const page = parseInt(url.searchParams.get('page') || '1')
           const limit = parseInt(url.searchParams.get('limit') || '10')
           const search = url.searchParams.get('search') || ''
+          const emailVerified = url.searchParams.get('emailVerified')
 
           const skip = (page - 1) * limit
 
           // Build where clause for search
-          const where = search
+          const where: any = search
             ? {
                 OR: [
                   { name: { contains: search, mode: 'insensitive' as const } },
@@ -36,6 +37,10 @@ export const Route = createFileRoute('/api/admin/users/$')({
                 ],
               }
             : {}
+
+          if (emailVerified === 'true' || emailVerified === 'false') {
+            where.emailVerified = emailVerified === 'true'
+          }
 
           // Get total count for pagination
           const total = await prisma.user.count({ where })

@@ -31,11 +31,12 @@ export const Route = createFileRoute('/api/admin/assets/$')({
           const page = parseInt(url.searchParams.get('page') || '1')
           const limit = parseInt(url.searchParams.get('limit') || '10')
           const search = url.searchParams.get('search') || ''
+          const type = url.searchParams.get('type') || ''
 
           const skip = (page - 1) * limit
 
           // Build where clause for search
-          const where = search
+          const where: any = search
             ? {
                 OR: [
                   { name: { contains: search, mode: 'insensitive' as const } },
@@ -48,6 +49,10 @@ export const Route = createFileRoute('/api/admin/assets/$')({
                 ],
               }
             : {}
+
+          if (type && Object.values(AssetType).includes(type as AssetType)) {
+            where.type = type as AssetType
+          }
 
           // Get total count for pagination
           const total = await prisma.asset.count({ where })

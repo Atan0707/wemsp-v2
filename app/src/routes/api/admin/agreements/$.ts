@@ -25,6 +25,7 @@ export const Route = createFileRoute('/api/admin/agreements/$')({
           const limit = parseInt(url.searchParams.get('limit') || '10')
           const search = url.searchParams.get('search') || ''
           const status = url.searchParams.get('status') || ''
+          const distributionType = url.searchParams.get('distributionType') || ''
 
           const skip = (page - 1) * limit
 
@@ -45,6 +46,10 @@ export const Route = createFileRoute('/api/admin/agreements/$')({
 
           if (status) {
             where.status = status as AgreementStatus
+          }
+
+          if (distributionType) {
+            where.distributionType = distributionType as DistributionType
           }
 
           // Get total count for pagination
@@ -138,14 +143,32 @@ export const Route = createFileRoute('/api/admin/agreements/$')({
             return Response.json({ error: 'Owner not found' }, { status: 404, headers: corsHeaders })
           }
 
+          const parsedEffectiveDate = effectiveDate ? new Date(effectiveDate) : null
+          const parsedExpiryDate = expiryDate ? new Date(expiryDate) : null
+
+          if (parsedEffectiveDate && Number.isNaN(parsedEffectiveDate.getTime())) {
+            return Response.json({ error: 'Invalid effective date' }, { status: 400, headers: corsHeaders })
+          }
+
+          if (parsedExpiryDate && Number.isNaN(parsedExpiryDate.getTime())) {
+            return Response.json({ error: 'Invalid expiry date' }, { status: 400, headers: corsHeaders })
+          }
+
+          if (parsedEffectiveDate && parsedExpiryDate && parsedExpiryDate < parsedEffectiveDate) {
+            return Response.json(
+              { error: 'Expiry date cannot be earlier than effective date' },
+              { status: 400, headers: corsHeaders },
+            )
+          }
+
           const agreement = await prisma.agreement.create({
             data: {
               title,
               description: description || null,
               distributionType: distributionType as DistributionType,
               ownerId,
-              effectiveDate: effectiveDate ? new Date(effectiveDate) : null,
-              expiryDate: expiryDate ? new Date(expiryDate) : null,
+              effectiveDate: parsedEffectiveDate,
+              expiryDate: parsedExpiryDate,
             },
             include: {
               owner: {

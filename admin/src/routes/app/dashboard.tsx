@@ -18,7 +18,13 @@ function RouteComponent() {
   const navigate = useNavigate()
   const [isChecking, setIsChecking] = useState(true)
   const [admin, setAdmin] = useState<{ name: string } | null>(null)
-  const [counts, setCounts] = useState({ users: 0, assets: 0, pendingAgreements: 0 })
+  const [counts, setCounts] = useState({
+    users: 0,
+    assets: 0,
+    pendingSignatures: 0,
+    pendingWitness: 0,
+    newlyCreatedThisWeek: 0,
+  })
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -37,23 +43,37 @@ function RouteComponent() {
       setAdmin({ name: adminData.name })
 
       try {
-        const [usersRes, assetsRes, pendingRes] = await Promise.all([
+        const [usersRes, assetsRes, pendingSignaturesRes, pendingWitnessRes, recentAgreementsRes] = await Promise.all([
           fetch(`${endpoint}/api/admin/users?page=1&limit=1`, { headers: getAuthHeaders() }),
           fetch(`${endpoint}/api/admin/assets?page=1&limit=1`, { headers: getAuthHeaders() }),
           fetch(`${endpoint}/api/admin/agreements?page=1&limit=1&status=PENDING_SIGNATURES`, { headers: getAuthHeaders() }),
+          fetch(`${endpoint}/api/admin/agreements?page=1&limit=1&status=PENDING_WITNESS`, { headers: getAuthHeaders() }),
+          fetch(`${endpoint}/api/admin/agreements?page=1&limit=100`, { headers: getAuthHeaders() }),
         ])
 
-        if (usersRes.ok && assetsRes.ok && pendingRes.ok) {
-          const [usersData, assetsData, pendingData] = await Promise.all([
+        if (usersRes.ok && assetsRes.ok && pendingSignaturesRes.ok && pendingWitnessRes.ok && recentAgreementsRes.ok) {
+          const [usersData, assetsData, pendingSignaturesData, pendingWitnessData, recentAgreementsData] = await Promise.all([
             usersRes.json(),
             assetsRes.json(),
-            pendingRes.json(),
+            pendingSignaturesRes.json(),
+            pendingWitnessRes.json(),
+            recentAgreementsRes.json(),
           ])
+
+          const oneWeekAgo = new Date()
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+
+          const newlyCreatedThisWeek = (recentAgreementsData?.agreements ?? []).filter((agreement: { createdAt: string }) => {
+            const createdAt = new Date(agreement.createdAt)
+            return !Number.isNaN(createdAt.getTime()) && createdAt >= oneWeekAgo
+          }).length
 
           setCounts({
             users: usersData?.pagination?.total ?? 0,
             assets: assetsData?.pagination?.total ?? 0,
-            pendingAgreements: pendingData?.pagination?.total ?? 0,
+            pendingSignatures: pendingSignaturesData?.pagination?.total ?? 0,
+            pendingWitness: pendingWitnessData?.pagination?.total ?? 0,
+            newlyCreatedThisWeek,
           })
         }
       } catch {
@@ -81,9 +101,9 @@ function RouteComponent() {
         icon: Package,
       },
       {
-        title: 'Pending agreements',
-        value: counts.pendingAgreements.toLocaleString(),
-        helper: 'Need attention',
+        title: 'Needs attention',
+        value: (counts.pendingSignatures + counts.pendingWitness).toLocaleString(),
+        helper: `${counts.pendingSignatures} awaiting signatures • ${counts.pendingWitness} awaiting witness`,
         icon: FileText,
       },
     ],
@@ -154,12 +174,15 @@ function RouteComponent() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Bell className="h-4 w-4" />
-                Recommended next step
+                Weekly context
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                Prioritize agreements in pending states to keep signature flow moving and reduce support requests.
+                {counts.newlyCreatedThisWeek} agreements created in the last 7 days.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Prioritize pending witness queue after signature-complete agreements.
               </p>
             </CardContent>
           </Card>

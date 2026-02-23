@@ -71,6 +71,7 @@ function RouteComponent() {
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [verifiedFilter, setVerifiedFilter] = useState<'ALL' | 'true' | 'false'>('ALL')
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 })
 
@@ -120,6 +121,7 @@ function RouteComponent() {
         page: page.toString(),
         limit: '10',
         ...(search && { search }),
+        ...(verifiedFilter !== 'ALL' && { emailVerified: verifiedFilter }),
       })
 
       const response = await fetch(`${endpoint}/api/admin/users?${params}`, {
@@ -144,7 +146,7 @@ function RouteComponent() {
     if (!isChecking) {
       fetchUsers()
     }
-  }, [page, search])
+  }, [page, search, verifiedFilter])
 
   const handleCreateUser = async () => {
     setIsSubmitting(true)
@@ -275,7 +277,11 @@ function RouteComponent() {
   }
 
   if (isChecking) {
-    return <div>Loading...</div>
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted/20">
+        <div className="rounded-md border bg-card px-4 py-2 text-sm text-muted-foreground">Loading users...</div>
+      </div>
+    )
   }
 
   return (
@@ -307,6 +313,18 @@ function RouteComponent() {
                     className="pl-10"
                   />
                 </div>
+                <select
+                  value={verifiedFilter}
+                  onChange={(e) => {
+                    setVerifiedFilter(e.target.value as 'ALL' | 'true' | 'false')
+                    setPage(1)
+                  }}
+                  className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                >
+                  <option value="ALL">All statuses</option>
+                  <option value="true">Verified</option>
+                  <option value="false">Pending</option>
+                </select>
                 <Button onClick={() => setIsCreateDialogOpen(true)}>
                   <Plus className="mr-2 h-4 w-4" />
                   Add User
@@ -341,7 +359,13 @@ function RouteComponent() {
                     ) : users.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
-                          No users found. Try a different search keyword.
+                          <div className="space-y-2">
+                            <p>No users found.</p>
+                            <Button size="sm" variant="outline" onClick={() => setIsCreateDialogOpen(true)}>
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add first user
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ) : (
