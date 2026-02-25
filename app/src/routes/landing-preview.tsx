@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { ArrowRight, CheckCircle2, FileText, ShieldCheck, Users2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import Navbar from '@/components/home/navbar'
 
 export const Route = createFileRoute('/landing-preview')({
   component: LandingPreviewPage,
@@ -43,24 +44,9 @@ const strengths = [
 function LandingPreviewPage() {
   return (
     <main className="min-h-screen bg-[#d8d1c6] px-5 py-8 md:px-8 md:py-10">
-      <div className="mx-auto max-w-[1120px] rounded-[34px] border border-[#d2c9bc] bg-[#f5f1ea] p-4 shadow-[0_30px_80px_-40px_rgba(46,33,17,0.45)] md:p-6">
-        <header className="mb-4 flex items-center justify-between rounded-2xl border border-[#e2d9ca] bg-[#fbf8f3] px-4 py-3">
-          <div className="flex items-center gap-3">
-            <img src="/assets/logo2.png" alt="WEMSP logo" className="h-9 w-9 rounded-lg object-cover" />
-            <div>
-              <p className="text-sm font-semibold tracking-wide text-[#2f271e]">WEMSP</p>
-              <p className="text-xs text-[#6f6251]">Wasiyyah Estate Management System Platform</p>
-            </div>
-          </div>
-          <nav className="hidden items-center gap-7 text-xs text-[#6f6251] md:flex">
-            <a href="#about" className="hover:text-[#2f271e]">Who we are</a>
-            <a href="#process" className="hover:text-[#2f271e]">Process</a>
-            <a href="#why" className="hover:text-[#2f271e]">Why WEMSP</a>
-          </nav>
-          <Button className="h-9 rounded-xl bg-[#7b613d] px-4 text-xs text-white hover:bg-[#6d5535]">Contact us</Button>
-        </header>
-
-        <section className="relative overflow-hidden rounded-[24px] border border-[#d9cfbf] bg-[#e6ddd1]">
+      <Navbar />
+      <div className="mx-auto mt-24 max-w-[1120px] rounded-[34px] border border-[#d2c9bc] bg-[#f5f1ea] p-4 shadow-[0_30px_80px_-40px_rgba(46,33,17,0.45)] md:p-6">
+        <section id="header" className="relative overflow-hidden rounded-[24px] border border-[#d9cfbf] bg-[#e6ddd1]">
           <img src="/assets/sharia-court.jpg" alt="WEMSP visual" className="h-[430px] w-full object-cover md:h-[500px]" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/58 via-black/28 to-black/10" />
 
@@ -126,7 +112,7 @@ function LandingPreviewPage() {
           </Card>
         </section>
 
-        <section id="process" className="mt-5 rounded-[24px] border border-[#ddd3c4] bg-[#fbf8f3] p-5 md:p-6">
+        <section id="services" className="mt-5 rounded-[24px] border border-[#ddd3c4] bg-[#fbf8f3] p-5 md:p-6">
           <h3 className="text-3xl font-semibold leading-tight text-[#2f271e]">How we simplify your estate preparation</h3>
           <div className="mt-5 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="space-y-3">
@@ -151,7 +137,7 @@ function LandingPreviewPage() {
           </div>
         </section>
 
-        <section id="why" className="mt-5 grid gap-4 md:grid-cols-3">
+        <section id="footer" className="mt-5 grid gap-4 md:grid-cols-3">
           {strengths.map(({ icon: Icon, title, text }) => (
             <Card key={title} className="rounded-2xl border-[#ddd3c4] bg-[#fbf8f3]">
               <CardContent className="p-5">
