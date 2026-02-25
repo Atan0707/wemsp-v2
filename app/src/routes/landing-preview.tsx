@@ -43,14 +43,15 @@ const strengths = [
 
 function LandingPreviewPage() {
   return (
-    <main className="min-h-screen bg-[#d8d1c6] px-3 py-4 md:px-6 md:py-6">
+    <main className="min-h-screen bg-[#d8d1c6] pb-10">
       <Navbar />
-      <div className="mx-auto mt-16 max-w-[1140px] rounded-[30px] border border-[#d2c9bc] bg-[#f5f1ea] p-3 shadow-[0_28px_70px_-40px_rgba(46,33,17,0.42)] md:mt-20 md:p-4">
-        <section id="header" className="relative overflow-hidden rounded-[24px] border border-[#d9cfbf] bg-[#e6ddd1]">
-          <img src="/assets/sharia-court.jpg" alt="WEMSP visual" className="h-[400px] w-full object-cover md:h-[470px]" />
+
+      <div className="mx-auto mt-18 w-full max-w-[1280px] px-4 md:mt-20 md:px-6">
+        <section id="header" className="relative overflow-hidden rounded-[24px] border border-[#d9cfbf] bg-[#e6ddd1] shadow-sm">
+          <img src="/assets/sharia-court.jpg" alt="WEMSP visual" className="h-[420px] w-full object-cover md:h-[540px]" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/58 via-black/28 to-black/10" />
 
-          <div className="absolute inset-0 flex flex-col justify-between p-5 md:p-7">
+          <div className="absolute inset-0 flex flex-col justify-between p-5 md:p-8">
             <div className="flex justify-end">
               <div className="rounded-xl border border-white/30 bg-white/20 px-3 py-1 text-xs text-white backdrop-blur-sm">
                 Guided digital estate workflow
@@ -81,7 +82,7 @@ function LandingPreviewPage() {
           </div>
         </section>
 
-        <section id="about" className="mt-3 grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+        <section id="about" className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
           <Card className="rounded-[20px] border-[#ddd3c4] bg-[#efe4d2]">
             <CardContent className="p-6">
               <p className="text-xs uppercase tracking-[0.14em] text-[#8b7b66]">Platform summary</p>
@@ -112,7 +113,7 @@ function LandingPreviewPage() {
           </Card>
         </section>
 
-        <section id="services" className="mt-3 rounded-[22px] border border-[#ddd3c4] bg-[#fbf8f3] p-4 md:p-5">
+        <section id="services" className="mt-4 rounded-[22px] border border-[#ddd3c4] bg-[#fbf8f3] p-4 md:p-5">
           <h3 className="text-3xl font-semibold leading-tight text-[#2f271e]">How we simplify your estate preparation</h3>
           <div className="mt-4 grid gap-3 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="space-y-3">
@@ -137,7 +138,7 @@ function LandingPreviewPage() {
           </div>
         </section>
 
-        <section id="footer" className="mt-3 grid gap-3 md:grid-cols-3">
+        <section id="footer" className="mt-4 grid gap-3 md:grid-cols-3">
           {strengths.map(({ icon: Icon, title, text }) => (
             <Card key={title} className="rounded-2xl border-[#ddd3c4] bg-[#fbf8f3]">
               <CardContent className="p-5">
