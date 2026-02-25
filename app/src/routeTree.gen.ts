@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestUploadRouteImport } from './routes/test-upload'
+import { Route as LandingPreviewRouteImport } from './routes/landing-preview'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -77,6 +78,11 @@ import { Route as ApiAdminAgreementsByIcIcNumberSplatRouteImport } from './route
 const TestUploadRoute = TestUploadRouteImport.update({
   id: '/test-upload',
   path: '/test-upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandingPreviewRoute = LandingPreviewRouteImport.update({
+  id: '/landing-preview',
+  path: '/landing-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -415,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
+  '/landing-preview': typeof LandingPreviewRoute
   '/test-upload': typeof TestUploadRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
@@ -480,6 +487,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/landing-preview': typeof LandingPreviewRoute
   '/test-upload': typeof TestUploadRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
@@ -547,6 +555,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
+  '/landing-preview': typeof LandingPreviewRoute
   '/test-upload': typeof TestUploadRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
@@ -615,6 +624,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/landing-preview'
     | '/test-upload'
     | '/admin/dashboard'
     | '/admin/login'
@@ -680,6 +690,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/app'
+    | '/landing-preview'
     | '/test-upload'
     | '/admin/dashboard'
     | '/admin/login'
@@ -746,6 +757,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/app'
+    | '/landing-preview'
     | '/test-upload'
     | '/admin/dashboard'
     | '/admin/login'
@@ -813,6 +825,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
+  LandingPreviewRoute: typeof LandingPreviewRoute
   TestUploadRoute: typeof TestUploadRoute
   ApiAgentChatRoute: typeof ApiAgentChatRoute
   ApiAgreementSplatRoute: typeof ApiAgreementSplatRoute
@@ -855,6 +868,13 @@ declare module '@tanstack/react-router' {
       path: '/test-upload'
       fullPath: '/test-upload'
       preLoaderRoute: typeof TestUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landing-preview': {
+      id: '/landing-preview'
+      path: '/landing-preview'
+      fullPath: '/landing-preview'
+      preLoaderRoute: typeof LandingPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -1378,6 +1398,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
+  LandingPreviewRoute: LandingPreviewRoute,
   TestUploadRoute: TestUploadRoute,
   ApiAgentChatRoute: ApiAgentChatRoute,
   ApiAgreementSplatRoute: ApiAgreementSplatRoute,
